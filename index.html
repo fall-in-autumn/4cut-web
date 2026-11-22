@@ -346,46 +346,102 @@
             </div>
             <div>
               <label class="block text-xs font-extrabold text-slate-700 mb-1">선생님 가이드 한마디</label>
-              <input type="text" id="exInputGuide" placeholder="예: 1컷의 평화로운 모습과 3컷의 고통이 대비되도록 그려보세요!" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" />
+              <input type="text" id="exInputGuide" placeholder="예: 자료조사 → 스토리보드 → 4컷 만화 흐름을 연결해 보세요!" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" />
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- 1~4컷 예시 이미지 및 설명 입력 -->
-            <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-2.5">
-              <span class="inline-block px-2.5 py-0.5 rounded bg-sky-100 text-sky-800 text-xs font-extrabold">1컷 : 자유로웠던 원래 모습</span>
-              <input type="file" accept="image/jpeg,image/png,image/webp" onchange="handleExampleCutFileSelect(event, 1)" class="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-sky-600 file:text-white hover:file:bg-sky-700 cursor-pointer" />
-              <div id="exPreviewWrap1" class="hidden">
-                <img id="exPreviewImg1" src="" alt="1컷 예시 미리보기" class="w-full h-36 object-contain rounded-xl border border-slate-200 bg-white" />
-              </div>
-              <textarea id="exCaption1" rows="2" placeholder="1컷 예시 설명 (예: 푸른 풀밭에서 모이를 쪼며 자유롭게 뛰어노는 암탉의 모습)" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
+          <!-- [추가] 1단계: 자료조사 예시 입력 (1~4컷) -->
+          <div class="rounded-2xl border border-amber-200 bg-amber-50/40 p-4 sm:p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 text-xs font-extrabold">🔍 1단계. 주제 동물 고통 자료조사 예시 (선택)</span>
+              <span class="text-[11px] text-slate-500">비워둔 컷은 학생 화면에 표시되지 않습니다</span>
             </div>
-
-            <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-2.5">
-              <span class="inline-block px-2.5 py-0.5 rounded bg-indigo-100 text-indigo-800 text-xs font-extrabold">2컷 : 현재 모습</span>
-              <input type="file" accept="image/jpeg,image/png,image/webp" onchange="handleExampleCutFileSelect(event, 2)" class="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer" />
-              <div id="exPreviewWrap2" class="hidden">
-                <img id="exPreviewImg2" src="" alt="2컷 예시 미리보기" class="w-full h-36 object-contain rounded-xl border border-slate-200 bg-white" />
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-extrabold text-sky-800 mb-1">1컷 자료조사 예시 (자유로웠던 원래 모습)</label>
+                <textarea id="exRes1" rows="2" placeholder="예: 야생의 닭(적색야계)은 숲속에서 흙목욕을 하고 나뭇가지 위에서 잠을 자며 자유롭게 생활한다." class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
               </div>
-              <textarea id="exCaption2" rows="2" placeholder="2컷 예시 설명 (예: 날개조차 펼 수 없는 좁은 철장 케이지에 갇혀 알을 낳는 현실)" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
+              <div>
+                <label class="block text-xs font-extrabold text-indigo-800 mb-1">2컷 자료조사 예시 (현재 모습)</label>
+                <textarea id="exRes2" rows="2" placeholder="예: 공장식 배터리 케이지에서는 A4 용지 한 장보다 좁은 철장 안에 갇혀 평생 알만 낳는다." class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+              </div>
+              <div>
+                <label class="block text-xs font-extrabold text-rose-800 mb-1">3컷 자료조사 예시 (동물이 겪는 아픔과 상처)</label>
+                <textarea id="exRes3" rows="2" placeholder="예: 좁은 공간 스트레스로 서로 쪼는 것을 막기 위해 부리가 잘리고 깃털이 빠지며 뼈가 약해진다." class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+              </div>
+              <div>
+                <label class="block text-xs font-extrabold text-emerald-800 mb-1">4컷 자료조사 예시 (우리가 마주하는 상품)</label>
+                <textarea id="exRes4" rows="2" placeholder="예: 마트 진열대에 깨끗하게 포장된 1+ 등급 계란 한 판과 계란 프라이, 빵 등으로 소비된다." class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+              </div>
             </div>
+          </div>
 
-            <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-2.5">
-              <span class="inline-block px-2.5 py-0.5 rounded bg-rose-100 text-rose-800 text-xs font-extrabold">3컷 : 동물이 겪는 아픔과 상처</span>
-              <input type="file" accept="image/jpeg,image/png,image/webp" onchange="handleExampleCutFileSelect(event, 3)" class="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-rose-600 file:text-white hover:file:bg-rose-700 cursor-pointer" />
-              <div id="exPreviewWrap3" class="hidden">
-                <img id="exPreviewImg3" src="" alt="3컷 예시 미리보기" class="w-full h-36 object-contain rounded-xl border border-slate-200 bg-white" />
-              </div>
-              <textarea id="exCaption3" rows="2" placeholder="3컷 예시 설명 (예: 깃털이 다 빠지고 철창에 상처 입은 채 고통스러워하는 모습)" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
+          <!-- [추가] 2단계: 스토리보드 예시 입력 (1~4컷) -->
+          <div class="rounded-2xl border border-purple-200 bg-purple-50/40 p-4 sm:p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-1 rounded-lg bg-purple-100 text-purple-800 text-xs font-extrabold">📋 2단계. 4컷 스토리보드 구상안 예시 (선택)</span>
+              <span class="text-[11px] text-slate-500">모둠장이 장면과 대사를 기획하는 참고 예시</span>
             </div>
-
-            <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-2.5">
-              <span class="inline-block px-2.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-xs font-extrabold">4컷 : 우리가 마주하는 상품</span>
-              <input type="file" accept="image/jpeg,image/png,image/webp" onchange="handleExampleCutFileSelect(event, 4)" class="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 cursor-pointer" />
-              <div id="exPreviewWrap4" class="hidden">
-                <img id="exPreviewImg4" src="" alt="4컷 예시 미리보기" class="w-full h-36 object-contain rounded-xl border border-slate-200 bg-white" />
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-extrabold text-sky-800 mb-1">1컷 스토리보드 예시</label>
+                <textarea id="exSb1" rows="2" placeholder="예: [장면] 햇살 비치는 푸른 풀밭에서 병아리들과 함께 모이를 쪼며 날개를 활짝 편 암탉의 밝은 표정" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
               </div>
-              <textarea id="exCaption4" rows="2" placeholder="4컷 예시 설명 (예: 마트 진열대에 깨끗하게 포장된 달걀 한 판을 고르는 우리의 모습)" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
+              <div>
+                <label class="block text-xs font-extrabold text-indigo-800 mb-1">2컷 스토리보드 예시</label>
+                <textarea id="exSb2" rows="2" placeholder="예: [장면] 어두운 공장 안 끝없이 이어진 좁은 철장 속에 몸을 구부린 채 갇혀 있는 암탉들의 모습" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
+              </div>
+              <div>
+                <label class="block text-xs font-extrabold text-rose-800 mb-1">3컷 스토리보드 예시</label>
+                <textarea id="exSb3" rows="2" placeholder="예: [장면] 철창에 스쳐 깃털이 빠지고 눈물을 흘리며 '한 번만 날개를 펴보고 싶어...'라고 말하는 장면" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
+              </div>
+              <div>
+                <label class="block text-xs font-extrabold text-emerald-800 mb-1">4컷 스토리보드 예시</label>
+                <textarea id="exSb4" rows="2" placeholder="예: [장면] 마트에서 반짝이는 포장지에 담긴 계란을 집어 들며 달걀 번호(사육환경번호)를 유심히 바라보는 손" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3단계: 4컷 만화 이미지 및 해설 예시 -->
+          <div class="space-y-2.5">
+            <span class="inline-block px-2.5 py-1 rounded-lg bg-sky-100 text-sky-900 text-xs font-extrabold">🖼️ 3단계. 완성 4컷 만화 이미지 및 해설 예시</span>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- 1~4컷 예시 이미지 및 설명 입력 -->
+              <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-2.5">
+                <span class="inline-block px-2.5 py-0.5 rounded bg-sky-100 text-sky-800 text-xs font-extrabold">1컷 : 자유로웠던 원래 모습</span>
+                <input type="file" accept="image/jpeg,image/png,image/webp" onchange="handleExampleCutFileSelect(event, 1)" class="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-sky-600 file:text-white hover:file:bg-sky-700 cursor-pointer" />
+                <div id="exPreviewWrap1" class="hidden">
+                  <img id="exPreviewImg1" src="" alt="1컷 예시 미리보기" class="w-full h-36 object-contain rounded-xl border border-slate-200 bg-white" />
+                </div>
+                <textarea id="exCaption1" rows="2" placeholder="1컷 예시 설명 (예: 푸른 풀밭에서 모이를 쪼며 자유롭게 뛰어노는 암탉의 모습)" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
+              </div>
+
+              <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-2.5">
+                <span class="inline-block px-2.5 py-0.5 rounded bg-indigo-100 text-indigo-800 text-xs font-extrabold">2컷 : 현재 모습</span>
+                <input type="file" accept="image/jpeg,image/png,image/webp" onchange="handleExampleCutFileSelect(event, 2)" class="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer" />
+                <div id="exPreviewWrap2" class="hidden">
+                  <img id="exPreviewImg2" src="" alt="2컷 예시 미리보기" class="w-full h-36 object-contain rounded-xl border border-slate-200 bg-white" />
+                </div>
+                <textarea id="exCaption2" rows="2" placeholder="2컷 예시 설명 (예: 날개조차 펼 수 없는 좁은 철장 케이지에 갇혀 알을 낳는 현실)" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
+              </div>
+
+              <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-2.5">
+                <span class="inline-block px-2.5 py-0.5 rounded bg-rose-100 text-rose-800 text-xs font-extrabold">3컷 : 동물이 겪는 아픔과 상처</span>
+                <input type="file" accept="image/jpeg,image/png,image/webp" onchange="handleExampleCutFileSelect(event, 3)" class="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-rose-600 file:text-white hover:file:bg-rose-700 cursor-pointer" />
+                <div id="exPreviewWrap3" class="hidden">
+                  <img id="exPreviewImg3" src="" alt="3컷 예시 미리보기" class="w-full h-36 object-contain rounded-xl border border-slate-200 bg-white" />
+                </div>
+                <textarea id="exCaption3" rows="2" placeholder="3컷 예시 설명 (예: 깃털이 다 빠지고 철창에 상처 입은 채 고통스러워하는 모습)" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
+              </div>
+
+              <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-2.5">
+                <span class="inline-block px-2.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-xs font-extrabold">4컷 : 우리가 마주하는 상품</span>
+                <input type="file" accept="image/jpeg,image/png,image/webp" onchange="handleExampleCutFileSelect(event, 4)" class="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 cursor-pointer" />
+                <div id="exPreviewWrap4" class="hidden">
+                  <img id="exPreviewImg4" src="" alt="4컷 예시 미리보기" class="w-full h-36 object-contain rounded-xl border border-slate-200 bg-white" />
+                </div>
+                <textarea id="exCaption4" rows="2" placeholder="4컷 예시 설명 (예: 마트 진열대에 깨끗하게 포장된 달걀 한 판을 고르는 우리의 모습)" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
+              </div>
             </div>
           </div>
 
@@ -1764,6 +1820,59 @@
 
       badge.textContent = ex.updated_at ? `최종 업데이트: ${ex.updated_at}` : '전 학급 공통 참고 자료';
 
+      // 1) 자료조사 예시 섹션 렌더링 (입력된 항목이 있을 때만 표시)
+      const resObj = ex.research || {};
+      const hasResearch = [1, 2, 3, 4].some((c) => Boolean((resObj[`cut${c}`] || '').trim()));
+      const researchSectionHtml = hasResearch
+        ? `
+          <div class="rounded-2xl border border-amber-200/90 bg-amber-50/30 p-4 sm:p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 text-xs font-extrabold">🔍 1단계 예시. 주제 동물 고통 자료조사</span>
+              <span class="text-[11px] font-bold text-amber-800">자료조사 담당 참고용</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              ${[1, 2, 3, 4].map((c) => {
+                const meta = CUT_META[c];
+                const txt = (resObj[`cut${c}`] || '').trim();
+                return `
+                  <div class="rounded-xl border border-amber-200/80 bg-white p-3.5 space-y-1.5">
+                    <span class="inline-block px-2 py-0.5 rounded text-[11px] font-extrabold ${meta.badgeBg}">${meta.short} 조사</span>
+                    <p class="text-xs sm:text-sm text-slate-800 leading-relaxed whitespace-pre-wrap">${txt ? escapeHtml(txt) : '<span class="text-slate-400">내용 없음</span>'}</p>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `
+        : '';
+
+      // 2) 스토리보드 예시 섹션 렌더링 (입력된 항목이 있을 때만 표시)
+      const sbObj = ex.storyboard || {};
+      const hasStoryboard = [1, 2, 3, 4].some((c) => Boolean((sbObj[`cut${c}`] || '').trim()));
+      const storyboardSectionHtml = hasStoryboard
+        ? `
+          <div class="rounded-2xl border border-purple-200/90 bg-purple-50/30 p-4 sm:p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-1 rounded-lg bg-purple-100 text-purple-800 text-xs font-extrabold">📋 2단계 예시. 4컷 스토리보드 구상안</span>
+              <span class="text-[11px] font-bold text-purple-800">모둠장 기획 참고용</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              ${[1, 2, 3, 4].map((c) => {
+                const meta = CUT_META[c];
+                const txt = (sbObj[`cut${c}`] || '').trim();
+                return `
+                  <div class="rounded-xl border border-purple-200/80 bg-white p-3.5 space-y-1.5">
+                    <span class="inline-block px-2 py-0.5 rounded text-[11px] font-extrabold ${meta.badgeBg}">${meta.title}</span>
+                    <p class="text-xs sm:text-sm text-slate-800 leading-relaxed whitespace-pre-wrap">${txt ? escapeHtml(txt) : '<span class="text-slate-400">내용 없음</span>'}</p>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `
+        : '';
+
+      // 3) 4컷 만화 예시 섹션 렌더링
       const cutsHtml = [1, 2, 3, 4].map((c) => {
         const meta = CUT_META[c];
         const cutObj = (ex.cuts && ex.cuts[c]) || {};
@@ -1793,13 +1902,21 @@
       }).join('');
 
       container.innerHTML = `
-        <div class="space-y-5">
+        <div class="space-y-6">
           <div class="border-b border-slate-100 pb-4 space-y-1.5">
             <span class="inline-block px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-extrabold">🐾 예시 주제 : ${escapeHtml(ex.topic || '예시 작품')}</span>
             ${ex.guide ? `<p class="text-xs sm:text-sm font-bold text-sky-900 bg-sky-50 border border-sky-200 rounded-xl px-4 py-2.5 mt-2">💬 선생님 가이드: ${escapeHtml(ex.guide)}</p>` : ''}
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            ${cutsHtml}
+          ${researchSectionHtml}
+          ${storyboardSectionHtml}
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-1 rounded-lg bg-sky-100 text-sky-900 text-xs font-extrabold">🖼️ 3단계 예시. 완성 4컷 만화 작품</span>
+              <span class="text-[11px] font-bold text-sky-700">컷 제작 참고용</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              ${cutsHtml}
+            </div>
           </div>
         </div>
       `;
@@ -1817,7 +1934,13 @@
         document.getElementById('exInputTopic').value = (ex && ex.topic) || '';
         document.getElementById('exInputGuide').value = (ex && ex.guide) || '';
 
+        const resObj = (ex && ex.research) || {};
+        const sbObj = (ex && ex.storyboard) || {};
+
         [1, 2, 3, 4].forEach((c) => {
+          document.getElementById(`exRes${c}`).value = resObj[`cut${c}`] || '';
+          document.getElementById(`exSb${c}`).value = sbObj[`cut${c}`] || '';
+
           const cutObj = (ex && ex.cuts && ex.cuts[c]) || {};
           document.getElementById(`exCaption${c}`).value = cutObj.caption || '';
           const wrap = document.getElementById(`exPreviewWrap${c}`);
@@ -1891,8 +2014,13 @@
       try {
         const existingCuts = (state.teacherExample && state.teacherExample.cuts) || {};
         const finalCuts = {};
+        const finalResearch = {};
+        const finalStoryboard = {};
 
         for (let c = 1; c <= 4; c++) {
+          finalResearch[`cut${c}`] = document.getElementById(`exRes${c}`).value.trim();
+          finalStoryboard[`cut${c}`] = document.getElementById(`exSb${c}`).value.trim();
+
           const caption = document.getElementById(`exCaption${c}`).value.trim();
           let imageUrl = (existingCuts[c] && existingCuts[c].image_url) || '';
 
@@ -1925,12 +2053,14 @@
         await setDoc(doc(db, 'system', 'example_comic'), {
           topic,
           guide,
+          research: finalResearch,
+          storyboard: finalStoryboard,
           cuts: finalCuts,
           updated_at: nowStr
         });
 
         toggleExampleEditorForm(false);
-        showToast('💡 선생님 예시 자료가 전 학급 학생 화면에 게시되었습니다!', 'success');
+        showToast('💡 선생님 예시 자료(자료조사·스토리보드·4컷)가 전 학급에 게시되었습니다!', 'success');
       } catch (err) {
         showToast('예시 자료 저장 오류: ' + err.message, 'error');
       } finally {
