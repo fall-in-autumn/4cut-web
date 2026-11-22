@@ -537,7 +537,7 @@
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <!-- 역할이 '과제제출'이거나 교사일 때 활성화되는 PDF 저장 버튼 -->
-            <button id="exportGroupPdfBtn" onclick="exportGroupComicToPdf()" class="hidden px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-extrabold shadow-xs transition flex items-center gap-1.5">
+            <button id="exportGroupPdfBtn" onclick="openPdfTitleModal()" class="hidden px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-extrabold shadow-xs transition flex items-center gap-1.5">
               <span>📄</span>
               <span>4컷 만화 PDF로 저장하기</span>
             </button>
@@ -648,6 +648,28 @@
                 </div>
               </div>
             </div>
+          </div>
+
+          <!-- 3단계: AI 이미지 생성 프롬프트 입력 -->
+          <div class="space-y-2">
+            <div class="flex flex-wrap items-center justify-between gap-1">
+              <label for="aiPromptInput" class="block text-sm font-extrabold text-slate-800">
+                3단계. AI에게 작성한 프롬프트(질문)를 입력하세요 *
+              </label>
+              <span class="text-[11px] font-bold text-sky-700 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-200">
+                📄 Google 문서로 자동 생성 후 시트에 링크 저장
+              </span>
+            </div>
+            <textarea
+              id="aiPromptInput"
+              rows="3"
+              oninput="updateSubmitButtonState()"
+              placeholder="예: 푸른 초원에서 어미 암탉과 병아리들이 햇살을 받으며 자유롭게 풀을 뜯어먹는 따뜻한 수채화 스타일 일러스트"
+              class="w-full px-4 py-3 rounded-2xl border border-slate-300 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+            ></textarea>
+            <p class="text-[11px] text-slate-500">
+              입력한 프롬프트는 선생님 확인용 <strong>Google 문서(Docs)</strong>로 자동 저장되며, 구글 시트(`Submissions` I열)에 문서 링크가 연결됩니다.
+            </p>
           </div>
 
           <!-- 제출 버튼 -->
@@ -920,6 +942,69 @@
         <button id="deleteConfirmExecuteBtn" onclick="executePendingDelete()" class="py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-extrabold shadow-xs transition">
           네, 삭제합니다
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 7. PDF 저장 전 4컷 만화 제목 입력 모달 (과제제출 역할 전용)           -->
+  <!-- ===================================================================== -->
+  <div id="pdfTitleModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl animate-fade-in">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">📄</span>
+          <h3 class="text-base sm:text-lg font-extrabold text-slate-900">4컷 만화 PDF 제목 입력</h3>
+        </div>
+        <button onclick="closePdfTitleModal()" class="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-500 font-bold">✕</button>
+      </div>
+      <form onsubmit="confirmAndExportPdf(event)" class="space-y-4">
+        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+          PDF 파일 상단에 크게 들어갈 <strong>우리 모둠 4컷 만화의 제목</strong>을 작성해 주세요.
+        </p>
+        <div>
+          <label for="pdfComicTitleInput" class="block text-xs font-extrabold text-slate-700 mb-1.5">
+            4컷 만화 제목 *
+          </label>
+          <input
+            type="text"
+            id="pdfComicTitleInput"
+            maxlength="45"
+            placeholder="예: 달걀 한 판에 숨겨진 산란계의 눈물"
+            class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm font-extrabold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            required
+          />
+        </div>
+        <div class="grid grid-cols-2 gap-2.5 pt-1">
+          <button type="button" onclick="closePdfTitleModal()" class="py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-bold transition">
+            취소
+          </button>
+          <button type="submit" id="confirmPdfExportBtn" class="py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-extrabold shadow-xs transition">
+            📥 제목 포함 PDF 저장
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 8. 교사용 학생 AI 프롬프트 확인 모달                                  -->
+  <!-- ===================================================================== -->
+  <div id="adminPromptModal" class="hidden fixed inset-0 z-[55] bg-slate-900/65 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl animate-fade-in">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div>
+          <span id="adminPromptBadge" class="px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 text-xs font-extrabold">1반 1모둠 1컷</span>
+          <h3 id="adminPromptTitle" class="text-base font-extrabold text-slate-900 mt-1">AI 이미지 생성 프롬프트 확인</h3>
+        </div>
+        <button onclick="closeAdminPromptModal()" class="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-500 font-bold">✕</button>
+      </div>
+      <div class="space-y-2">
+        <span class="text-xs font-extrabold text-slate-500">학생이 AI에게 입력한 질문(프롬프트)</span>
+        <div id="adminPromptContent" class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-sm text-slate-800 leading-relaxed whitespace-pre-wrap max-h-60 overflow-y-auto">
+        </div>
+      </div>
+      <div id="adminPromptFooter" class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
       </div>
     </div>
   </div>
@@ -1601,6 +1686,9 @@
         const sub = groupSubs.find((s) => Number(s.cut_num) === c);
         const meta = CUT_META[c];
         if (sub) {
+          const promptBtnHtml = state.isAdmin
+            ? `<button onclick="openAdminPromptModal(${g}, ${c})" class="px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-600 text-sky-700 hover:text-white border border-sky-200 text-xs font-extrabold transition shrink-0">📄 프롬프트</button>`
+            : '';
           const deleteCutBtnHtml = state.isAdmin
             ? `<button onclick="requestDeleteCut(${g}, ${c}, '${escapeHtml(sub.file_id || '')}', '${escapeHtml(sub.student_id)}', '${escapeHtml(sub.student_name)}')" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white border border-rose-200 text-xs font-extrabold transition shrink-0">🗑️ 삭제</button>`
             : '';
@@ -1608,8 +1696,9 @@
             <div class="rounded-2xl overflow-hidden border-2 border-slate-200 bg-slate-50 flex flex-col">
               <div class="px-3.5 py-2 bg-white border-b border-slate-200 flex items-center justify-between gap-2">
                 <span class="px-2.5 py-0.5 rounded-md text-xs font-extrabold ${meta.badgeBg}">${meta.title}</span>
-                <div class="flex items-center gap-2 min-w-0">
+                <div class="flex items-center gap-1.5 min-w-0">
                   <span class="text-xs font-bold text-slate-600 truncate">${escapeHtml(sub.student_id)} ${escapeHtml(sub.student_name)}</span>
+                  ${promptBtnHtml}
                   ${deleteCutBtnHtml}
                 </div>
               </div>
@@ -2165,12 +2254,13 @@
       }
     };
 
-    // [모둠장 전용] 스토리보드 제출 (Google Sheets + Firebase 동시 저장)
+    // [모둠장 역할 전용] 4컷 스토리보드 구상안 제출 (Google Sheets + Firebase 동시 저장)
     window.submitGroupStoryboard = async function (e) {
       e.preventDefault();
       const s = state.session;
-      if (!s || s.member_role !== '모둠장') {
-        showToast('스토리보드 제출은 모둠장만 가능합니다.', 'error');
+      const role = (!s || !s.member_role || s.member_role === '일반') ? '자료조사' : s.member_role;
+      if (!s || role !== '모둠장') {
+        showToast('스토리보드 제출은 모둠장 역할 학생만 가능합니다.', 'error');
         return;
       }
 
@@ -2192,7 +2282,6 @@
         const gid = Number(s.group_id);
         const nowStr = formatNowTimestamp();
 
-        // 1) Google Sheets(Storyboards 시트) 영구 저장
         const gasRes = await postToGas({
           action: 'saveStoryboard',
           class_id: cid,
@@ -2209,7 +2298,6 @@
           throw new Error(gasRes.error || '구글 시트 스토리보드 저장에 실패했습니다.');
         }
 
-        // 2) Firebase Firestore 실시간 동기화
         const sbDocRef = doc(db, 'classes', String(cid), 'storyboards', `group_${gid}`);
         await setDoc(sbDocRef, {
           class_id: cid,
@@ -2224,7 +2312,7 @@
           updated_at: gasRes.timestamp || nowStr
         });
 
-        showToast(`${cid}반 ${gid}모둠 스토리보드가 구글 시트와 선생님께 제출되었습니다!`, 'success');
+        showToast(`${cid}반 ${gid}모둠 스토리보드가 구글 시트와 모둠 화면에 제출되었습니다!`, 'success');
       } catch (err) {
         showToast('스토리보드 제출 오류: ' + err.message, 'error');
       } finally {
@@ -2233,26 +2321,91 @@
       }
     };
 
-    // [과제제출 역할 전용] 4컷 만화 PDF 저장하기
-    window.exportGroupComicToPdf = async function () {
+    // [과제제출 역할 전용] PDF 저장 전 4컷 만화 제목 입력 모달 열기/닫기
+    window.openPdfTitleModal = function () {
+      const gid = Number(state.session.group_id) || 1;
+      const sb = state.storyboards[gid];
+      const defaultTopic = state.session.topic || (sb && sb.topic) || '';
+      const inputEl = document.getElementById('pdfComicTitleInput');
+      if (!inputEl.value.trim() && defaultTopic) {
+        inputEl.value = `${defaultTopic}에 숨겨진 생명의 고통`;
+      }
+      document.getElementById('pdfTitleModal').classList.remove('hidden');
+      inputEl.focus();
+      inputEl.select();
+    };
+
+    window.closePdfTitleModal = function () {
+      document.getElementById('pdfTitleModal').classList.add('hidden');
+    };
+
+    // [과제제출 역할 전용] 입력한 제목과 4컷 만화를 함께 PDF로 렌더링하여 저장
+    window.confirmAndExportPdf = async function (e) {
+      e.preventDefault();
+      const comicTitle = document.getElementById('pdfComicTitleInput').value.trim();
+      if (!comicTitle) {
+        showToast('4컷 만화 제목을 입력해주세요.', 'warning');
+        return;
+      }
+
       const targetEl = document.getElementById('pdfCaptureTarget');
       if (!targetEl || !window.html2canvas || !window.jspdf) {
         showToast('PDF 변환 모듈을 불러오는 중입니다. 잠시 후 다시 시도해주세요.', 'warning');
         return;
       }
 
-      const btn = document.getElementById('exportGroupPdfBtn');
-      const prevHtml = btn.innerHTML;
-      btn.disabled = true;
-      btn.innerHTML = '<span>⏳</span><span>PDF 파일 생성 중...</span>';
+      const modalBtn = document.getElementById('confirmPdfExportBtn');
+      const mainBtn = document.getElementById('exportGroupPdfBtn');
+      const prevMainHtml = mainBtn.innerHTML;
+      modalBtn.disabled = true;
+      modalBtn.textContent = 'PDF 생성 중...';
+      mainBtn.disabled = true;
+      mainBtn.innerHTML = '<span>⏳</span><span>PDF 파일 생성 중...</span>';
+
+      // 캡처 전용 임시 래퍼(제목 헤더 + 4컷 만화 그리드 복제본) 구성
+      const cid = state.activeClassId;
+      const gid = Number(state.session.group_id) || 1;
+      const sb = state.storyboards[gid];
+      const topic = state.session.topic || (sb && sb.topic) || '생명 윤리';
+
+      const captureWrapper = document.createElement('div');
+      captureWrapper.style.position = 'fixed';
+      captureWrapper.style.left = '-99999px';
+      captureWrapper.style.top = '0';
+      captureWrapper.style.width = '1120px';
+      captureWrapper.style.backgroundColor = '#FFFFFF';
+      captureWrapper.style.padding = '32px';
+      captureWrapper.style.fontFamily = '"Noto Sans KR", Inter, sans-serif';
+
+      const clonedGrid = targetEl.cloneNode(true);
+      clonedGrid.style.display = 'grid';
+      clonedGrid.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
+      clonedGrid.style.gap = '16px';
+      // 삭제 버튼 등 불필요한 조작 버튼 숨김
+      clonedGrid.querySelectorAll('button').forEach((b) => b.remove());
+
+      captureWrapper.innerHTML = `
+        <div style="border-bottom: 3px solid #0284C7; padding-bottom: 16px; margin-bottom: 20px; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px;">
+          <div>
+            <div style="font-size: 13px; font-weight: 800; color: #0284C7; margin-bottom: 6px;">
+              도덕 수업 모둠별 4컷 만화 「멋진 하루에 숨겨진 생명의 고통」
+            </div>
+            <h1 style="font-size: 28px; font-weight: 800; color: #0F172A; margin: 0; line-height: 1.3;">
+              ${escapeHtml(comicTitle)}
+            </h1>
+          </div>
+          <div style="text-align: right; flex-shrink: 0;">
+            <span style="display: inline-block; background: #E0F2FE; color: #0369A1; font-size: 13px; font-weight: 800; padding: 6px 12px; border-radius: 10px;">
+              ${cid}반 ${gid}모둠 · 주제: ${escapeHtml(topic)}
+            </span>
+          </div>
+        </div>
+      `;
+      captureWrapper.appendChild(clonedGrid);
+      document.body.appendChild(captureWrapper);
 
       try {
-        const cid = state.activeClassId;
-        const gid = Number(state.session.group_id) || 1;
-        const sb = state.storyboards[gid];
-        const topic = state.session.topic || (sb && sb.topic) || '생명 윤리';
-
-        const canvas = await window.html2canvas(targetEl, {
+        const canvas = await window.html2canvas(captureWrapper, {
           scale: 2,
           useCORS: true,
           backgroundColor: '#FFFFFF'
@@ -2264,7 +2417,7 @@
 
         const pageW = pdf.internal.pageSize.getWidth();
         const pageH = pdf.internal.pageSize.getHeight();
-        const margin = 12;
+        const margin = 10;
         const availW = pageW - margin * 2;
         const availH = pageH - margin * 2;
 
@@ -2275,13 +2428,18 @@
         const offsetY = (pageH - renderH) / 2;
 
         pdf.addImage(imgData, 'JPEG', offsetX, offsetY, renderW, renderH);
-        pdf.save(`멋진하루에숨겨진생명의고통_${cid}반_${gid}모둠_${topic}.pdf`);
-        showToast(`📄 ${cid}반 ${gid}모둠 4컷 만화 PDF 파일이 저장되었습니다!`, 'success');
+        const safeFileTitle = comicTitle.replace(/[\\/:*?"<>|]/g, '_');
+        pdf.save(`${cid}반_${gid}모둠_${safeFileTitle}.pdf`);
+        closePdfTitleModal();
+        showToast(`📄 제목「${comicTitle}」이 포함된 4컷 만화 PDF가 저장되었습니다!`, 'success');
       } catch (err) {
         showToast('PDF 저장 중 오류가 발생했습니다: ' + err.message, 'error');
       } finally {
-        btn.disabled = false;
-        btn.innerHTML = prevHtml;
+        captureWrapper.remove();
+        modalBtn.disabled = false;
+        modalBtn.textContent = '📥 제목 포함 PDF 저장';
+        mainBtn.disabled = false;
+        mainBtn.innerHTML = prevMainHtml;
       }
     };
 
@@ -2418,6 +2576,7 @@
       const btnText = document.getElementById('submitCutBtnText');
       const cut = getSelectedCutNum();
       const hasImg = Boolean(state.compressedBase64);
+      const hasPrompt = Boolean(document.getElementById('aiPromptInput').value.trim());
 
       if (!cut) {
         btn.disabled = true;
@@ -2429,28 +2588,34 @@
         btnText.textContent = '2단계: 만화 이미지 파일을 선택해주세요';
         return;
       }
+      if (!hasPrompt) {
+        btn.disabled = true;
+        btnText.textContent = '3단계: AI에게 작성한 프롬프트(질문)를 입력해주세요';
+        return;
+      }
 
       btn.disabled = false;
-      btnText.textContent = `${state.session.class_id}반 ${state.session.group_id}모둠 ${cut}컷 영구 저장하기`;
+      btnText.textContent = `${state.session.class_id}반 ${state.session.group_id}모둠 ${cut}컷 및 AI 프롬프트 저장하기`;
     }
 
     window.submitCut = async function () {
       const cutNum = getSelectedCutNum();
       const base64Data = state.compressedBase64;
+      const aiPrompt = document.getElementById('aiPromptInput').value.trim();
       const s = state.session;
-      if (!s || !cutNum || !base64Data) return;
+      if (!s || !cutNum || !base64Data || !aiPrompt) return;
 
       const btn = document.getElementById('submitCutBtn');
       const btnText = document.getElementById('submitCutBtnText');
       btn.disabled = true;
-      btnText.textContent = '구글 드라이브에 이미지 저장 및 실시간 동기화 중...';
+      btnText.textContent = '이미지 저장 및 AI 프롬프트 구글 문서 생성 중...';
 
       const cid = Number(s.class_id);
       const gid = Number(s.group_id);
       const nowStr = formatNowTimestamp();
 
       try {
-        // 1) Google Apps Script를 통해 학번 이중 검증 후 Google Drive에 이미지 영구 저장
+        // 1) Google Apps Script를 통해 Drive 이미지 저장 + Google Docs 프롬프트 문서 생성 후 시트에 링크 저장
         const gasUploadRes = await postToGas({
           action: 'uploadCut',
           student_id: String(s.student_id),
@@ -2458,16 +2623,18 @@
           class_id: cid,
           group_id: gid,
           cut_num: cutNum,
-          image_base64: base64Data
+          image_base64: base64Data,
+          ai_prompt: aiPrompt
         });
 
         if (!gasUploadRes.ok || !gasUploadRes.submission || !gasUploadRes.submission.image_url) {
-          throw new Error(gasUploadRes.error || '구글 드라이브 이미지 저장에 실패했습니다.');
+          throw new Error(gasUploadRes.error || '구글 드라이브 및 문서 저장에 실패했습니다.');
         }
 
         const finalUrl = gasUploadRes.submission.image_url;
+        const promptDocUrl = gasUploadRes.submission.prompt_doc_url || '';
 
-        // 2) Firebase Firestore에 실시간 반영 (모둠 작품 확인 & 교사 대시보드 & 전체공개 즉시 동기화)
+        // 2) Firebase Firestore에 실시간 반영 (프롬프트 내용 및 Google Docs 링크 포함)
         const docId = `group_${gid}_cut_${cutNum}`;
         const subDocRef = doc(db, 'classes', String(cid), 'submissions', docId);
         await setDoc(subDocRef, {
@@ -2478,6 +2645,8 @@
           student_name: String(s.student_name),
           image_url: finalUrl,
           file_id: gasUploadRes.submission.file_id || '',
+          ai_prompt: aiPrompt,
+          prompt_doc_url: promptDocUrl,
           updated_at: nowStr
         });
 
@@ -2486,20 +2655,22 @@
         document.getElementById('justUploadedCard').classList.remove('hidden');
         document.getElementById('justUploadedContent').innerHTML = `
           <img src="${finalUrl}" alt="방금 제출한 이미지" class="w-40 h-28 object-cover rounded-xl border border-emerald-300 bg-white shrink-0" />
-          <div class="space-y-1 text-center sm:text-left">
+          <div class="space-y-1 text-center sm:text-left min-w-0 flex-1">
             <span class="inline-block px-2.5 py-0.5 rounded text-xs font-extrabold ${meta.badgeBg}">${meta.title}</span>
             <p class="text-sm font-extrabold text-slate-900">${cid}반 ${gid}모둠 · ${escapeHtml(s.student_id)} ${escapeHtml(s.student_name)}</p>
-            <p class="text-xs text-slate-500">저장 시각: ${nowStr} (구글 드라이브 & 실시간 동기화 완료)</p>
+            <p class="text-xs text-slate-600 line-clamp-2">💬 프롬프트: ${escapeHtml(aiPrompt)}</p>
+            <p class="text-[11px] text-slate-400">저장 시각: ${nowStr} (이미지 & 구글 문서 링크 저장 완료)</p>
           </div>
         `;
 
         // 입력 상태 초기화
         state.compressedBase64 = '';
         document.getElementById('imageFileInput').value = '';
+        document.getElementById('aiPromptInput').value = '';
         document.getElementById('dropZonePlaceholder').classList.remove('hidden');
         document.getElementById('imagePreviewContainer').classList.add('hidden');
         renderExistingMySubmissions();
-        showToast(`✅ ${cid}반 ${gid}모둠 ${cutNum}컷이 성공적으로 저장되었습니다!`, 'success');
+        showToast(`✅ ${cid}반 ${gid}모둠 ${cutNum}컷과 AI 프롬프트 구글 문서가 저장되었습니다!`, 'success');
       } catch (err) {
         showToast('이미지 업로드 중 오류: ' + err.message, 'error');
       } finally {
@@ -2703,6 +2874,42 @@
 
     window.closeAdminStoryboardModal = function () {
       document.getElementById('adminStoryboardModal').classList.add('hidden');
+    };
+
+    // [교사 전용] 학생이 입력한 AI 프롬프트 및 Google Docs 링크 열람 모달
+    window.openAdminPromptModal = function (groupId, cutNum) {
+      if (!state.isAdmin) return;
+      const cid = state.activeClassId;
+      const sub = state.submissions.find(
+        (s) => Number(s.group_id) === Number(groupId) && Number(s.cut_num) === Number(cutNum)
+      );
+      if (!sub) return;
+
+      document.getElementById('adminPromptBadge').textContent = `${cid}반 ${groupId}모둠 · ${cutNum}컷`;
+      document.getElementById('adminPromptTitle').textContent =
+        `${sub.student_id} ${sub.student_name} 학생의 AI 프롬프트`;
+      document.getElementById('adminPromptContent').textContent =
+        sub.ai_prompt || '프롬프트 기록이 없습니다.';
+
+      const docLinkHtml = sub.prompt_doc_url
+        ? `<a href="${escapeHtml(sub.prompt_doc_url)}" target="_blank" rel="noopener noreferrer" class="px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs sm:text-sm font-extrabold shadow-xs transition inline-flex items-center gap-1.5">
+             <span>📄</span>
+             <span>구글 문서(Docs) 열기 ↗</span>
+           </a>`
+        : `<span class="text-xs text-slate-400">연결된 구글 문서 링크 없음</span>`;
+
+      document.getElementById('adminPromptFooter').innerHTML = `
+        ${docLinkHtml}
+        <button onclick="closeAdminPromptModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-bold transition">
+          닫기
+        </button>
+      `;
+
+      document.getElementById('adminPromptModal').classList.remove('hidden');
+    };
+
+    window.closeAdminPromptModal = function () {
+      document.getElementById('adminPromptModal').classList.add('hidden');
     };
 
     /*************************************************************************
@@ -2922,12 +3129,16 @@
         for (let c = 1; c <= 4; c++) {
           const sub = gSubs.find((s) => Number(s.cut_num) === c);
           if (sub) {
+            const promptBtnHtml = (sub.ai_prompt || sub.prompt_doc_url)
+              ? `<button onclick="openAdminPromptModal(${g}, ${c})" title="AI 프롬프트 및 구글 문서 확인" class="px-1.5 py-0.5 rounded bg-sky-100 hover:bg-sky-600 text-sky-800 hover:text-white text-[10px] font-extrabold transition">프롬프트</button>`
+              : '';
             cells += `
               <td class="py-2.5 px-3">
                 <div class="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-lg">
                   <img src="${sub.image_url}" class="w-7 h-5 rounded object-cover border border-emerald-300" alt="" />
                   <span class="text-xs font-bold text-emerald-900">${escapeHtml(sub.student_id)} ${escapeHtml(sub.student_name)}</span>
-                  <button onclick="requestDeleteCut(${g}, ${c}, '${escapeHtml(sub.file_id || '')}', '${escapeHtml(sub.student_id)}', '${escapeHtml(sub.student_name)}')" title="이 컷 삭제" class="ml-1 px-1.5 py-0.5 rounded bg-rose-100 hover:bg-rose-600 text-rose-700 hover:text-white text-[10px] font-extrabold transition">
+                  ${promptBtnHtml}
+                  <button onclick="requestDeleteCut(${g}, ${c}, '${escapeHtml(sub.file_id || '')}', '${escapeHtml(sub.student_id)}', '${escapeHtml(sub.student_name)}')" title="이 컷 삭제" class="px-1.5 py-0.5 rounded bg-rose-100 hover:bg-rose-600 text-rose-700 hover:text-white text-[10px] font-extrabold transition">
                     삭제
                   </button>
                 </div>
