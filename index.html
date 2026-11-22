@@ -1,0 +1,2053 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>멋진 하루에 숨겨진 생명의 고통 – 8개 학급 실시간 4컷 만화 갤러리</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Noto Sans KR & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Noto Sans KR"', 'Inter', 'sans-serif'],
+          },
+          colors: {
+            skyPrimary: '#0284C7',
+            skyPastel: '#E0F2FE',
+            slateBg: '#F8FAFC',
+          },
+          boxShadow: {
+            google: '0 1px 3px 0 rgba(60,64,67,0.12), 0 4px 8px 3px rgba(60,64,67,0.06)',
+            card: '0 2px 10px rgba(2, 132, 199, 0.06)',
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      background-color: #F8FAFC;
+      color: #1E293B;
+      -webkit-tap-highlight-color: transparent;
+    }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #F1F5F9; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+    .comic-panel-aspect { aspect-ratio: 4 / 3; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in { animation: fadeIn 0.25s ease-out forwards; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-sky-200 selection:text-sky-900">
+
+  <!-- 토스트 알림 컨테이너 -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+  <!-- ===================================================================== -->
+  <!-- 1. 게이트키퍼(Gatekeeper) 입장 화면 (비로그인 시 전체 차단)            -->
+  <!-- ===================================================================== -->
+  <div id="gatekeeperScreen" class="min-h-screen flex flex-col justify-between bg-gradient-to-b from-sky-50 via-slate-50 to-white">
+    <header class="max-w-5xl w-full mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-sky-600 text-white flex items-center justify-center font-extrabold shadow-xs">
+          4컷
+        </div>
+        <span class="font-extrabold text-slate-800 text-sm sm:text-base">도덕 수업 실시간 만화 갤러리</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span id="gateFirebaseBadge" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+          🔥 Firebase 실시간 연결 중
+        </span>
+        <button onclick="openGateAdminModal()" class="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold shadow-2xs transition flex items-center gap-1.5">
+          <span>🔐</span>
+          <span>교사 관리자 입장</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="flex-1 flex items-center justify-center px-4 py-8">
+      <div class="max-w-md w-full bg-white rounded-3xl border border-sky-100 shadow-google p-6 sm:p-9 space-y-6 animate-fade-in">
+        <div class="text-center space-y-2">
+          <span class="inline-block px-3 py-1 rounded-full bg-sky-100 text-sky-800 text-xs font-extrabold">
+            1반 ~ 8반 학급별 전용 입장
+          </span>
+          <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+            멋진 하루에 숨겨진 생명의 고통
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-500 leading-relaxed">
+            본인의 <strong>학번 4자리</strong>를 입력하면 자동으로 해당 반 갤러리와 모둠 작업실로 연결됩니다.
+          </p>
+        </div>
+
+        <form onsubmit="handleStudentGateLogin(event)" class="space-y-4">
+          <!-- 학번 4자리 -->
+          <div>
+            <label for="gateStudentId" class="block text-xs font-extrabold text-slate-700 mb-1.5">
+              학번 4자리 <span class="text-sky-600 font-normal">(예: 1307 → 1학년 3반 07번)</span>
+            </label>
+            <input
+              type="text"
+              id="gateStudentId"
+              maxlength="4"
+              inputmode="numeric"
+              oninput="previewGateClassInfo()"
+              placeholder="학번 4자리 입력 (예: 1307)"
+              class="w-full px-4 py-3.5 rounded-xl border border-slate-300 text-base font-extrabold tracking-widest text-slate-900 placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+              required
+            />
+            <div id="gateClassPreview" class="hidden mt-2 px-3 py-2 rounded-lg bg-sky-50 border border-sky-200 text-xs font-bold text-sky-800">
+              <!-- 자동 반 판별 미리보기 -->
+            </div>
+          </div>
+
+          <!-- 학생 이름 -->
+          <div>
+            <label for="gateStudentName" class="block text-xs font-extrabold text-slate-700 mb-1.5">이름</label>
+            <input
+              type="text"
+              id="gateStudentName"
+              maxlength="10"
+              placeholder="본인 이름을 입력하세요 (예: 김도덕)"
+              class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm font-bold text-slate-900 placeholder:font-normal placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+              required
+            />
+          </div>
+
+          <!-- 소속 모둠 선택 -->
+          <div>
+            <label for="gateGroupId" class="block text-xs font-extrabold text-slate-700 mb-1.5">소속 모둠</label>
+            <select
+              id="gateGroupId"
+              class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm font-bold text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+            >
+              <option value="1">1모둠</option>
+              <option value="2">2모둠</option>
+              <option value="3">3모둠</option>
+              <option value="4">4모둠</option>
+              <option value="5">5모둠</option>
+              <option value="6">6모둠</option>
+              <option value="7">7모둠</option>
+              <option value="8">8모둠</option>
+              <option value="9">9모둠</option>
+              <option value="10">10모둠</option>
+              <option value="11">11모둠</option>
+              <option value="12">12모둠</option>
+            </select>
+          </div>
+
+          <button type="submit" id="gateSubmitBtn" class="w-full py-4 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-extrabold text-base shadow-sm transition flex items-center justify-center gap-2">
+            <span>🚀</span>
+            <span>우리 반 갤러리 입장하기</span>
+          </button>
+        </form>
+
+        <div class="pt-2 border-t border-slate-100 text-center">
+          <p class="text-[11px] text-slate-400 leading-relaxed">
+            한 번 입장하면 브라우저를 닫았다가 다시 열어도 로그인과 업로드한 사진이 그대로 유지됩니다.
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <footer class="py-4 text-center text-xs text-slate-400">
+      도덕 수업 프로젝트 · 「멋진 하루에 숨겨진 생명의 고통」
+    </footer>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 2. 메인 애플리케이션 화면 (학번 입장 또는 교사 인증 완료 후 표시)     -->
+  <!-- ===================================================================== -->
+  <div id="mainAppShell" class="hidden min-h-screen flex flex-col">
+
+    <!-- 상단 고정 헤더 -->
+    <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-sky-100 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="py-3.5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+          <!-- 좌측 타이틀 & 학급/공개/잠금 상태 배지 -->
+          <div class="flex items-start sm:items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-sky-100 border border-sky-200 flex items-center justify-center text-sky-600 shrink-0 font-extrabold text-sm">
+              <span id="headerClassNumberBadge">3반</span>
+            </div>
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <h1 class="text-base sm:text-xl font-extrabold text-slate-900 tracking-tight">
+                  멋진 하루에 숨겨진 생명의 고통
+                </h1>
+                <span id="headerPublicBadge" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                  3반 비공개 🔒
+                </span>
+                <span id="headerLockBadge" class="hidden inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200">
+                  입장 잠금 중 ⛔
+                </span>
+                <span id="headerSyncModeBadge" class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  🔥 Firebase 실시간 동기화
+                </span>
+              </div>
+              <p class="text-xs text-slate-500 mt-0.5">
+                <span id="headerSubtitleClass">1학년 3반</span> 전용 4컷 만화 갤러리 · 다른 반 작품은 격리되어 보이지 않습니다
+              </p>
+            </div>
+          </div>
+
+          <!-- 우측 로그인 사용자 정보 배지 & 로그아웃(정보 변경) -->
+          <div class="flex flex-wrap items-center gap-2 self-end lg:self-center">
+            <div id="userSessionPill" class="px-3 py-1.5 rounded-xl bg-sky-50 border border-sky-200 text-xs font-extrabold text-sky-900 flex items-center gap-1.5">
+              <span>👤</span>
+              <span id="userSessionText">1학년 3반 · 1모둠 · 1307 김도덕</span>
+            </div>
+            <button onclick="logoutSession()" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition">
+              정보 변경 / 나가기
+            </button>
+          </div>
+        </div>
+
+        <!-- 4단 네비게이션 탭 -->
+        <nav id="mainNavTabs" class="flex gap-1 sm:gap-2 overflow-x-auto pb-0 border-t border-slate-100 pt-1" aria-label="메인 메뉴">
+          <button id="tabBtn-gallery" onclick="switchTab('gallery')" class="tab-btn flex items-center gap-1.5 px-4 py-2.5 text-xs sm:text-sm font-bold border-b-2 border-sky-600 text-sky-700 bg-sky-50/60 rounded-t-lg whitespace-nowrap transition">
+            <span>🖼️</span>
+            <span id="tabGalleryLabel">우리 반 4컷 만화 갤러리</span>
+          </button>
+          <button id="tabBtn-mygroup" onclick="switchTab('mygroup')" class="tab-btn flex items-center gap-1.5 px-4 py-2.5 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-600 hover:text-sky-700 hover:bg-slate-50 rounded-t-lg whitespace-nowrap transition">
+            <span>👥</span>
+            <span>모둠 작품 확인하기</span>
+            <span id="myGroupProgressPill" class="px-1.5 py-0.2 rounded-full bg-sky-100 text-sky-800 text-[10px] font-extrabold">0/4</span>
+          </button>
+          <button id="tabBtn-upload" onclick="switchTab('upload')" class="tab-btn flex items-center gap-1.5 px-4 py-2.5 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-600 hover:text-sky-700 hover:bg-slate-50 rounded-t-lg whitespace-nowrap transition">
+            <span>✏️</span>
+            <span>내 컷 업로드하기</span>
+          </button>
+          <button id="tabBtn-admin" onclick="switchTab('admin')" class="tab-btn flex items-center gap-1.5 px-4 py-2.5 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-600 hover:text-sky-700 hover:bg-slate-50 rounded-t-lg whitespace-nowrap transition">
+            <span>🔐</span>
+            <span>교사 관리자</span>
+            <span id="adminActiveDot" class="hidden w-2 h-2 rounded-full bg-emerald-500"></span>
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- ===================================================================== -->
+    <!-- 교사가 해당 반을 '입장 잠금(is_locked)' 했을 때 학생 전체 차단 화면     -->
+    <!-- ===================================================================== -->
+    <div id="classLockedBlocker" class="hidden flex-1 flex items-center justify-center px-4 py-12">
+      <div class="max-w-md w-full bg-white rounded-3xl border-2 border-rose-200 shadow-google p-8 text-center space-y-5 animate-fade-in">
+        <div class="w-20 h-20 mx-auto rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-4xl">
+          ⛔
+        </div>
+        <div class="space-y-2">
+          <span class="inline-block px-3 py-1 rounded-full bg-rose-100 text-rose-800 text-xs font-extrabold">
+            <span class="active-class-label">3반</span> 접근 제한 중
+          </span>
+          <h2 class="text-xl font-extrabold text-slate-900">
+            현재 선생님이 <span class="active-class-label">3반</span> 입장을 잠갔습니다
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            수업이 종료되었거나 다른 반 학생의 열람을 방지하기 위해 입장이 제한되어 있습니다.<br />
+            본인 반 학번이 맞는지 확인하거나 선생님이 잠금을 해제할 때까지 기다려주세요.
+          </p>
+        </div>
+        <div class="pt-2">
+          <button onclick="logoutSession()" class="w-full py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold transition">
+            학번 다시 입력하기 / 나가기
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 메인 컨텐츠 영역 -->
+    <main id="mainContentArea" class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+      <!-- =================================================================== -->
+      <!-- [탭 1] 우리 반 4컷 만화 갤러리                                      -->
+      <!-- =================================================================== -->
+      <section id="view-gallery" class="animate-fade-in space-y-6">
+        <!-- 교사 미리보기 안내 배너 -->
+        <div id="teacherPreviewBanner" class="hidden bg-sky-50 border border-sky-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">👩‍🏫</span>
+            <div>
+              <p class="text-sm font-bold text-sky-900"><span class="active-class-label">3반</span> 교사 미리보기 모드</p>
+              <p class="text-xs text-sky-700">현재 <span class="active-class-label">3반</span> 학생 화면은 <strong>비공개 🔒</strong> 상태입니다. 선생님 화면에서만 실시간 제작 현황이 보입니다.</p>
+            </div>
+          </div>
+          <button onclick="setClassPublicState(true)" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition shrink-0">
+            ✨ 지금 <span class="active-class-label">3반</span> 전체공개로 전환하기
+          </button>
+        </div>
+
+        <!-- 비공개 잠금 화면 -->
+        <div id="privateLockScreen" class="hidden py-10 sm:py-16">
+          <div class="max-w-lg mx-auto bg-white rounded-3xl border border-sky-100 shadow-google p-8 sm:p-10 text-center space-y-5">
+            <div class="w-20 h-20 mx-auto rounded-2xl bg-sky-50 border border-sky-100 flex items-center justify-center text-4xl">
+              🔒
+            </div>
+            <div class="space-y-2">
+              <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-800">
+                <span class="active-class-label">3반</span> 작품 제작 중
+              </span>
+              <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 leading-snug">
+                아직 선생님이 우리 반 작품을 공개하지 않았어요!
+              </h2>
+              <p class="text-sm text-slate-600 leading-relaxed">
+                모든 모둠이 4컷 만화를 완성할 때까지 기다려주세요 🔒<br />
+                우리 모둠원들이 올린 사진은 <strong>[👥 모둠 작품 확인하기]</strong> 탭에서 바로 볼 수 있어요!
+              </p>
+            </div>
+            <div class="pt-2 flex flex-col sm:flex-row gap-3 justify-center">
+              <button onclick="switchTab('mygroup')" class="px-5 py-3 bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 font-bold rounded-xl text-sm transition">
+                👥 우리 모둠 작품 확인하기
+              </button>
+              <button onclick="switchTab('upload')" class="px-5 py-3 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl text-sm shadow-xs transition">
+                ✏️ 내 컷 업로드하기
+              </button>
+            </div>
+            <p class="text-xs text-slate-400">
+              선생님이 '전체공개'를 누르면 새로고침 없이 즉시 자동으로 작품이 열립니다.
+            </p>
+          </div>
+        </div>
+
+        <!-- 전체공개 갤러리 본문 -->
+        <div id="publicGalleryArea" class="space-y-6">
+          <div class="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-md bg-sky-100 text-sky-800 text-xs font-bold"><span class="active-class-label">3반</span> 전시관</span>
+                <h2 class="text-base sm:text-lg font-bold text-slate-900">우리 반 모둠별 4컷 만화 갤러리</h2>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-500">
+                모둠 카드를 클릭하면 <strong>전자칠판 전체 화면</strong>으로 크게 감상하며 발표할 수 있습니다.
+              </p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2.5">
+              <div class="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200/80">
+                <button id="layoutBtn-2x2" onclick="setGalleryLayout('2x2')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-sky-700 shadow-xs transition">
+                  2×2 만화 프레임
+                </button>
+                <button id="layoutBtn-4x1" onclick="setGalleryLayout('4x1')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition">
+                  4×1 가로 파노라마
+                </button>
+              </div>
+
+              <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200/80 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-sky-50/50 select-none">
+                <input type="checkbox" id="filterCompletedOnly" onchange="renderGallery()" class="rounded text-sky-600 focus:ring-sky-500 w-4 h-4" />
+                <span>완성된 모둠만 보기</span>
+              </label>
+            </div>
+          </div>
+
+          <div id="groupFilterChips" class="flex items-center gap-2 overflow-x-auto pb-1"></div>
+          <div id="galleryGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- [탭 2] 👥 모둠 작품 확인하기 (비공개 중 우리 모둠 전용 협업 뷰)       -->
+      <!-- =================================================================== -->
+      <section id="view-mygroup" class="hidden animate-fade-in space-y-6">
+        <div class="max-w-4xl mx-auto space-y-6">
+          <div class="bg-white rounded-2xl border border-sky-200 p-5 sm:p-6 shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span id="myGroupBadge" class="px-3 py-0.5 rounded-full bg-sky-600 text-white text-xs font-extrabold">3반 · 1모둠</span>
+                <span class="px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200 text-xs font-bold">우리 모둠 전용 협업실</span>
+              </div>
+              <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 mt-1">
+                우리 모둠 4컷 만화 실시간 조합 확인
+              </h2>
+              <p class="text-xs sm:text-sm text-slate-500">
+                전체 갤러리가 <strong>비공개 🔒</strong>인 상태에서도 우리 모둠원들이 올린 1~4컷 흐름을 실시간으로 확인할 수 있습니다.
+              </p>
+            </div>
+            <button onclick="switchTab('upload')" class="px-4 py-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs sm:text-sm font-bold shadow-xs transition shrink-0">
+              ✏️ 내 컷 올리기 / 수정
+            </button>
+          </div>
+
+          <!-- 우리 모둠 4컷 프레임 카드 -->
+          <div id="myGroupComicCard" class="bg-white rounded-3xl border border-slate-200 shadow-google p-5 sm:p-7 space-y-5"></div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- [탭 3] ✏️ 내 컷 업로드하기                                           -->
+      <!-- =================================================================== -->
+      <section id="view-upload" class="hidden animate-fade-in">
+        <div class="max-w-2xl mx-auto space-y-6">
+          <!-- 상단 배너 -->
+          <div class="bg-gradient-to-r from-sky-600 to-sky-500 rounded-2xl p-6 text-white shadow-card">
+            <div class="flex items-start justify-between gap-4">
+              <div class="space-y-1.5">
+                <span id="uploadHeaderBadge" class="inline-block px-2.5 py-0.5 rounded-full bg-white/20 text-xs font-bold">
+                  1학년 3반 · 1모둠 · 1307 김도덕
+                </span>
+                <h2 class="text-xl sm:text-2xl font-extrabold">내가 맡은 만화 컷 올리기</h2>
+                <p class="text-sky-100 text-xs sm:text-sm leading-relaxed">
+                  올린 사진은 Firebase 클라우드에 <strong>영구 저장</strong>되므로 창을 닫거나 새로고침해도 초기화되지 않습니다.
+                </p>
+              </div>
+              <div class="text-4xl hidden sm:block">🎨</div>
+            </div>
+          </div>
+
+          <!-- 업로드 직후 '내 제출 이미지 확인' 강조 카드 -->
+          <div id="justUploadedCard" class="hidden bg-emerald-50 border-2 border-emerald-400 rounded-2xl p-5 sm:p-6 shadow-md animate-fade-in space-y-4">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-lg">✓</span>
+                <div>
+                  <h3 class="text-base sm:text-lg font-extrabold text-emerald-950">저장 완료! 내 제출 이미지 확인</h3>
+                  <p class="text-xs text-emerald-700">방금 올린 이미지가 우리 모둠 4컷 만화에 영구 반영되었습니다.</p>
+                </div>
+              </div>
+              <button onclick="document.getElementById('justUploadedCard').classList.add('hidden')" class="text-emerald-600 hover:text-emerald-800 p-1 rounded-lg">✕</button>
+            </div>
+            <div id="justUploadedContent" class="bg-white rounded-xl border border-emerald-200 p-4 flex flex-col sm:flex-row items-center gap-4"></div>
+            <div class="flex justify-end">
+              <button onclick="switchTab('mygroup')" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition">
+                👥 우리 모둠 4컷 전체 흐름 보러가기 →
+              </button>
+            </div>
+          </div>
+
+          <!-- 현재 내가 제출해 둔 컷 이미지 상시 확인 영역 -->
+          <div id="myExistingSubmissionsArea" class="hidden bg-white rounded-2xl border border-sky-200 p-5 space-y-3 shadow-2xs">
+            <div class="flex items-center justify-between">
+              <span class="text-xs sm:text-sm font-extrabold text-sky-950 flex items-center gap-1.5">
+                <span>📌</span>
+                <span>내가 현재 저장해 둔 컷 이미지 (재접속 시에도 유지됨)</span>
+              </span>
+              <span class="text-[11px] text-sky-600">같은 컷 재업로드 시 교체</span>
+            </div>
+            <div id="myExistingSubmissionsList" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+          </div>
+
+          <!-- 업로드 폼 카드 -->
+          <div class="bg-white rounded-2xl border border-slate-200/90 shadow-card p-5 sm:p-8 space-y-7">
+            <!-- STEP 1: 컷 순서 선택 -->
+            <div class="space-y-3">
+              <label class="block text-sm font-extrabold text-slate-800">
+                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-sky-100 text-sky-700 text-xs font-extrabold mr-1.5">1</span>
+                담당 컷 순서 선택 (4컷 스토리 구성)
+              </label>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5" id="cutSelectorGrid">
+                <label class="cut-option-card relative flex items-start gap-3 p-3.5 rounded-xl border-2 border-slate-200 cursor-pointer hover:border-sky-300 transition">
+                  <input type="radio" name="cutNum" value="1" onchange="onCutSelectionChange()" class="mt-1 text-sky-600 focus:ring-sky-500" />
+                  <div>
+                    <div class="font-bold text-sm text-slate-900">1컷 : 자유로웠던 원래 모습</div>
+                    <div class="text-xs text-slate-500 mt-0.5">자연 속에서 본래 습성대로 평화롭게 살던 모습</div>
+                  </div>
+                </label>
+
+                <label class="cut-option-card relative flex items-start gap-3 p-3.5 rounded-xl border-2 border-slate-200 cursor-pointer hover:border-sky-300 transition">
+                  <input type="radio" name="cutNum" value="2" onchange="onCutSelectionChange()" class="mt-1 text-sky-600 focus:ring-sky-500" />
+                  <div>
+                    <div class="font-bold text-sm text-slate-900">2컷 : 현재 모습</div>
+                    <div class="text-xs text-slate-500 mt-0.5">인간의 필요로 갇히거나 이용당하는 현재 모습</div>
+                  </div>
+                </label>
+
+                <label class="cut-option-card relative flex items-start gap-3 p-3.5 rounded-xl border-2 border-slate-200 cursor-pointer hover:border-sky-300 transition">
+                  <input type="radio" name="cutNum" value="3" onchange="onCutSelectionChange()" class="mt-1 text-sky-600 focus:ring-sky-500" />
+                  <div>
+                    <div class="font-bold text-sm text-slate-900">3컷 : 동물이 겪는 아픔과 상처</div>
+                    <div class="text-xs text-slate-500 mt-0.5">그 과정에서 동물이 겪는 신체적·정신적 고통</div>
+                  </div>
+                </label>
+
+                <label class="cut-option-card relative flex items-start gap-3 p-3.5 rounded-xl border-2 border-slate-200 cursor-pointer hover:border-sky-300 transition">
+                  <input type="radio" name="cutNum" value="4" onchange="onCutSelectionChange()" class="mt-1 text-sky-600 focus:ring-sky-500" />
+                  <div>
+                    <div class="font-bold text-sm text-slate-900">4컷 : 우리가 마주하는 상품</div>
+                    <div class="text-xs text-slate-500 mt-0.5">이면을 모른 채 일상에서 소비하는 최종 상품</div>
+                  </div>
+                </label>
+              </div>
+
+              <!-- 중복/덮어쓰기 안내 경고창 -->
+              <div id="overwriteWarningBox" class="hidden rounded-xl bg-amber-50 border border-amber-200 p-3.5 text-xs text-amber-900 flex items-start gap-2.5">
+                <span class="text-base leading-none">⚠️</span>
+                <div id="overwriteWarningText"></div>
+              </div>
+            </div>
+
+            <hr class="border-slate-100" />
+
+            <!-- STEP 2: 이미지 파일 업로드 & 자동 압축 -->
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <label class="block text-sm font-extrabold text-slate-800">
+                  <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-sky-100 text-sky-700 text-xs font-extrabold mr-1.5">2</span>
+                  만화 이미지 선택 (자동 최적화 압축)
+                </label>
+                <span class="text-xs text-slate-400">JPG, PNG, WEBP 지원</span>
+              </div>
+
+              <div
+                id="dropZone"
+                onclick="document.getElementById('imageFileInput').click()"
+                ondragover="handleDragOver(event)"
+                ondragleave="handleDragLeave(event)"
+                ondrop="handleDrop(event)"
+                class="border-2 border-dashed border-sky-200 hover:border-sky-400 bg-sky-50/30 hover:bg-sky-50/70 rounded-2xl p-6 sm:p-8 text-center cursor-pointer transition group"
+              >
+                <input type="file" id="imageFileInput" accept="image/jpeg,image/png,image/webp" onchange="handleImageSelect(event)" class="hidden" />
+                <div id="dropZonePlaceholder" class="space-y-2">
+                  <div class="w-12 h-12 mx-auto rounded-full bg-sky-100 text-sky-600 flex items-center justify-center group-hover:scale-105 transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <p class="text-sm font-bold text-slate-700">클릭하여 이미지 선택 또는 파일을 여기로 끌어오세요</p>
+                  <p class="text-xs text-slate-400">가로 최대 1000px · JPEG 0.8 품질로 자동 압축되어 영구 저장됩니다</p>
+                </div>
+
+                <div id="imagePreviewContainer" class="hidden space-y-3" onclick="event.stopPropagation()">
+                  <div class="relative max-w-md mx-auto rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-white">
+                    <img id="compressedPreviewImg" src="" alt="압축된 미리보기" class="w-full h-auto object-contain max-h-72 mx-auto" />
+                  </div>
+                  <div class="flex flex-wrap items-center justify-center gap-2 text-xs">
+                    <span id="compressionStatsBadge" class="px-3 py-1 rounded-full bg-sky-100 text-sky-800 font-semibold">압축 완료</span>
+                    <button type="button" onclick="document.getElementById('imageFileInput').click()" class="px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition">
+                      다른 이미지로 변경
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 제출 버튼 -->
+            <div class="pt-2">
+              <button
+                type="button"
+                id="submitCutBtn"
+                onclick="submitCut()"
+                disabled
+                class="w-full py-4 px-6 rounded-xl bg-sky-600 hover:bg-sky-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-extrabold text-base shadow-sm transition flex items-center justify-center gap-2"
+              >
+                <span>🚀</span>
+                <span id="submitCutBtnText">1단계: 담당 컷 순서를 먼저 선택해주세요</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- [탭 4] 🔐 교사 관리자 (1~8반 스위처 · 입장 잠금 · 실시간 공개 제어)  -->
+      <!-- =================================================================== -->
+      <section id="view-admin" class="hidden animate-fade-in">
+        <!-- 비인증 시 로그인 폼 -->
+        <div id="adminLoginBox" class="max-w-md mx-auto py-10">
+          <div class="bg-white rounded-3xl border border-slate-200 shadow-google p-8 space-y-6">
+            <div class="text-center space-y-2">
+              <div class="w-14 h-14 mx-auto rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center text-2xl">🔐</div>
+              <h2 class="text-xl font-extrabold text-slate-900">교사 관리자 인증</h2>
+              <p class="text-xs sm:text-sm text-slate-500">
+                1반~8반 전체 학급의 입장 잠금, 공개 상태, 모둠 제출 현황을 관리합니다.
+              </p>
+            </div>
+            <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+              <div>
+                <label for="adminPasswordInput" class="block text-xs font-bold text-slate-700 mb-1.5">관리자 비밀번호</label>
+                <input
+                  type="password"
+                  id="adminPasswordInput"
+                  placeholder="관리자 비밀번호 입력 (기본: 1234)"
+                  class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  required
+                />
+              </div>
+              <button type="submit" id="adminLoginSubmitBtn" class="w-full py-3.5 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl shadow-xs transition">
+                관리자 로그인
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- 인증 완료 시 관리자 대시보드 -->
+        <div id="adminDashboard" class="hidden space-y-6">
+          <!-- 상단 1~8반 원클릭 학급 스위처 -->
+          <div class="bg-white rounded-2xl border border-sky-200 p-4 sm:p-5 shadow-xs space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <span class="text-xs font-extrabold text-sky-700">학급 선택 (1반 ~ 8반 독립 제어 · 설정 영구 보존)</span>
+                <h2 class="text-base sm:text-lg font-extrabold text-slate-900">관리할 학급을 선택하세요</h2>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold">
+                  🔥 moral-4cut-gallery 실시간 연동됨
+                </span>
+                <button onclick="adminLogout()" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition">
+                  관리자 로그아웃
+                </button>
+              </div>
+            </div>
+
+            <!-- 1~8반 버튼 바 (각 반의 잠금/공개 상태 아이콘 실시간 표시) -->
+            <div id="adminClassSwitcher" class="grid grid-cols-4 sm:grid-cols-8 gap-2"></div>
+          </div>
+
+          <!-- 선택한 반 제어 패널 -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-xs space-y-5">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="px-3 py-1 rounded-xl bg-sky-600 text-white text-sm font-extrabold"><span class="active-class-label">3반</span></span>
+                <h3 class="text-base sm:text-lg font-extrabold text-slate-900">수업 진행 · 입장 잠금 · 전체공개 제어</h3>
+              </div>
+              <span class="text-[11px] text-slate-400">설정한 잠금/공개 상태는 페이지를 닫거나 새로고침해도 그대로 유지됩니다</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <!-- 1) 반 입장 잠금 (타 반 학생 치팅 접속 원천 차단) -->
+              <div class="rounded-2xl border border-slate-200 p-4 bg-slate-50/60 flex flex-col justify-between gap-3">
+                <div>
+                  <span class="text-xs font-bold text-slate-500">1. <span class="active-class-label">3반</span> 입장 잠금 (타 반 차단)</span>
+                  <div class="mt-1">
+                    <span id="adminCurrentLockText" class="text-base font-extrabold text-emerald-700">현재: 입장 허용 🟢</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 mt-1">수업 종료 후 잠그면 다른 반 학생이 3반 학번으로 들어올 수 없습니다.</p>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <button id="btnSetUnlocked" onclick="setClassLockedState(false)" class="py-2.5 px-2 rounded-xl text-xs font-bold border transition">
+                    🟢 입장 허용
+                  </button>
+                  <button id="btnSetLocked" onclick="setClassLockedState(true)" class="py-2.5 px-2 rounded-xl text-xs font-bold border transition">
+                    ⛔ 입장 잠금
+                  </button>
+                </div>
+              </div>
+
+              <!-- 2) 전체공개 / 비공개 전환 -->
+              <div class="rounded-2xl border border-slate-200 p-4 bg-slate-50/60 flex flex-col justify-between gap-3">
+                <div>
+                  <span class="text-xs font-bold text-slate-500">2. <span class="active-class-label">3반</span> 갤러리 전체공개</span>
+                  <div class="mt-1">
+                    <span id="adminCurrentPublicText" class="text-base font-extrabold text-amber-700">현재: 비공개 🔒</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 mt-1">전체공개 전환 시 3반 학생 화면에 즉시 전체 작품이 열립니다.</p>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <button id="btnSetPrivate" onclick="setClassPublicState(false)" class="py-2.5 px-2 rounded-xl text-xs font-bold border transition">
+                    🔒 비공개
+                  </button>
+                  <button id="btnSetPublic" onclick="setClassPublicState(true)" class="py-2.5 px-2 rounded-xl text-xs font-bold border transition">
+                    ✨ 전체공개
+                  </button>
+                </div>
+              </div>
+
+              <!-- 3) 해당 반 모둠 수 관리 -->
+              <div class="rounded-2xl border border-slate-200 p-4 bg-slate-50/60 flex flex-col justify-between gap-3">
+                <div>
+                  <span class="text-xs font-bold text-slate-500">3. <span class="active-class-label">3반</span> 모둠 수 설정</span>
+                  <div class="mt-1 flex items-baseline gap-2">
+                    <span id="adminTotalGroupsText" class="text-2xl font-extrabold text-sky-700">6모둠</span>
+                    <span class="text-xs text-slate-500">(최대 12모둠)</span>
+                  </div>
+                </div>
+                <div class="flex gap-2">
+                  <button onclick="changeClassTotalGroups(1)" class="flex-1 py-2.5 px-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold transition">
+                    + 모둠 추가
+                  </button>
+                  <button onclick="changeClassTotalGroups(-1)" class="py-2.5 px-3 rounded-xl bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 text-xs font-bold transition">
+                    -1
+                  </button>
+                </div>
+              </div>
+
+              <!-- 4) 해당 반 제출 통계 -->
+              <div class="rounded-2xl border border-slate-200 p-4 bg-slate-50/60 flex flex-col justify-between gap-3">
+                <div>
+                  <span class="text-xs font-bold text-slate-500">4. <span class="active-class-label">3반</span> 전체 제출 현황</span>
+                  <div class="mt-1 flex items-baseline gap-2">
+                    <span id="adminOverallProgressText" class="text-2xl font-extrabold text-emerald-600">0 / 24컷</span>
+                    <span id="adminCompletedGroupsBadge" class="text-xs font-semibold text-slate-500">(완성 0모둠)</span>
+                  </div>
+                </div>
+                <button onclick="switchTab('gallery')" class="w-full py-2.5 px-3 rounded-xl bg-white hover:bg-sky-50 text-sky-700 border border-sky-200 text-xs font-bold transition">
+                  🖼️ <span class="active-class-label">3반</span> 갤러리 미리보기
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 모둠별 4컷 제출 현황 매트릭스 -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-xs space-y-4">
+            <div>
+              <h3 class="text-base sm:text-lg font-extrabold text-slate-900">📊 <span class="active-class-label">3반</span> 모둠별 4컷 제출 현황 매트릭스</h3>
+              <p class="text-xs text-slate-500">1컷(원래 모습) ~ 4컷(우리가 마주하는 상품) 제출 학생과 썸네일을 실시간 확인합니다.</p>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse min-w-[700px]">
+                <thead>
+                  <tr class="border-b border-slate-200 bg-slate-50/80 text-xs font-bold text-slate-600">
+                    <th class="py-3 px-4 rounded-tl-xl">모둠</th>
+                    <th class="py-3 px-3">진행률</th>
+                    <th class="py-3 px-3">1컷 : 원래 모습</th>
+                    <th class="py-3 px-3">2컷 : 현재 모습</th>
+                    <th class="py-3 px-3">3컷 : 아픔과 상처</th>
+                    <th class="py-3 px-3">4컷 : 마주하는 상품</th>
+                    <th class="py-3 px-4 text-right rounded-tr-xl">전자칠판</th>
+                  </tr>
+                </thead>
+                <tbody id="adminMatrixBody" class="divide-y divide-slate-100 text-xs sm:text-sm"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="mt-12 border-t border-slate-200/80 bg-white py-6">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
+        <p>도덕 수업 프로젝트 · <strong>「멋진 하루에 숨겨진 생명의 고통」</strong> 1~8반 실시간 4컷 만화 갤러리</p>
+        <p>모든 생명의 존엄성을 생각하며 서로의 작품을 존중하는 마음으로 감상합시다 🌱</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 모달 1: 전자칠판 발표용 4컷 만화 확대 모달                            -->
+  <!-- ===================================================================== -->
+  <div id="presentationModal" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex flex-col">
+    <div class="px-4 sm:px-8 py-3.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between gap-4 text-white">
+      <div class="flex items-center gap-3">
+        <span id="modalGroupBadge" class="px-3.5 py-1 rounded-full bg-sky-500 text-white font-extrabold text-sm sm:text-base">
+          3반 1모둠
+        </span>
+        <div>
+          <h3 id="modalGroupTitle" class="text-sm sm:text-lg font-bold">멋진 하루에 숨겨진 생명의 고통</h3>
+          <p id="modalGroupMembers" class="text-xs text-slate-400 hidden sm:block"></p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-3">
+        <div class="hidden md:inline-flex rounded-xl bg-slate-800 p-1 border border-slate-700">
+          <button id="modalLayout2x2" onclick="setModalLayout('2x2')" class="px-3 py-1 rounded-lg text-xs font-bold bg-sky-600 text-white transition">2×2 프레임</button>
+          <button id="modalLayout4x1" onclick="setModalLayout('4x1')" class="px-3 py-1 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition">4×1 파노라마</button>
+        </div>
+
+        <div class="flex items-center gap-1.5">
+          <button onclick="navigateModalGroup(-1)" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs sm:text-sm font-bold border border-slate-700 transition">
+            ← 이전
+          </button>
+          <button onclick="navigateModalGroup(1)" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs sm:text-sm font-bold border border-slate-700 transition">
+            다음 →
+          </button>
+        </div>
+
+        <button onclick="closePresentationModal()" class="p-2 rounded-xl bg-slate-800 hover:bg-rose-600 text-slate-300 hover:text-white transition" title="닫기 (ESC)">
+          ✕
+        </button>
+      </div>
+    </div>
+
+    <div class="flex-1 overflow-y-auto p-4 sm:p-8 flex items-center justify-center" onclick="if(event.target === this) closePresentationModal()">
+      <div id="modalComicContainer" class="w-full max-w-5xl bg-white rounded-3xl p-4 sm:p-6 shadow-2xl"></div>
+    </div>
+
+    <div class="py-2.5 text-center text-xs text-slate-400 bg-slate-900/80 border-t border-slate-800">
+      키보드 <kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-slate-200">←</kbd> <kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-slate-200">→</kbd> 화살표로 모둠 이동 · <kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-slate-200">ESC</kbd> 닫기
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 모달 2: 게이트키퍼 화면용 교사 빠른 로그인 모달                        -->
+  <!-- ===================================================================== -->
+  <div id="gateAdminModal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4" onclick="if(event.target === this) closeGateAdminModal()">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-7 shadow-2xl border border-slate-200 space-y-5">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-extrabold text-slate-900">🔐 교사 관리자 바로 입장</h3>
+        <button onclick="closeGateAdminModal()" class="text-slate-400 hover:text-slate-700">✕</button>
+      </div>
+      <p class="text-xs text-slate-500">학번 입력 없이 관리자 비밀번호로 1~8반 전체 제어판에 바로 입장합니다.</p>
+      <form onsubmit="handleGateAdminSubmit(event)" class="space-y-4">
+        <input
+          type="password"
+          id="gateAdminPwInput"
+          placeholder="관리자 비밀번호 (기본: 1234)"
+          class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+          required
+        />
+        <button type="submit" id="gateAdminSubmitBtn" class="w-full py-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm transition">
+          교사 제어판 열기
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 메인 애플리케이션 스크립트 (Firebase v10 실시간 연동 직접 내장)       -->
+  <!-- ===================================================================== -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+    import {
+      getFirestore, doc, getDoc, setDoc, collection, onSnapshot
+    } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+    import {
+      getStorage, ref as storageRef, uploadString, getDownloadURL
+    } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js';
+
+    /*************************************************************************
+     * 1. Firebase 프로젝트 설정 직접 탑재 (별도 입력 없이 즉시 실시간 연동)
+     *************************************************************************/
+    const firebaseConfig = {
+      apiKey: "AIzaSyDityNbrG-CgHXNZHJA-3BAcZ7x8YIQrn4",
+      authDomain: "moral-4cut-gallery.firebaseapp.com",
+      projectId: "moral-4cut-gallery",
+      storageBucket: "moral-4cut-gallery.firebasestorage.app",
+      messagingSenderId: "272047084170",
+      appId: "1:272047084170:web:6e695ea31110d0f89c5373"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    // 영구 세션 키 (localStorage 사용하여 창을 닫아도 설정 및 로그인 유지)
+    const STORAGE_KEY_SESSION = 'moral_4cut_v6_session';
+    const STORAGE_KEY_ADMIN = 'moral_4cut_v6_admin';
+
+    // 4컷 만화 구성 메타데이터
+    const CUT_META = {
+      1: { short: '1컷 · 원래 모습', title: '1컷 : 자유로웠던 원래 모습', badgeBg: 'bg-sky-100 text-sky-800' },
+      2: { short: '2컷 · 현재 모습', title: '2컷 : 현재 모습', badgeBg: 'bg-indigo-100 text-indigo-800' },
+      3: { short: '3컷 · 아픔과 상처', title: '3컷 : 동물이 겪는 아픔과 상처', badgeBg: 'bg-rose-100 text-rose-800' },
+      4: { short: '4컷 · 마주하는 상품', title: '4컷 : 우리가 마주하는 상품', badgeBg: 'bg-emerald-100 text-emerald-800' }
+    };
+
+    // 실시간 리스너 핸들러
+    let unsubConfig = null;
+    let unsubSubs = null;
+    const allClassUnsubscribers = [];
+
+    // 전역 애플리케이션 상태
+    const state = {
+      session: null, // { role: 'student'|'teacher', student_id, student_name, grade, class_id, group_id }
+      isAdmin: false,
+      activeClassId: 1, // 현재 조회/관리 중인 학급 (1~8)
+      classConfig: {
+        is_public: false,
+        is_locked: false,
+        total_groups: 6
+      },
+      allClassesSummary: {}, // 교사용 1~8반 요약 상태 { 1: { is_public, is_locked, total_groups }, ... }
+      submissions: [], // 현재 activeClassId의 제출 목록
+      activeTab: 'gallery',
+      galleryLayout: '2x2',
+      modalLayout: '2x2',
+      selectedGroupFilter: 'all',
+      compressedBase64: '',
+      modalGroupId: 1
+    };
+
+    /*************************************************************************
+     * 2. 초기화 및 영구 세션 복원 (이탈·재접속 시 설정/로그인 그대로 유지)
+     *************************************************************************/
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('gateFirebaseBadge').textContent = '🔥 Firebase 실시간 연동됨';
+
+      // 1) 교사 관리자 세션 영구 복원 (localStorage 기반이라 창을 닫아도 유지됨)
+      if (localStorage.getItem(STORAGE_KEY_ADMIN) === 'true') {
+        state.isAdmin = true;
+        subscribeAllClassesSummary();
+      }
+
+      // 2) 학생/교사 입장 세션 영구 복원
+      const savedSessionRaw = localStorage.getItem(STORAGE_KEY_SESSION);
+      if (savedSessionRaw) {
+        try {
+          const parsed = JSON.parse(savedSessionRaw);
+          if (parsed && parsed.class_id >= 1 && parsed.class_id <= 8) {
+            state.session = parsed;
+            state.activeClassId = Number(parsed.class_id);
+            enterMainApp();
+          }
+        } catch (e) {
+          localStorage.removeItem(STORAGE_KEY_SESSION);
+        }
+      }
+
+      // 3) 키보드 화살표 발표 단축키
+      document.addEventListener('keydown', (e) => {
+        const modal = document.getElementById('presentationModal');
+        if (!modal.classList.contains('hidden')) {
+          if (e.key === 'ArrowLeft') navigateModalGroup(-1);
+          if (e.key === 'ArrowRight') navigateModalGroup(1);
+          if (e.key === 'Escape') closePresentationModal();
+        }
+      });
+    });
+
+    /*************************************************************************
+     * 3. Firestore 실시간 구독 엔진 (반별 격리 & 교사 전체 요약)
+     *************************************************************************/
+    function subscribeToClass(classId) {
+      state.activeClassId = Number(classId);
+
+      if (unsubConfig) { unsubConfig(); unsubConfig = null; }
+      if (unsubSubs) { unsubSubs(); unsubSubs = null; }
+
+      const cid = String(state.activeClassId);
+
+      // 1) classes/{classId}/meta/config 실시간 구독 (전체공개 및 입장 잠금 즉시 반영)
+      const cfgRef = doc(db, 'classes', cid, 'meta', 'config');
+      unsubConfig = onSnapshot(cfgRef, (snap) => {
+        const prevPublic = state.classConfig.is_public;
+        if (snap.exists()) {
+          const d = snap.data();
+          state.classConfig = {
+            is_public: Boolean(d.is_public),
+            is_locked: Boolean(d.is_locked),
+            total_groups: Number(d.total_groups) || 6
+          };
+          if (!prevPublic && state.classConfig.is_public && !state.isAdmin && !state.classConfig.is_locked) {
+            showToast(`✨ 선생님이 ${cid}반 4컷 만화를 전체공개했습니다!`, 'success');
+          }
+        } else {
+          state.classConfig = { is_public: false, is_locked: false, total_groups: 6 };
+        }
+        renderAll();
+      }, (err) => {
+        showToast('실시간 설정 수신 오류: ' + err.message, 'error');
+      });
+
+      // 2) classes/{classId}/submissions 실시간 구독
+      const subsColRef = collection(db, 'classes', cid, 'submissions');
+      unsubSubs = onSnapshot(subsColRef, (snap) => {
+        const list = [];
+        snap.forEach((docSnap) => {
+          list.push(docSnap.data());
+        });
+        state.submissions = list;
+        renderAll();
+      });
+    }
+
+    // 교사 인증 시 1~8반 전체의 잠금/공개 상태를 실시간으로 감시하여 스위처 배지에 표시
+    function subscribeAllClassesSummary() {
+      if (allClassUnsubscribers.length > 0) return;
+      for (let c = 1; c <= 8; c++) {
+        const cfgRef = doc(db, 'classes', String(c), 'meta', 'config');
+        const unsub = onSnapshot(cfgRef, (snap) => {
+          if (snap.exists()) {
+            const d = snap.data();
+            state.allClassesSummary[c] = {
+              is_public: Boolean(d.is_public),
+              is_locked: Boolean(d.is_locked),
+              total_groups: Number(d.total_groups) || 6
+            };
+          } else {
+            state.allClassesSummary[c] = { is_public: false, is_locked: false, total_groups: 6 };
+          }
+          if (state.isAdmin) renderAdminView();
+        });
+        allClassUnsubscribers.push(unsub);
+      }
+    }
+
+    /*************************************************************************
+     * 4. 게이트키퍼 학번 4자리 입장 (잠긴 반 입장 사전 차단 포함)
+     *************************************************************************/
+    function parseClassFromStudentId(studentId) {
+      const str = String(studentId || '').trim();
+      if (!/^\d{4}$/.test(str)) return null;
+      const grade = Number(str[0]);
+      const classNum = Number(str[1]);
+      if (classNum < 1 || classNum > 8) return null;
+      return { grade, classId: classNum };
+    }
+
+    window.previewGateClassInfo = function () {
+      const val = document.getElementById('gateStudentId').value.trim();
+      const box = document.getElementById('gateClassPreview');
+      if (val.length < 2) {
+        box.classList.add('hidden');
+        return;
+      }
+      const classDigit = Number(val[1]);
+      if (classDigit >= 1 && classDigit <= 8) {
+        box.classList.remove('hidden');
+        box.className = 'mt-2 px-3 py-2 rounded-lg bg-sky-50 border border-sky-200 text-xs font-bold text-sky-800';
+        box.textContent = `✓ 자동 인식: ${val[0] || 1}학년 ${classDigit}반 전용 갤러리로 입장합니다.`;
+      } else {
+        box.classList.remove('hidden');
+        box.className = 'mt-2 px-3 py-2 rounded-lg bg-rose-50 border border-rose-200 text-xs font-bold text-rose-700';
+        box.textContent = `⚠️ 학번 두 번째 자리(반 번호)는 1~8반 사이여야 합니다.`;
+      }
+    };
+
+    window.handleStudentGateLogin = async function (e) {
+      e.preventDefault();
+      const studentId = document.getElementById('gateStudentId').value.trim();
+      const studentName = document.getElementById('gateStudentName').value.trim();
+      const groupId = Number(document.getElementById('gateGroupId').value);
+
+      const parsed = parseClassFromStudentId(studentId);
+      if (!parsed) {
+        showToast('학번 4자리(1~8반, 예: 1307)를 정확히 입력해주세요.', 'error');
+        return;
+      }
+      if (!studentName) {
+        showToast('이름을 입력해주세요.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('gateSubmitBtn');
+      btn.disabled = true;
+
+      try {
+        // 입장 전 해당 반이 교사에 의해 '입장 잠금(is_locked)' 되어 있는지 서버에서 즉시 확인
+        const cfgSnap = await getDoc(doc(db, 'classes', String(parsed.classId), 'meta', 'config'));
+        if (cfgSnap.exists() && cfgSnap.data().is_locked === true && !state.isAdmin) {
+          showToast(`⛔ 현재 선생님이 ${parsed.classId}반 입장을 잠갔습니다. 다른 반은 접속할 수 없습니다.`, 'error');
+          btn.disabled = false;
+          return;
+        }
+
+        state.session = {
+          role: 'student',
+          student_id: studentId,
+          student_name: studentName,
+          grade: parsed.grade,
+          class_id: parsed.classId,
+          group_id: groupId
+        };
+        localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(state.session));
+        enterMainApp();
+        showToast(`${parsed.grade}학년 ${parsed.classId}반 ${groupId}모둠으로 입장했습니다!`, 'success');
+      } catch (err) {
+        showToast('입장 확인 중 오류가 발생했습니다: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    };
+
+    function enterMainApp() {
+      document.getElementById('gatekeeperScreen').classList.add('hidden');
+      document.getElementById('mainAppShell').classList.remove('hidden');
+
+      const cid = state.session.class_id;
+      subscribeToClass(cid);
+
+      if (state.session.role === 'teacher' && state.isAdmin) {
+        switchTab('admin');
+      } else {
+        switchTab('gallery');
+      }
+    }
+
+    window.logoutSession = function () {
+      if (unsubConfig) { unsubConfig(); unsubConfig = null; }
+      if (unsubSubs) { unsubSubs(); unsubSubs = null; }
+      state.session = null;
+      localStorage.removeItem(STORAGE_KEY_SESSION);
+      document.getElementById('mainAppShell').classList.add('hidden');
+      document.getElementById('gatekeeperScreen').classList.remove('hidden');
+      showToast('입장 화면으로 돌아왔습니다.', 'info');
+    };
+
+    /*************************************************************************
+     * 5. 탭 전환 & 전체 UI 렌더링 (반 잠금 차단기 포함)
+     *************************************************************************/
+    window.switchTab = function (tabName) {
+      state.activeTab = tabName;
+      ['gallery', 'mygroup', 'upload', 'admin'].forEach((t) => {
+        const viewEl = document.getElementById(`view-${t}`);
+        const btnEl = document.getElementById(`tabBtn-${t}`);
+        if (t === tabName) {
+          viewEl.classList.remove('hidden');
+          btnEl.className = 'tab-btn flex items-center gap-1.5 px-4 py-2.5 text-xs sm:text-sm font-bold border-b-2 border-sky-600 text-sky-700 bg-sky-50/60 rounded-t-lg whitespace-nowrap transition';
+        } else {
+          viewEl.classList.add('hidden');
+          btnEl.className = 'tab-btn flex items-center gap-1.5 px-4 py-2.5 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-600 hover:text-sky-700 hover:bg-slate-50 rounded-t-lg whitespace-nowrap transition';
+        }
+      });
+
+      renderAll();
+    };
+
+    function renderAll() {
+      if (!state.session) return;
+
+      const cid = state.activeClassId;
+      const isPublic = state.classConfig.is_public;
+      const isLocked = state.classConfig.is_locked;
+
+      // 헤더 반 번호 & 상태 배지 업데이트
+      document.getElementById('headerClassNumberBadge').textContent = `${cid}반`;
+      document.getElementById('headerSubtitleClass').textContent = `${state.session.grade || 1}학년 ${cid}반`;
+      document.getElementById('tabGalleryLabel').textContent = `${cid}반 4컷 만화 갤러리`;
+
+      document.querySelectorAll('.active-class-label').forEach((el) => {
+        el.textContent = `${cid}반`;
+      });
+
+      const pubBadge = document.getElementById('headerPublicBadge');
+      if (isPublic) {
+        pubBadge.textContent = `${cid}반 전체공개 ✨`;
+        pubBadge.className = 'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200';
+      } else {
+        pubBadge.textContent = `${cid}반 비공개 🔒`;
+        pubBadge.className = 'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200';
+      }
+
+      const lockBadge = document.getElementById('headerLockBadge');
+      if (isLocked) lockBadge.classList.remove('hidden');
+      else lockBadge.classList.add('hidden');
+
+      // 상단 사용자 배지
+      const sessionTextEl = document.getElementById('userSessionText');
+      if (state.session.role === 'teacher') {
+        sessionTextEl.textContent = `👩‍🏫 교사 관리자 모드 (${cid}반 관리 중)`;
+      } else {
+        sessionTextEl.textContent = `${state.session.grade}학년 ${cid}반 · ${state.session.group_id}모둠 · ${state.session.student_id} ${state.session.student_name}`;
+      }
+
+      // 관리자 활성화 점
+      const adminDot = document.getElementById('adminActiveDot');
+      if (state.isAdmin) adminDot.classList.remove('hidden');
+      else adminDot.classList.add('hidden');
+
+      // 교사가 해당 반을 '입장 잠금(is_locked)' 했을 때 학생 화면 전체 차단 처리
+      const blockerEl = document.getElementById('classLockedBlocker');
+      const mainContentEl = document.getElementById('mainContentArea');
+      const navTabsEl = document.getElementById('mainNavTabs');
+
+      if (isLocked && !state.isAdmin) {
+        blockerEl.classList.remove('hidden');
+        mainContentEl.classList.add('hidden');
+        navTabsEl.classList.add('hidden');
+        return;
+      } else {
+        blockerEl.classList.add('hidden');
+        mainContentEl.classList.remove('hidden');
+        navTabsEl.classList.remove('hidden');
+      }
+
+      // 우리 모둠 진행률 뱃지
+      const myGroupId = Number(state.session.group_id) || 1;
+      const myGroupSubs = state.submissions.filter((s) => Number(s.group_id) === myGroupId);
+      const myGroupCount = [1, 2, 3, 4].filter((c) => myGroupSubs.some((s) => Number(s.cut_num) === c)).length;
+      document.getElementById('myGroupProgressPill').textContent = `${myGroupCount}/4`;
+
+      renderGallery();
+      renderMyGroupTab();
+      renderUploadTabStatus();
+      renderAdminView();
+    }
+
+    /*************************************************************************
+     * 6. [탭 1] 우리 반 4컷 만화 갤러리 & 프레젠테이션 모달
+     *************************************************************************/
+    window.setGalleryLayout = function (layout) {
+      state.galleryLayout = layout;
+      const btn2 = document.getElementById('layoutBtn-2x2');
+      const btn4 = document.getElementById('layoutBtn-4x1');
+      if (layout === '2x2') {
+        btn2.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-sky-700 shadow-xs transition';
+        btn4.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition';
+      } else {
+        btn4.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-sky-700 shadow-xs transition';
+        btn2.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition';
+      }
+      renderGallery();
+    };
+
+    window.setGroupFilter = function (val) {
+      state.selectedGroupFilter = val;
+      renderGallery();
+    };
+
+    window.renderGallery = function () {
+      const lockScreen = document.getElementById('privateLockScreen');
+      const publicArea = document.getElementById('publicGalleryArea');
+      const previewBanner = document.getElementById('teacherPreviewBanner');
+
+      if (!state.classConfig.is_public && !state.isAdmin) {
+        lockScreen.classList.remove('hidden');
+        publicArea.classList.add('hidden');
+        previewBanner.classList.add('hidden');
+        return;
+      }
+
+      lockScreen.classList.add('hidden');
+      publicArea.classList.remove('hidden');
+      if (!state.classConfig.is_public && state.isAdmin) {
+        previewBanner.classList.remove('hidden');
+      } else {
+        previewBanner.classList.add('hidden');
+      }
+
+      const totalGroups = state.classConfig.total_groups || 6;
+      const chipsContainer = document.getElementById('groupFilterChips');
+      let chipsHtml = `
+        <button onclick="setGroupFilter('all')" class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition ${state.selectedGroupFilter === 'all' ? 'bg-sky-600 text-white shadow-xs' : 'bg-white text-slate-600 border border-slate-200 hover:bg-sky-50'}">
+          전체 모둠 (${totalGroups})
+        </button>
+      `;
+      for (let g = 1; g <= totalGroups; g++) {
+        const active = state.selectedGroupFilter === g;
+        chipsHtml += `
+          <button onclick="setGroupFilter(${g})" class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition ${active ? 'bg-sky-600 text-white shadow-xs' : 'bg-white text-slate-600 border border-slate-200 hover:bg-sky-50'}">
+            ${g}모둠
+          </button>
+        `;
+      }
+      chipsContainer.innerHTML = chipsHtml;
+
+      const gridEl = document.getElementById('galleryGrid');
+      gridEl.className = state.galleryLayout === '4x1'
+        ? 'grid grid-cols-1 gap-6'
+        : 'grid grid-cols-1 lg:grid-cols-2 gap-6';
+
+      const completedOnly = document.getElementById('filterCompletedOnly').checked;
+      let cardsHtml = '';
+      let visibleCount = 0;
+
+      for (let g = 1; g <= totalGroups; g++) {
+        if (state.selectedGroupFilter !== 'all' && state.selectedGroupFilter !== g) continue;
+
+        const groupSubs = state.submissions.filter((s) => Number(s.group_id) === g);
+        const count = [1, 2, 3, 4].filter((c) => groupSubs.some((s) => Number(s.cut_num) === c)).length;
+        if (completedOnly && count < 4) continue;
+        visibleCount++;
+
+        const isComplete = count === 4;
+        const innerGridClass = state.galleryLayout === '4x1'
+          ? 'grid grid-cols-2 sm:grid-cols-4 gap-3'
+          : 'grid grid-cols-2 gap-3';
+
+        let panelsHtml = '';
+        for (let c = 1; c <= 4; c++) {
+          const sub = groupSubs.find((s) => Number(s.cut_num) === c);
+          const meta = CUT_META[c];
+
+          if (sub) {
+            panelsHtml += `
+              <div class="group/panel rounded-xl overflow-hidden border border-slate-200 bg-slate-50 flex flex-col">
+                <div class="px-2.5 py-1.5 bg-white border-b border-slate-100 flex items-center justify-between gap-1">
+                  <span class="px-2 py-0.5 rounded text-[11px] font-extrabold ${meta.badgeBg}">${meta.short}</span>
+                  <span class="text-[11px] font-medium text-slate-500 truncate">${escapeHtml(sub.student_id)} ${escapeHtml(sub.student_name)}</span>
+                </div>
+                <div class="comic-panel-aspect w-full bg-white overflow-hidden flex items-center justify-center">
+                  <img src="${sub.image_url}" alt="${g}모둠 ${c}컷" class="w-full h-full object-cover group-hover/panel:scale-[1.02] transition-transform duration-300" loading="lazy" />
+                </div>
+              </div>
+            `;
+          } else {
+            panelsHtml += `
+              <div class="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/70 flex flex-col">
+                <div class="px-2.5 py-1.5 border-b border-slate-200/60 flex items-center justify-between">
+                  <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-200/70 text-slate-500">${meta.short}</span>
+                  <span class="text-[11px] text-slate-400">대기 중</span>
+                </div>
+                <div class="comic-panel-aspect w-full flex flex-col items-center justify-center p-3 text-center">
+                  <span class="text-xl mb-1 opacity-40">✏️</span>
+                  <span class="text-xs font-bold text-slate-400">${c}컷 제작 중...</span>
+                </div>
+              </div>
+            `;
+          }
+        }
+
+        cardsHtml += `
+          <article onclick="openPresentationModal(${g})" class="bg-white rounded-2xl border ${isComplete ? 'border-sky-200' : 'border-slate-200/90'} shadow-card hover:shadow-google hover:border-sky-400 transition cursor-pointer overflow-hidden flex flex-col">
+            <div class="px-5 py-3.5 bg-gradient-to-r ${isComplete ? 'from-sky-50 to-white' : 'from-slate-50 to-white'} border-b border-slate-100 flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2.5">
+                <span class="px-3 py-1 rounded-xl ${isComplete ? 'bg-sky-600 text-white' : 'bg-slate-700 text-white'} text-xs sm:text-sm font-extrabold">
+                  ${g}모둠
+                </span>
+                <span class="text-xs font-bold ${isComplete ? 'text-emerald-600' : 'text-slate-500'}">
+                  ${isComplete ? '✨ 4/4컷 완성' : `진행 중 (${count}/4컷)`}
+                </span>
+              </div>
+              <span class="text-xs font-bold text-sky-600">전자칠판 크게 보기 ↗</span>
+            </div>
+            <div class="p-4 ${innerGridClass}">
+              ${panelsHtml}
+            </div>
+          </article>
+        `;
+      }
+
+      if (visibleCount === 0) {
+        cardsHtml = `
+          <div class="col-span-full py-16 text-center bg-white rounded-2xl border border-slate-200">
+            <p class="text-slate-500 font-bold">조건에 해당하는 모둠 작품이 아직 없습니다.</p>
+          </div>
+        `;
+      }
+
+      gridEl.innerHTML = cardsHtml;
+    };
+
+    /* 전자칠판 프레젠테이션 모달 */
+    window.openPresentationModal = function (groupId) {
+      state.modalGroupId = groupId;
+      state.modalLayout = state.galleryLayout;
+      renderPresentationModal();
+      document.getElementById('presentationModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    };
+
+    window.closePresentationModal = function () {
+      document.getElementById('presentationModal').classList.add('hidden');
+      document.body.style.overflow = '';
+    };
+
+    window.navigateModalGroup = function (delta) {
+      const total = state.classConfig.total_groups || 6;
+      let next = state.modalGroupId + delta;
+      if (next < 1) next = total;
+      if (next > total) next = 1;
+      state.modalGroupId = next;
+      renderPresentationModal();
+    };
+
+    window.setModalLayout = function (layout) {
+      state.modalLayout = layout;
+      renderPresentationModal();
+    };
+
+    function renderPresentationModal() {
+      const cid = state.activeClassId;
+      const g = state.modalGroupId;
+      const groupSubs = state.submissions.filter((s) => Number(s.group_id) === g);
+
+      document.getElementById('modalGroupBadge').textContent = `${cid}반 ${g}모둠`;
+      document.getElementById('modalGroupTitle').textContent = `${cid}반 ${g}모둠의 4컷 만화 「멋진 하루에 숨겨진 생명의 고통」`;
+
+      const authors = [1, 2, 3, 4]
+        .map((c) => groupSubs.find((s) => Number(s.cut_num) === c))
+        .filter(Boolean)
+        .map((s) => `${s.cut_num}컷(${s.student_name})`)
+        .join(' · ');
+      document.getElementById('modalGroupMembers').textContent = authors ? `제작 참여: ${authors}` : '';
+
+      const btn2 = document.getElementById('modalLayout2x2');
+      const btn4 = document.getElementById('modalLayout4x1');
+      if (state.modalLayout === '2x2') {
+        btn2.className = 'px-3 py-1 rounded-lg text-xs font-bold bg-sky-600 text-white transition';
+        btn4.className = 'px-3 py-1 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition';
+      } else {
+        btn4.className = 'px-3 py-1 rounded-lg text-xs font-bold bg-sky-600 text-white transition';
+        btn2.className = 'px-3 py-1 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition';
+      }
+
+      const gridClass = state.modalLayout === '4x1'
+        ? 'grid grid-cols-1 sm:grid-cols-4 gap-4'
+        : 'grid grid-cols-1 sm:grid-cols-2 gap-4';
+
+      let html = `<div class="${gridClass}">`;
+      for (let c = 1; c <= 4; c++) {
+        const sub = groupSubs.find((s) => Number(s.cut_num) === c);
+        const meta = CUT_META[c];
+        if (sub) {
+          html += `
+            <div class="rounded-2xl overflow-hidden border-2 border-slate-200 bg-slate-50 flex flex-col">
+              <div class="px-3.5 py-2 bg-white border-b border-slate-200 flex items-center justify-between gap-2">
+                <span class="px-2.5 py-0.5 rounded-md text-xs font-extrabold ${meta.badgeBg}">${meta.title}</span>
+                <span class="text-xs font-bold text-slate-600 shrink-0">${escapeHtml(sub.student_id)} ${escapeHtml(sub.student_name)}</span>
+              </div>
+              <div class="comic-panel-aspect w-full bg-white flex items-center justify-center overflow-hidden">
+                <img src="${sub.image_url}" alt="${g}모둠 ${c}컷" class="w-full h-full object-contain" />
+              </div>
+            </div>
+          `;
+        } else {
+          html += `
+            <div class="rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 flex flex-col">
+              <div class="px-3.5 py-2 border-b border-slate-200 flex items-center justify-between">
+                <span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-slate-200 text-slate-600">${meta.title}</span>
+                <span class="text-xs text-slate-400">미제출</span>
+              </div>
+              <div class="comic-panel-aspect w-full flex flex-col items-center justify-center p-6 text-center">
+                <span class="text-3xl mb-2 opacity-40">🎨</span>
+                <span class="text-sm font-bold text-slate-400">${c}컷 제작 중...</span>
+              </div>
+            </div>
+          `;
+        }
+      }
+      html += `</div>`;
+      document.getElementById('modalComicContainer').innerHTML = html;
+    }
+
+    /*************************************************************************
+     * 7. [탭 2] 👥 모둠 작품 확인하기 (비공개 중 우리 모둠 협업 뷰)
+     *************************************************************************/
+    function renderMyGroupTab() {
+      const cid = state.activeClassId;
+      const g = Number(state.session.group_id) || 1;
+      document.getElementById('myGroupBadge').textContent = `${cid}반 · ${g}모둠`;
+
+      const groupSubs = state.submissions.filter((s) => Number(s.group_id) === g);
+      const count = [1, 2, 3, 4].filter((c) => groupSubs.some((s) => Number(s.cut_num) === c)).length;
+
+      let panelsHtml = '';
+      for (let c = 1; c <= 4; c++) {
+        const sub = groupSubs.find((s) => Number(s.cut_num) === c);
+        const meta = CUT_META[c];
+
+        if (sub) {
+          panelsHtml += `
+            <div class="rounded-2xl overflow-hidden border-2 border-sky-200 bg-white flex flex-col shadow-2xs">
+              <div class="px-3.5 py-2.5 bg-sky-50/70 border-b border-sky-100 flex items-center justify-between gap-2">
+                <span class="px-2.5 py-0.5 rounded-md text-xs font-extrabold ${meta.badgeBg}">${meta.title}</span>
+                <span class="text-xs font-bold text-slate-700 shrink-0">${escapeHtml(sub.student_id)} ${escapeHtml(sub.student_name)}</span>
+              </div>
+              <div class="comic-panel-aspect w-full bg-white flex items-center justify-center overflow-hidden">
+                <img src="${sub.image_url}" alt="${g}모둠 ${c}컷" class="w-full h-full object-contain" />
+              </div>
+              <div class="px-3.5 py-2 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+                <span>저장 완료 (영구 보관)</span>
+                <span>${escapeHtml(sub.updated_at || '')}</span>
+              </div>
+            </div>
+          `;
+        } else {
+          panelsHtml += `
+            <div class="rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/80 flex flex-col">
+              <div class="px-3.5 py-2.5 border-b border-slate-200 flex items-center justify-between">
+                <span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-slate-200 text-slate-600">${meta.title}</span>
+                <span class="text-xs text-slate-400">아직 비어 있음</span>
+              </div>
+              <div class="comic-panel-aspect w-full flex flex-col items-center justify-center p-6 text-center space-y-2">
+                <span class="text-3xl opacity-40">🖼️</span>
+                <p class="text-sm font-bold text-slate-500">${c}컷을 담당한 모둠원이 올리면 여기에 표시됩니다</p>
+                <button onclick="quickSelectCutAndGoUpload(${c})" class="px-3.5 py-1.5 rounded-lg bg-white hover:bg-sky-50 text-sky-700 border border-sky-200 text-xs font-bold transition">
+                  내가 ${c}컷 올리기 →
+                </button>
+              </div>
+            </div>
+          `;
+        }
+      }
+
+      document.getElementById('myGroupComicCard').innerHTML = `
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+          <div class="flex items-center gap-2.5">
+            <h3 class="text-base sm:text-lg font-extrabold text-slate-900">${cid}반 ${g}모둠 4컷 조합 (${count}/4컷 완성)</h3>
+            ${count === 4 ? '<span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold">🎉 완성 완료!</span>' : ''}
+          </div>
+          <span class="text-xs text-slate-400">모둠원이 업로드하면 실시간 자동 갱신</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          ${panelsHtml}
+        </div>
+      `;
+    }
+
+    window.quickSelectCutAndGoUpload = function (cutNum) {
+      switchTab('upload');
+      const radio = document.querySelector(`input[name="cutNum"][value="${cutNum}"]`);
+      if (radio) {
+        radio.checked = true;
+        onCutSelectionChange();
+      }
+    };
+
+    /*************************************************************************
+     * 8. [탭 3] ✏️ 내 컷 업로드하기 & Firebase 영구 저장
+     *************************************************************************/
+    function renderUploadTabStatus() {
+      const s = state.session;
+      document.getElementById('uploadHeaderBadge').textContent =
+        `${s.grade || 1}학년 ${s.class_id}반 · ${s.group_id}모둠 · ${s.student_id} ${s.student_name}`;
+
+      const mySubs = state.submissions.filter(
+        (item) => String(item.student_id) === String(s.student_id) && Number(item.group_id) === Number(s.group_id)
+      );
+      const area = document.getElementById('myExistingSubmissionsArea');
+      const listEl = document.getElementById('myExistingSubmissionsList');
+
+      if (mySubs.length === 0) {
+        area.classList.add('hidden');
+      } else {
+        area.classList.remove('hidden');
+        listEl.innerHTML = mySubs.map((sub) => {
+          const meta = CUT_META[sub.cut_num];
+          return `
+            <div class="bg-sky-50/50 rounded-xl border border-sky-200 p-2.5 flex items-center gap-3">
+              <img src="${sub.image_url}" alt="내 제출 컷" class="w-16 h-12 rounded-lg object-cover border border-slate-200 shrink-0 bg-white" />
+              <div class="min-w-0 flex-1">
+                <span class="inline-block px-2 py-0.5 rounded text-[10px] font-extrabold ${meta.badgeBg}">${meta.title}</span>
+                <p class="text-[11px] text-slate-500 mt-1 truncate">저장 시각: ${escapeHtml(sub.updated_at || '')}</p>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      onCutSelectionChange();
+    }
+
+    window.onCutSelectionChange = function () {
+      const cards = document.querySelectorAll('.cut-option-card');
+      cards.forEach((card) => {
+        const radio = card.querySelector('input[type="radio"]');
+        if (radio.checked) {
+          card.classList.add('border-sky-500', 'bg-sky-50/60');
+          card.classList.remove('border-slate-200');
+        } else {
+          card.classList.remove('border-sky-500', 'bg-sky-50/60');
+          card.classList.add('border-slate-200');
+        }
+      });
+
+      const selectedCut = getSelectedCutNum();
+      const warningBox = document.getElementById('overwriteWarningBox');
+      const warningText = document.getElementById('overwriteWarningText');
+
+      if (state.session && selectedCut) {
+        const g = Number(state.session.group_id);
+        const existing = state.submissions.find(
+          (s) => Number(s.group_id) === g && Number(s.cut_num) === Number(selectedCut)
+        );
+        if (existing) {
+          warningBox.classList.remove('hidden');
+          warningText.innerHTML = `
+            <strong>${g}모둠 ${selectedCut}컷</strong>에는 이미 <strong>${escapeHtml(existing.student_id)} ${escapeHtml(existing.student_name)}</strong> 학생의 이미지가 저장되어 있습니다.<br/>
+            지금 제출하면 기존 이미지가 새로운 이미지로 <strong>덮어쓰기(수정)</strong> 됩니다.
+          `;
+        } else {
+          warningBox.classList.add('hidden');
+        }
+      } else {
+        warningBox.classList.add('hidden');
+      }
+
+      updateSubmitButtonState();
+    };
+
+    function getSelectedCutNum() {
+      const checked = document.querySelector('input[name="cutNum"]:checked');
+      return checked ? Number(checked.value) : null;
+    }
+
+    window.handleDragOver = function (e) {
+      e.preventDefault();
+      document.getElementById('dropZone').classList.add('border-sky-500', 'bg-sky-100/50');
+    };
+
+    window.handleDragLeave = function (e) {
+      e.preventDefault();
+      document.getElementById('dropZone').classList.remove('border-sky-500', 'bg-sky-100/50');
+    };
+
+    window.handleDrop = function (e) {
+      e.preventDefault();
+      document.getElementById('dropZone').classList.remove('border-sky-500', 'bg-sky-100/50');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        processImageFile(e.dataTransfer.files[0]);
+      }
+    };
+
+    window.handleImageSelect = function (e) {
+      if (e.target.files && e.target.files[0]) {
+        processImageFile(e.target.files[0]);
+      }
+    };
+
+    function processImageFile(file) {
+      const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+      if (!validTypes.includes(file.type)) {
+        showToast('JPG, PNG, WEBP 이미지 파일만 업로드할 수 있습니다.', 'error');
+        return;
+      }
+
+      const originalKB = Math.round(file.size / 1024);
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const img = new Image();
+        img.onload = function () {
+          const MAX_WIDTH = 1000;
+          let width = img.width;
+          let height = img.height;
+          if (width > MAX_WIDTH) {
+            height = Math.round((height * MAX_WIDTH) / width);
+            width = MAX_WIDTH;
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+          state.compressedBase64 = compressedDataUrl;
+          const compressedKB = Math.round((compressedDataUrl.length * 3) / 4 / 1024);
+
+          document.getElementById('dropZonePlaceholder').classList.add('hidden');
+          document.getElementById('imagePreviewContainer').classList.remove('hidden');
+          document.getElementById('compressedPreviewImg').src = compressedDataUrl;
+          document.getElementById('compressionStatsBadge').textContent =
+            `자동 압축 완료: ${width}×${height}px · ${originalKB}KB → ${compressedKB}KB`;
+
+          updateSubmitButtonState();
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function updateSubmitButtonState() {
+      const btn = document.getElementById('submitCutBtn');
+      const btnText = document.getElementById('submitCutBtnText');
+      const cut = getSelectedCutNum();
+      const hasImg = Boolean(state.compressedBase64);
+
+      if (!cut) {
+        btn.disabled = true;
+        btnText.textContent = '1단계: 담당 컷 순서(1~4컷)를 먼저 선택해주세요';
+        return;
+      }
+      if (!hasImg) {
+        btn.disabled = true;
+        btnText.textContent = '2단계: 만화 이미지 파일을 선택해주세요';
+        return;
+      }
+
+      btn.disabled = false;
+      btnText.textContent = `${state.session.class_id}반 ${state.session.group_id}모둠 ${cut}컷 영구 저장하기`;
+    }
+
+    window.submitCut = async function () {
+      const cutNum = getSelectedCutNum();
+      const base64Data = state.compressedBase64;
+      const s = state.session;
+      if (!s || !cutNum || !base64Data) return;
+
+      const btn = document.getElementById('submitCutBtn');
+      const btnText = document.getElementById('submitCutBtnText');
+      btn.disabled = true;
+      btnText.textContent = 'Firebase 클라우드에 영구 저장 중...';
+
+      const cid = Number(s.class_id);
+      const gid = Number(s.group_id);
+      const nowStr = formatNowTimestamp();
+
+      try {
+        // 1) Firebase Storage 업로드
+        const path = `cuts/class_${cid}/group_${gid}_cut_${cutNum}_${Date.now()}.jpg`;
+        const fileRef = storageRef(storage, path);
+        await uploadString(fileRef, base64Data, 'data_url');
+        const finalUrl = await getDownloadURL(fileRef);
+
+        // 2) Firestore 문서 덮어쓰기 영구 저장
+        const docId = `group_${gid}_cut_${cutNum}`;
+        const subDocRef = doc(db, 'classes', String(cid), 'submissions', docId);
+        await setDoc(subDocRef, {
+          class_id: cid,
+          group_id: gid,
+          cut_num: cutNum,
+          student_id: String(s.student_id),
+          student_name: String(s.student_name),
+          image_url: finalUrl,
+          updated_at: nowStr
+        });
+
+        // 업로드 직후 확인 카드 표시
+        const meta = CUT_META[cutNum];
+        const justCard = document.getElementById('justUploadedCard');
+        document.getElementById('justUploadedContent').innerHTML = `
+          <div class="w-full sm:w-44 aspect-[4/3] rounded-xl overflow-hidden border border-slate-200 bg-slate-100 shrink-0">
+            <img src="${finalUrl}" alt="제출 완료" class="w-full h-full object-cover" />
+          </div>
+          <div class="flex-1 space-y-1.5 text-center sm:text-left">
+            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+              <span class="px-2.5 py-0.5 rounded-full bg-sky-600 text-white text-xs font-extrabold">${cid}반 ${gid}모둠</span>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold ${meta.badgeBg}">${meta.title}</span>
+            </div>
+            <p class="text-base font-extrabold text-slate-900">제출자: ${escapeHtml(s.student_id)} ${escapeHtml(s.student_name)}</p>
+            <p class="text-xs text-slate-500">저장 시각: ${nowStr}</p>
+          </div>
+        `;
+        justCard.classList.remove('hidden');
+        justCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        // 입력 초기화
+        state.compressedBase64 = '';
+        document.getElementById('imageFileInput').value = '';
+        document.getElementById('dropZonePlaceholder').classList.remove('hidden');
+        document.getElementById('imagePreviewContainer').classList.add('hidden');
+        onCutSelectionChange();
+
+        showToast(`${cid}반 ${gid}모둠 ${cutNum}컷이 영구 저장되었습니다!`, 'success');
+      } catch (err) {
+        showToast('저장 중 오류가 발생했습니다: ' + err.message, 'error');
+      } finally {
+        updateSubmitButtonState();
+      }
+    };
+
+    /*************************************************************************
+     * 9. [탭 4] 🔐 교사 관리자 (system/admin 검증 & 설정 영구 보존)
+     *************************************************************************/
+    async function verifyAdminPassword(inputPw) {
+      const pw = String(inputPw || '').trim();
+      if (!pw) return false;
+      try {
+        const snap = await getDoc(doc(db, 'system', 'admin'));
+        if (snap.exists()) {
+          return String(snap.data().admin_pw || '').trim() === pw;
+        }
+        return pw === '1234';
+      } catch (err) {
+        showToast('Firestore 관리자 문서 조회 오류: ' + err.message, 'error');
+        return false;
+      }
+    }
+
+    window.openGateAdminModal = function () {
+      document.getElementById('gateAdminModal').classList.remove('hidden');
+      document.getElementById('gateAdminPwInput').focus();
+    };
+
+    window.closeGateAdminModal = function () {
+      document.getElementById('gateAdminModal').classList.add('hidden');
+    };
+
+    window.handleGateAdminSubmit = async function (e) {
+      e.preventDefault();
+      const pw = document.getElementById('gateAdminPwInput').value;
+      const btn = document.getElementById('gateAdminSubmitBtn');
+      btn.disabled = true;
+      btn.textContent = '인증 확인 중...';
+
+      const ok = await verifyAdminPassword(pw);
+      btn.disabled = false;
+      btn.textContent = '교사 제어판 열기';
+
+      if (!ok) {
+        showToast('관리자 비밀번호가 일치하지 않습니다.', 'error');
+        return;
+      }
+
+      state.isAdmin = true;
+      localStorage.setItem(STORAGE_KEY_ADMIN, 'true');
+      subscribeAllClassesSummary();
+
+      state.session = {
+        role: 'teacher',
+        student_id: 'ADMIN',
+        student_name: '교사 관리자',
+        grade: 1,
+        class_id: 1,
+        group_id: 1
+      };
+      localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(state.session));
+      document.getElementById('gateAdminPwInput').value = '';
+      closeGateAdminModal();
+      enterMainApp();
+      showToast('교사 관리자 제어판으로 입장했습니다.', 'success');
+    };
+
+    window.handleAdminLogin = async function (e) {
+      e.preventDefault();
+      const pw = document.getElementById('adminPasswordInput').value;
+      const btn = document.getElementById('adminLoginSubmitBtn');
+      btn.disabled = true;
+      btn.textContent = '비밀번호 확인 중...';
+
+      const ok = await verifyAdminPassword(pw);
+      btn.disabled = false;
+      btn.textContent = '관리자 로그인';
+
+      if (ok) {
+        state.isAdmin = true;
+        localStorage.setItem(STORAGE_KEY_ADMIN, 'true');
+        subscribeAllClassesSummary();
+        document.getElementById('adminPasswordInput').value = '';
+        renderAll();
+        showToast('교사 관리자 인증이 완료되었습니다.', 'success');
+      } else {
+        showToast('비밀번호가 일치하지 않습니다.', 'error');
+      }
+    };
+
+    window.adminLogout = function () {
+      state.isAdmin = false;
+      localStorage.removeItem(STORAGE_KEY_ADMIN);
+      if (state.session && state.session.role === 'teacher') {
+        logoutSession();
+      } else {
+        renderAll();
+        showToast('교사 관리자 로그아웃 되었습니다.', 'info');
+      }
+    };
+
+    window.switchAdminClass = function (targetClassId) {
+      state.activeClassId = Number(targetClassId);
+      if (state.session) {
+        state.session.class_id = state.activeClassId;
+        localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(state.session));
+      }
+      state.selectedGroupFilter = 'all';
+      subscribeToClass(state.activeClassId);
+      showToast(`${state.activeClassId}반 관리 화면으로 전환했습니다.`, 'info');
+    };
+
+    function renderAdminView() {
+      const loginBox = document.getElementById('adminLoginBox');
+      const dashboard = document.getElementById('adminDashboard');
+
+      if (!state.isAdmin) {
+        loginBox.classList.remove('hidden');
+        dashboard.classList.add('hidden');
+        return;
+      }
+
+      loginBox.classList.add('hidden');
+      dashboard.classList.remove('hidden');
+
+      // 1~8반 스위처 버튼 렌더링 (각 반의 잠금/공개 상태 아이콘 표시)
+      const switcherEl = document.getElementById('adminClassSwitcher');
+      let swHtml = '';
+      for (let c = 1; c <= 8; c++) {
+        const active = Number(state.activeClassId) === c;
+        const summary = state.allClassesSummary[c] || { is_public: false, is_locked: false };
+        const statusIcon = summary.is_locked ? '⛔' : (summary.is_public ? '✨' : '🔒');
+        swHtml += `
+          <button
+            onclick="switchAdminClass(${c})"
+            class="py-2.5 px-2 rounded-xl text-xs sm:text-sm font-extrabold border transition flex items-center justify-center gap-1 ${
+              active
+                ? 'bg-sky-600 text-white border-sky-600 shadow-xs'
+                : 'bg-slate-50 hover:bg-sky-50 text-slate-700 border-slate-200'
+            }"
+          >
+            <span>${c}반</span>
+            <span class="text-[11px]">${statusIcon}</span>
+          </button>
+        `;
+      }
+      switcherEl.innerHTML = swHtml;
+
+      // 1) 반 입장 잠금 버튼 스타일
+      const isLocked = state.classConfig.is_locked;
+      const lockText = document.getElementById('adminCurrentLockText');
+      const btnUnlocked = document.getElementById('btnSetUnlocked');
+      const btnLocked = document.getElementById('btnSetLocked');
+
+      if (isLocked) {
+        lockText.textContent = `현재: ${state.activeClassId}반 입장 잠금 ⛔`;
+        lockText.className = 'text-base font-extrabold text-rose-700';
+        btnLocked.className = 'py-2.5 px-2 rounded-xl text-xs font-extrabold bg-rose-600 text-white border-rose-600 shadow-xs transition';
+        btnUnlocked.className = 'py-2.5 px-2 rounded-xl text-xs font-bold bg-white text-slate-600 border-slate-200 hover:bg-emerald-50 transition';
+      } else {
+        lockText.textContent = `현재: ${state.activeClassId}반 입장 허용 🟢`;
+        lockText.className = 'text-base font-extrabold text-emerald-700';
+        btnUnlocked.className = 'py-2.5 px-2 rounded-xl text-xs font-extrabold bg-emerald-600 text-white border-emerald-600 shadow-xs transition';
+        btnLocked.className = 'py-2.5 px-2 rounded-xl text-xs font-bold bg-white text-slate-600 border-slate-200 hover:bg-rose-50 hover:text-rose-700 transition';
+      }
+
+      // 2) 전체공개 상태 버튼 스타일
+      const isPub = state.classConfig.is_public;
+      const statusText = document.getElementById('adminCurrentPublicText');
+      const btnPriv = document.getElementById('btnSetPrivate');
+      const btnPub = document.getElementById('btnSetPublic');
+
+      if (isPub) {
+        statusText.textContent = `현재: ${state.activeClassId}반 전체공개 ✨`;
+        statusText.className = 'text-base font-extrabold text-emerald-700';
+        btnPub.className = 'py-2.5 px-2 rounded-xl text-xs font-extrabold bg-emerald-600 text-white border-emerald-600 shadow-xs transition';
+        btnPriv.className = 'py-2.5 px-2 rounded-xl text-xs font-bold bg-white text-slate-600 border-slate-200 hover:bg-slate-100 transition';
+      } else {
+        statusText.textContent = `현재: ${state.activeClassId}반 비공개 🔒`;
+        statusText.className = 'text-base font-extrabold text-amber-700';
+        btnPriv.className = 'py-2.5 px-2 rounded-xl text-xs font-extrabold bg-amber-500 text-white border-amber-500 shadow-xs transition';
+        btnPub.className = 'py-2.5 px-2 rounded-xl text-xs font-bold bg-white text-slate-600 border-slate-200 hover:bg-emerald-50 hover:text-emerald-700 transition';
+      }
+
+      // 3) 모둠 수 & 제출 통계
+      const totalGroups = state.classConfig.total_groups || 6;
+      document.getElementById('adminTotalGroupsText').textContent = `${totalGroups}모둠`;
+
+      let filled = 0;
+      let doneGroups = 0;
+      for (let g = 1; g <= totalGroups; g++) {
+        const gSubs = state.submissions.filter((s) => Number(s.group_id) === g);
+        const cnt = [1, 2, 3, 4].filter((c) => gSubs.some((s) => Number(s.cut_num) === c)).length;
+        filled += cnt;
+        if (cnt === 4) doneGroups++;
+      }
+      document.getElementById('adminOverallProgressText').textContent = `${filled} / ${totalGroups * 4}컷`;
+      document.getElementById('adminCompletedGroupsBadge').textContent = `(완성 ${doneGroups}/${totalGroups}모둠)`;
+
+      // 4) 모둠별 매트릭스 테이블
+      const tbody = document.getElementById('adminMatrixBody');
+      let rowsHtml = '';
+      for (let g = 1; g <= totalGroups; g++) {
+        const gSubs = state.submissions.filter((s) => Number(s.group_id) === g);
+        const cnt = [1, 2, 3, 4].filter((c) => gSubs.some((s) => Number(s.cut_num) === c)).length;
+        const isDone = cnt === 4;
+
+        let cells = '';
+        for (let c = 1; c <= 4; c++) {
+          const sub = gSubs.find((s) => Number(s.cut_num) === c);
+          if (sub) {
+            cells += `
+              <td class="py-2.5 px-3">
+                <div class="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">
+                  <img src="${sub.image_url}" class="w-7 h-5 rounded object-cover border border-emerald-300" alt="" />
+                  <span class="text-xs font-bold text-emerald-900">${escapeHtml(sub.student_id)} ${escapeHtml(sub.student_name)}</span>
+                </div>
+              </td>
+            `;
+          } else {
+            cells += `
+              <td class="py-2.5 px-3">
+                <span class="inline-block px-2.5 py-1 rounded-lg bg-slate-100 text-slate-400 text-xs">미제출</span>
+              </td>
+            `;
+          }
+        }
+
+        rowsHtml += `
+          <tr class="hover:bg-sky-50/40 transition">
+            <td class="py-3 px-4 font-extrabold text-slate-900">${g}모둠</td>
+            <td class="py-3 px-3">
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold ${isDone ? 'bg-emerald-100 text-emerald-800' : 'bg-sky-100 text-sky-800'}">
+                ${cnt}/4 ${isDone ? '완성' : ''}
+              </span>
+            </td>
+            ${cells}
+            <td class="py-3 px-4 text-right">
+              <button onclick="openPresentationModal(${g})" class="px-3 py-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold border border-sky-200 transition">
+                만화 보기
+              </button>
+            </td>
+          </tr>
+        `;
+      }
+      tbody.innerHTML = rowsHtml;
+    }
+
+    // 반 입장 잠금 상태 영구 저장
+    window.setClassLockedState = async function (nextLocked) {
+      const cid = state.activeClassId;
+      try {
+        const cfgRef = doc(db, 'classes', String(cid), 'meta', 'config');
+        await setDoc(cfgRef, {
+          is_locked: Boolean(nextLocked),
+          is_public: Boolean(state.classConfig.is_public),
+          total_groups: state.classConfig.total_groups || 6
+        }, { merge: true });
+
+        showToast(
+          nextLocked
+            ? `⛔ ${cid}반 입장이 영구 잠금되었습니다! (새로고침해도 풀리지 않습니다)`
+            : `🟢 ${cid}반 입장이 허용되었습니다.`,
+          'success'
+        );
+      } catch (err) {
+        showToast('입장 잠금 상태 변경 오류: ' + err.message, 'error');
+      }
+    };
+
+    // 반 전체공개 상태 영구 저장
+    window.setClassPublicState = async function (nextPublic) {
+      const cid = state.activeClassId;
+      try {
+        const cfgRef = doc(db, 'classes', String(cid), 'meta', 'config');
+        await setDoc(cfgRef, {
+          is_public: Boolean(nextPublic),
+          is_locked: Boolean(state.classConfig.is_locked),
+          total_groups: state.classConfig.total_groups || 6
+        }, { merge: true });
+
+        showToast(
+          nextPublic
+            ? `✨ ${cid}반 갤러리가 전체공개로 전환되었습니다! (${cid}반 학생 화면 즉시 오픈)`
+            : `🔒 ${cid}반 갤러리가 비공개 상태로 전환되었습니다.`,
+          'success'
+        );
+      } catch (err) {
+        showToast('공개 상태 변경 오류: ' + err.message, 'error');
+      }
+    };
+
+    // 반 모둠 수 영구 저장
+    window.changeClassTotalGroups = async function (delta) {
+      const cid = state.activeClassId;
+      const next = (state.classConfig.total_groups || 6) + delta;
+      if (next < 1 || next > 12) {
+        showToast('모둠 수는 1모둠부터 최대 12모둠까지 설정할 수 있습니다.', 'warning');
+        return;
+      }
+
+      try {
+        const cfgRef = doc(db, 'classes', String(cid), 'meta', 'config');
+        await setDoc(cfgRef, {
+          is_public: Boolean(state.classConfig.is_public),
+          is_locked: Boolean(state.classConfig.is_locked),
+          total_groups: next
+        }, { merge: true });
+
+        showToast(`${cid}반 모둠 수가 ${next}모둠으로 저장되었습니다.`, 'success');
+      } catch (err) {
+        showToast('모둠 수 변경 오류: ' + err.message, 'error');
+      }
+    };
+
+    /*************************************************************************
+     * 10. 유틸리티 (Toast 알림, XSS 방지, 타임스탬프)
+     *************************************************************************/
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      const styles = {
+        success: 'bg-slate-900 text-white border-l-4 border-emerald-400',
+        error: 'bg-slate-900 text-white border-l-4 border-rose-500',
+        warning: 'bg-slate-900 text-white border-l-4 border-amber-400',
+        info: 'bg-slate-900 text-white border-l-4 border-sky-400'
+      };
+      toast.className = `pointer-events-auto px-4 py-3 rounded-xl shadow-lg text-xs sm:text-sm font-semibold animate-fade-in ${styles[type] || styles.info}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.25s ease';
+        setTimeout(() => toast.remove(), 250);
+      }, 3200);
+    }
+
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function formatNowTimestamp() {
+      const d = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    }
+  </script>
+</body>
+</html>
