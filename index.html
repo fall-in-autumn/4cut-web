@@ -6,6 +6,9 @@
   <title>멋진 하루에 숨겨진 생명의 고통 – 8개 학급 실시간 4컷 만화 갤러리</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- html2canvas & jsPDF (과제제출 역할용 4컷 만화 PDF 저장) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- Google Fonts: Noto Sans KR & Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -297,20 +300,120 @@
       <section id="view-mygroup" class="hidden space-y-6 animate-fade-in">
         <div class="bg-white rounded-2xl border border-sky-100 p-5 sm:p-6 shadow-card flex flex-wrap items-center justify-between gap-4">
           <div class="space-y-1">
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
               <span id="myGroupBadge" class="px-3 py-1 rounded-full bg-sky-600 text-white text-xs font-extrabold">1반 · 1모둠</span>
-              <span class="text-xs font-bold text-sky-700">우리 모둠 전용 실시간 협업실</span>
+              <span id="myGroupTopicBadge" class="hidden px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-200 text-xs font-extrabold">🐾 주제: 미정</span>
+              <span id="myUserRoleBadge" class="hidden px-2.5 py-1 rounded-full bg-purple-100 text-purple-800 border border-purple-200 text-xs font-extrabold">역할</span>
             </div>
             <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">
-              우리 모둠원들이 올린 4컷 만화 조합 확인하기
+              우리 모둠 스토리보드 & 4컷 만화 협업실
             </h2>
             <p class="text-xs text-slate-500">
-              전체 갤러리가 비공개일 때도 우리 모둠원들의 1~4컷 흐름이 자연스럽게 이어지는지 미리 확인할 수 있습니다.
+              전체 갤러리가 비공개일 때도 우리 모둠의 스토리보드 기획안과 1~4컷 이미지를 함께 확인할 수 있습니다.
             </p>
           </div>
-          <button onclick="switchTab('upload')" class="px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs sm:text-sm font-extrabold shadow-xs transition">
-            ✏️ 내 담당 컷 올리기 / 수정하기
-          </button>
+          <div class="flex flex-wrap items-center gap-2">
+            <!-- 역할이 '과제제출'이거나 교사일 때 활성화되는 PDF 저장 버튼 -->
+            <button id="exportGroupPdfBtn" onclick="exportGroupComicToPdf()" class="hidden px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-extrabold shadow-xs transition flex items-center gap-1.5">
+              <span>📄</span>
+              <span>4컷 만화 PDF로 저장하기</span>
+            </button>
+            <button onclick="switchTab('upload')" class="px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs sm:text-sm font-extrabold shadow-xs transition">
+              ✏️ 내 담당 컷 올리기 / 수정하기
+            </button>
+          </div>
+        </div>
+
+        <!-- [자료조사 역할 전용] 주제 동물 고통 1~4컷 조사 작성 및 열람 카드 -->
+        <div id="researchSectionCard" class="bg-white rounded-3xl border border-amber-200/90 p-5 sm:p-6 shadow-card space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3.5">
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 text-xs font-extrabold">🔍 주제 동물 고통 자료조사</span>
+              <span id="researchStatusBadge" class="text-xs font-bold text-slate-500">작성 대기 중</span>
+            </div>
+            <span class="text-[11px] text-slate-400">※ 구글 시트(Research)에 저장되며 모둠장·교사·모둠원이 함께 열람합니다</span>
+          </div>
+
+          <!-- 자료조사 입력 폼 (역할이 '자료조사'일 때만 표시) -->
+          <form id="researchRoleForm" onsubmit="submitGroupResearch(event)" class="hidden space-y-4">
+            <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-950 font-semibold">
+              🔍 <strong>자료조사 역할 안내:</strong> 모둠장이 4컷 스토리보드를 구상할 수 있도록 우리 모둠 주제 동물이 겪는 고통을 1~4컷 내용에 맞게 조사해 제출해주세요.
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              <div>
+                <label class="block text-xs font-extrabold text-sky-800 mb-1">1컷 조사 : 자유로웠던 원래 모습 (자연 속 생태·습성)</label>
+                <textarea id="resInput1" rows="2" placeholder="예: 자연 상태에서 어미와 무리를 지어 풀을 뜯고 땅굴을 파며 살아가는 습성 조사 내용" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" required></textarea>
+              </div>
+              <div>
+                <label class="block text-xs font-extrabold text-indigo-800 mb-1">2컷 조사 : 현재 모습 (사육·포획·이용 환경)</label>
+                <textarea id="resInput2" rows="2" placeholder="예: A4 용지 한 장 크기보다 좁은 배터리 케이지나 실험실 철장에 갇혀 지내는 실태 조사 내용" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" required></textarea>
+              </div>
+              <div>
+                <label class="block text-xs font-extrabold text-rose-800 mb-1">3컷 조사 : 동물이 겪는 아픔과 상처 (구체적 피해·고통)</label>
+                <textarea id="resInput3" rows="2" placeholder="예: 좁은 공간으로 인한 부상, 질병, 화학 물질 실험으로 인한 화상·실명 등 구체적 고통 사례" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" required></textarea>
+              </div>
+              <div>
+                <label class="block text-xs font-extrabold text-emerald-800 mb-1">4컷 조사 : 우리가 마주하는 상품 (일상 소비 품목)</label>
+                <textarea id="resInput4" rows="2" placeholder="예: 마트에서 흔히 보는 달걀, 패스트푸드, 화장품·생활용품 등으로 가공되어 판매되는 모습" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" required></textarea>
+              </div>
+            </div>
+            <div class="flex justify-end">
+              <button type="submit" id="submitResearchBtn" class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs sm:text-sm font-extrabold shadow-xs transition">
+                📤 자료조사 내용 교사에게 제출하기
+              </button>
+            </div>
+          </form>
+
+          <!-- 제출된 자료조사 열람 뷰 (모둠원 전체 & 모둠장 참고용) -->
+          <div id="researchReadonlyView" class="space-y-2">
+            <!-- 동적 렌더링 -->
+          </div>
+        </div>
+
+        <!-- [모둠장 전용] 스토리보드 기획 및 제출 카드 (모둠원 & 교사만 열람 가능) -->
+        <div id="storyboardSectionCard" class="bg-white rounded-3xl border border-purple-200/80 p-5 sm:p-6 shadow-card space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3.5">
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-1 rounded-lg bg-purple-100 text-purple-800 text-xs font-extrabold">📋 4컷 스토리보드 구상안</span>
+              <span id="storyboardStatusBadge" class="text-xs font-bold text-slate-500">작성 대기 중</span>
+            </div>
+            <span class="text-[11px] text-slate-400">※ 구글 시트(Storyboards)에 저장되며 교사와 우리 모둠원만 열람합니다</span>
+          </div>
+
+          <!-- 모둠장 입력 폼 (역할이 '모둠장'일 때만 표시) -->
+          <form id="storyboardLeaderForm" onsubmit="submitGroupStoryboard(event)" class="hidden space-y-4">
+            <div class="p-3.5 rounded-2xl bg-purple-50 border border-purple-200 text-xs text-purple-900 font-semibold">
+              👑 <strong>모둠장 안내:</strong> 위의 <strong>자료조사 내용</strong>을 바탕으로 각 컷에 어떤 그림과 대사를 담을지 스토리보드를 작성해 선생님께 제출해주세요.
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              <div>
+                <label class="block text-xs font-extrabold text-sky-800 mb-1">1컷 : 자유로웠던 원래 모습</label>
+                <textarea id="sbInput1" rows="2" placeholder="예: 푸른 초원에서 어미와 함께 자유롭게 뛰어노는 아기 토끼의 모습" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" required></textarea>
+              </div>
+              <div>
+                <label class="block text-xs font-extrabold text-indigo-800 mb-1">2컷 : 현재 모습</label>
+                <textarea id="sbInput2" rows="2" placeholder="예: 좁은 철장 속에 갇혀 움직이지 못하는 실험용 토끼의 모습" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" required></textarea>
+              </div>
+              <div>
+                <label class="block text-xs font-extrabold text-rose-800 mb-1">3컷 : 동물이 겪는 아픔과 상처</label>
+                <textarea id="sbInput3" rows="2" placeholder="예: 화학 약품 테스트로 눈이 충혈되고 고통스러워하는 모습" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" required></textarea>
+              </div>
+              <div>
+                <label class="block text-xs font-extrabold text-emerald-800 mb-1">4컷 : 우리가 마주하는 상품</label>
+                <textarea id="sbInput4" rows="2" placeholder="예: 화려한 화장품 진열대 앞에서 아무것도 모른 채 물건을 고르는 우리의 모습" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" required></textarea>
+              </div>
+            </div>
+            <div class="flex justify-end">
+              <button type="submit" id="submitStoryboardBtn" class="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs sm:text-sm font-extrabold shadow-xs transition">
+                📤 스토리보드 교사에게 제출하기
+              </button>
+            </div>
+          </form>
+
+          <!-- 제출된 스토리보드 열람 뷰 (모둠원 전체 & 교사 확인용) -->
+          <div id="storyboardReadonlyView" class="space-y-2">
+            <!-- 동적 렌더링 -->
+          </div>
         </div>
 
         <div id="myGroupComicCard" class="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-card space-y-5">
@@ -324,7 +427,7 @@
           <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-4">
             <div>
               <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">내 담당 컷 이미지 업로드</h2>
-              <p class="text-xs text-slate-500 mt-0.5">구글 드라이브에 영구 저장되며, 모둠원 화면과 실시간 동기화됩니다.</p>
+              <p id="uploadTopicSubtitle" class="text-xs text-slate-500 mt-0.5">구글 드라이브에 영구 저장되며, 모둠원 화면과 실시간 동기화됩니다.</p>
             </div>
             <span id="uploadHeaderBadge" class="px-3 py-1.5 rounded-xl bg-sky-50 border border-sky-200 text-xs font-extrabold text-sky-800">
               1학년 1반 · 1모둠 · 1101 홍길동
@@ -548,21 +651,23 @@
           <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
             <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
               <h3 class="text-sm sm:text-base font-extrabold text-slate-900">
-                📊 <span class="active-class-label">1반</span> 모둠별 4컷 제출 현황
+                📊 <span class="active-class-label">1반</span> 모둠별 자료조사 · 스토리보드 · 4컷 제출 현황
               </h3>
-              <span class="text-xs text-slate-400">실시간 자동 업데이트</span>
+              <span class="text-xs text-slate-400">제출 배지나 만화 보기를 클릭해 열람·삭제할 수 있습니다</span>
             </div>
             <div class="overflow-x-auto">
-              <table class="w-full text-left border-collapse min-w-[720px]">
+              <table class="w-full text-left border-collapse min-w-[980px]">
                 <thead>
                   <tr class="bg-slate-50 border-b border-slate-200 text-xs font-extrabold text-slate-600">
-                    <th class="py-3 px-4">모둠</th>
+                    <th class="py-3 px-4">모둠 / 주제</th>
                     <th class="py-3 px-3">진행도</th>
+                    <th class="py-3 px-3">자료조사</th>
+                    <th class="py-3 px-3">스토리보드</th>
                     <th class="py-3 px-3">1컷 (원래 모습)</th>
                     <th class="py-3 px-3">2컷 (현재 모습)</th>
                     <th class="py-3 px-3">3컷 (아픔과 상처)</th>
                     <th class="py-3 px-3">4컷 (마주하는 상품)</th>
-                    <th class="py-3 px-4 text-right">미리보기</th>
+                    <th class="py-3 px-4 text-right">만화</th>
                   </tr>
                 </thead>
                 <tbody id="adminMatrixBody" class="divide-y divide-slate-100 text-sm">
@@ -577,57 +682,50 @@
   </div>
 
   <!-- ===================================================================== -->
-  <!-- 3. 게이트키퍼 교사 관리자 입장 모달                                   -->
+  <!-- 5. 교사용 모둠 자료조사 / 스토리보드 열람 & 삭제 모달                 -->
   <!-- ===================================================================== -->
-  <div id="gateAdminModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl animate-fade-in">
-      <div class="flex items-center justify-between">
-        <h3 class="text-base font-extrabold text-slate-900">🔐 교사 관리자 바로 입장</h3>
-        <button onclick="closeGateAdminModal()" class="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-500 font-bold">✕</button>
+  <div id="adminStoryboardModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 space-y-4 shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div>
+          <span id="adminSbModalBadge" class="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 text-xs font-extrabold">1반 1모둠</span>
+          <h3 id="adminSbModalTitle" class="text-base sm:text-lg font-extrabold text-slate-900 mt-1">모둠 제출 자료 상세 보기</h3>
+        </div>
+        <button onclick="closeAdminStoryboardModal()" class="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-500 font-bold">✕</button>
       </div>
-      <p class="text-xs text-slate-500">관리자 비밀번호를 입력하면 1반~8반 전체 제어판으로 바로 이동합니다.</p>
-      <form onsubmit="handleGateAdminSubmit(event)" class="space-y-3">
-        <input
-          type="password"
-          id="gateAdminPwInput"
-          placeholder="비밀번호 입력"
-          class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-sky-500"
-          required
-        />
-        <button id="gateAdminSubmitBtn" type="submit" class="w-full py-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-sm font-extrabold transition">
-          교사 제어판 열기
-        </button>
-      </form>
+      <div id="adminSbModalBody" class="space-y-3">
+        <!-- 동적 렌더링 -->
+      </div>
+      <div id="adminSbModalFooter" class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+        <!-- 교사용 삭제하기 버튼 동적 렌더링 -->
+      </div>
     </div>
   </div>
 
   <!-- ===================================================================== -->
-  <!-- 4. 전자칠판 프레젠테이션 확대 모달                                    -->
+  <!-- 6. 공용 삭제 확인 모달 (confirm() 대체 커스텀 확인 다이얼로그)        -->
   <!-- ===================================================================== -->
-  <div id="presentationModal" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-xs flex flex-col">
-    <div class="px-4 sm:px-8 py-3.5 bg-slate-900 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 text-white">
+  <div id="deleteConfirmModal" class="hidden fixed inset-0 z-[60] bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl animate-fade-in">
       <div class="flex items-center gap-3">
-        <span id="modalGroupBadge" class="px-3 py-1 rounded-xl bg-sky-600 text-xs sm:text-sm font-extrabold">1반 1모둠</span>
+        <div class="w-11 h-11 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-xl shrink-0">
+          🗑️
+        </div>
         <div>
-          <h3 id="modalGroupTitle" class="text-sm sm:text-base font-extrabold">4컷 만화 발표 보기</h3>
-          <p id="modalGroupMembers" class="text-xs text-slate-400"></p>
+          <h3 id="deleteConfirmTitle" class="text-base font-extrabold text-slate-900">정말 삭제하시겠습니까?</h3>
+          <p class="text-xs text-rose-600 font-bold mt-0.5">삭제된 자료는 구글 시트 및 화면에서 영구 제거됩니다.</p>
         </div>
       </div>
-
-      <div class="flex items-center gap-2">
-        <div class="inline-flex rounded-xl bg-slate-800 p-1">
-          <button id="modalLayout2x2" onclick="setModalLayout('2x2')" class="px-3 py-1 rounded-lg text-xs font-bold bg-sky-600 text-white transition">2×2 프레임</button>
-          <button id="modalLayout4x1" onclick="setModalLayout('4x1')" class="px-3 py-1 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition">4×1 가로</button>
-        </div>
-        <button onclick="navigateModalGroup(-1)" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold transition">← 이전 모둠</button>
-        <button onclick="navigateModalGroup(1)" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold transition">다음 모둠 →</button>
-        <button onclick="closePresentationModal()" class="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-xs font-extrabold transition">닫기 (ESC)</button>
-      </div>
-    </div>
-
-    <div class="flex-1 overflow-y-auto p-4 sm:p-8 flex items-center justify-center">
-      <div id="modalComicContainer" class="max-w-6xl w-full bg-white rounded-3xl p-4 sm:p-6 shadow-2xl">
-        <!-- 동적 렌더링 -->
+      <p id="deleteConfirmMessage" class="text-xs sm:text-sm text-slate-600 bg-slate-50 rounded-2xl p-3.5 leading-relaxed border border-slate-200/80">
+        선택한 항목을 삭제합니다.
+      </p>
+      <div class="grid grid-cols-2 gap-2.5 pt-1">
+        <button onclick="closeDeleteConfirmModal()" class="py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-extrabold transition">
+          취소
+        </button>
+        <button id="deleteConfirmExecuteBtn" onclick="executePendingDelete()" class="py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-extrabold shadow-xs transition">
+          네, 삭제합니다
+        </button>
       </div>
     </div>
   </div>
@@ -638,13 +736,13 @@
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
     import {
-      getFirestore, doc, getDoc, setDoc, collection, onSnapshot
+      getFirestore, doc, getDoc, setDoc, deleteDoc, collection, onSnapshot
     } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 
     /*************************************************************************
      * 1. Google Apps Script (명단 확인 & Drive 이미지 저장) + Firebase (실시간 동기화)
      *************************************************************************/
-    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzZ-DXTDsRUCMqIep1Ronnn3ujCEJozh5EKMEs2b7OoNQgCtz8hzLy4eaH-RjhzQFMeYQ/exec";
+    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyLm8_zobzL4--Have8BnpLlJgTTMBpQ7ZupSenU5owScd6Rv9HF_NUXOvQwtA4NbiiKg/exec";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDityNbrG-CgHXNZHJA-3BAcZ7x8YIQrn4",
@@ -686,11 +784,14 @@
     // 실시간 리스너 핸들러
     let unsubConfig = null;
     let unsubSubs = null;
+    let unsubStoryboards = null;
+    let unsubResearches = null;
+    let pendingDeleteAction = null;
     const allClassUnsubscribers = [];
 
     // 전역 애플리케이션 상태
     const state = {
-      session: null, // { role: 'student'|'teacher', student_id, student_name, grade, class_id, group_id }
+      session: null, // { role: 'student'|'teacher', student_id, student_name, grade, class_id, group_id, topic, member_role }
       isAdmin: false,
       activeClassId: 1, // 현재 조회/관리 중인 학급 (1~8)
       classConfig: {
@@ -700,6 +801,8 @@
       },
       allClassesSummary: {}, // 교사용 1~8반 요약 상태 { 1: { is_public, is_locked, total_groups }, ... }
       submissions: [], // 현재 activeClassId의 제출 목록
+      storyboards: {}, // { [group_id]: { group_id, topic, cut1, cut2, cut3, cut4, author_id, author_name, updated_at } }
+      researches: {},  // { [group_id]: { group_id, topic, cut1, cut2, cut3, cut4, author_id, author_name, updated_at } }
       activeTab: 'gallery',
       galleryLayout: '2x2',
       modalLayout: '2x2',
@@ -754,6 +857,8 @@
 
       if (unsubConfig) { unsubConfig(); unsubConfig = null; }
       if (unsubSubs) { unsubSubs(); unsubSubs = null; }
+      if (unsubStoryboards) { unsubStoryboards(); unsubStoryboards = null; }
+      if (unsubResearches) { unsubResearches(); unsubResearches = null; }
 
       const cid = String(state.activeClassId);
 
@@ -787,6 +892,30 @@
           list.push(docSnap.data());
         });
         state.submissions = list;
+        renderAll();
+      });
+
+      // 3) classes/{classId}/storyboards 실시간 구독 (모둠장 스토리보드 구상안)
+      const sbColRef = collection(db, 'classes', cid, 'storyboards');
+      unsubStoryboards = onSnapshot(sbColRef, (snap) => {
+        const map = {};
+        snap.forEach((docSnap) => {
+          const d = docSnap.data();
+          if (d && d.group_id) map[Number(d.group_id)] = d;
+        });
+        state.storyboards = map;
+        renderAll();
+      });
+
+      // 4) classes/{classId}/researches 실시간 구독 (자료조사 역할 조사 내용)
+      const resColRef = collection(db, 'classes', cid, 'researches');
+      unsubResearches = onSnapshot(resColRef, (snap) => {
+        const map = {};
+        snap.forEach((docSnap) => {
+          const d = docSnap.data();
+          if (d && d.group_id) map[Number(d.group_id)] = d;
+        });
+        state.researches = map;
         renderAll();
       });
     }
@@ -891,6 +1020,9 @@
 
         const assignedGroupId = Number(gasRes.student.group_id) || 1;
         const assignedClassId = Number(gasRes.student.class_id) || parsed.classId;
+        const assignedTopic = String(gasRes.student.topic || '').trim();
+        let assignedRole = String(gasRes.student.role || '').trim();
+        if (!assignedRole || assignedRole === '일반') assignedRole = '자료조사';
 
         state.session = {
           role: 'student',
@@ -898,11 +1030,14 @@
           student_name: dbName,
           grade: parsed.grade,
           class_id: assignedClassId,
-          group_id: assignedGroupId
+          group_id: assignedGroupId,
+          topic: assignedTopic,
+          member_role: assignedRole
         };
         localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(state.session));
         enterMainApp();
-        showToast(`본인 확인 완료! ${parsed.grade}학년 ${assignedClassId}반 ${assignedGroupId}모둠(${dbName})으로 입장했습니다.`, 'success');
+        const roleLabel = assignedRole ? ` [${assignedRole}]` : '';
+        showToast(`본인 확인 완료! ${parsed.grade}학년 ${assignedClassId}반 ${assignedGroupId}모둠(${dbName}${roleLabel})으로 입장했습니다.`, 'success');
       } catch (err) {
         showToast('본인 확인 중 오류가 발생했습니다: ' + err.message, 'error');
       } finally {
@@ -928,6 +1063,8 @@
     window.logoutSession = function () {
       if (unsubConfig) { unsubConfig(); unsubConfig = null; }
       if (unsubSubs) { unsubSubs(); unsubSubs = null; }
+      if (unsubStoryboards) { unsubStoryboards(); unsubStoryboards = null; }
+      if (unsubResearches) { unsubResearches(); unsubResearches = null; }
       state.session = null;
       localStorage.removeItem(STORAGE_KEY_SESSION);
       document.getElementById('mainAppShell').classList.add('hidden');
@@ -989,7 +1126,10 @@
       if (state.session.role === 'teacher') {
         sessionTextEl.textContent = `👩‍🏫 교사 관리자 모드 (${cid}반 관리 중)`;
       } else {
-        sessionTextEl.textContent = `${state.session.grade}학년 ${cid}반 · ${state.session.group_id}모둠 · ${state.session.student_id} ${state.session.student_name}`;
+        const topicPart = state.session.topic ? ` · 주제:${state.session.topic}` : '';
+        const normalizedRole = (!state.session.member_role || state.session.member_role === '일반') ? '자료조사' : state.session.member_role;
+        const rolePart = ` (${normalizedRole})`;
+        sessionTextEl.textContent = `${state.session.grade}학년 ${cid}반 · ${state.session.group_id}모둠${topicPart} · ${state.session.student_id} ${state.session.student_name}${rolePart}`;
       }
 
       // 관리자 활성화 점
@@ -1015,10 +1155,10 @@
 
       // 우리 모둠 진행률 뱃지
       const myGroupId = Number(state.session.group_id) || 1;
-      const myGroupSubs = state.submissions.filter((s) => Number(s.group_id) === myGroupId);
-      const myGroupCount = [1, 2, 3, 4].filter((c) => myGroupSubs.some((s) => Number(s.cut_num) === c)).length;
-      document.getElementById('myGroupProgressPill').textContent = `${myGroupCount}/4`;
-
+      // 모달이 열려 있으면 실시간 상태 동기화
+      if (!document.getElementById('presentationModal').classList.contains('hidden')) {
+        renderPresentationModal();
+      }
       renderGallery();
       renderMyGroupTab();
       renderUploadTabStatus();
@@ -1097,6 +1237,8 @@
         if (state.selectedGroupFilter !== 'all' && state.selectedGroupFilter !== g) continue;
 
         const groupSubs = state.submissions.filter((s) => Number(s.group_id) === g);
+        const sb = state.storyboards[g];
+        const groupTopic = (sb && sb.topic) || (Number(state.session.group_id) === g ? state.session.topic : '');
         const count = [1, 2, 3, 4].filter((c) => groupSubs.some((s) => Number(s.cut_num) === c)).length;
         if (completedOnly && count < 4) continue;
         visibleCount++;
@@ -1142,15 +1284,16 @@
         cardsHtml += `
           <article onclick="openPresentationModal(${g})" class="bg-white rounded-2xl border ${isComplete ? 'border-sky-200' : 'border-slate-200/90'} shadow-card hover:shadow-google hover:border-sky-400 transition cursor-pointer overflow-hidden flex flex-col">
             <div class="px-5 py-3.5 bg-gradient-to-r ${isComplete ? 'from-sky-50 to-white' : 'from-slate-50 to-white'} border-b border-slate-100 flex items-center justify-between gap-2">
-              <div class="flex items-center gap-2.5">
+              <div class="flex flex-wrap items-center gap-2">
                 <span class="px-3 py-1 rounded-xl ${isComplete ? 'bg-sky-600 text-white' : 'bg-slate-700 text-white'} text-xs sm:text-sm font-extrabold">
                   ${g}모둠
                 </span>
+                ${groupTopic ? `<span class="px-2.5 py-0.5 rounded-lg bg-amber-100 text-amber-900 text-xs font-extrabold">🐾 ${escapeHtml(groupTopic)}</span>` : ''}
                 <span class="text-xs font-bold ${isComplete ? 'text-emerald-600' : 'text-slate-500'}">
                   ${isComplete ? '✨ 4/4컷 완성' : `진행 중 (${count}/4컷)`}
                 </span>
               </div>
-              <span class="text-xs font-bold text-sky-600">전자칠판 크게 보기 ↗</span>
+              <span class="text-xs font-bold text-sky-600 shrink-0">전자칠판 크게 보기 ↗</span>
             </div>
             <div class="p-4 ${innerGridClass}">
               ${panelsHtml}
@@ -1232,11 +1375,17 @@
         const sub = groupSubs.find((s) => Number(s.cut_num) === c);
         const meta = CUT_META[c];
         if (sub) {
+          const deleteCutBtnHtml = state.isAdmin
+            ? `<button onclick="requestDeleteCut(${g}, ${c}, '${escapeHtml(sub.file_id || '')}', '${escapeHtml(sub.student_id)}', '${escapeHtml(sub.student_name)}')" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white border border-rose-200 text-xs font-extrabold transition shrink-0">🗑️ 삭제</button>`
+            : '';
           html += `
             <div class="rounded-2xl overflow-hidden border-2 border-slate-200 bg-slate-50 flex flex-col">
               <div class="px-3.5 py-2 bg-white border-b border-slate-200 flex items-center justify-between gap-2">
                 <span class="px-2.5 py-0.5 rounded-md text-xs font-extrabold ${meta.badgeBg}">${meta.title}</span>
-                <span class="text-xs font-bold text-slate-600 shrink-0">${escapeHtml(sub.student_id)} ${escapeHtml(sub.student_name)}</span>
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="text-xs font-bold text-slate-600 truncate">${escapeHtml(sub.student_id)} ${escapeHtml(sub.student_name)}</span>
+                  ${deleteCutBtnHtml}
+                </div>
               </div>
               <div class="comic-panel-aspect w-full bg-white flex items-center justify-center overflow-hidden">
                 <img src="${sub.image_url}" alt="${g}모둠 ${c}컷" class="w-full h-full object-contain" />
@@ -1263,12 +1412,136 @@
     }
 
     /*************************************************************************
-     * 7. [탭 2] 👥 모둠 작품 확인하기 (비공개 중 우리 모둠 협업 뷰)
+     * 7. [탭 2] 👥 모둠 작품 확인하기 (자료조사 + 스토리보드 + 4컷 조합 + PDF)
      *************************************************************************/
     function renderMyGroupTab() {
       const cid = state.activeClassId;
       const g = Number(state.session.group_id) || 1;
+      const sb = state.storyboards[g] || null;
+      const resData = state.researches[g] || null;
+      const topic = state.session.topic || (sb && sb.topic) || (resData && resData.topic) || '';
+      const rawRole = state.session.member_role || '자료조사';
+      const memberRole = rawRole === '일반' ? '자료조사' : rawRole;
+
       document.getElementById('myGroupBadge').textContent = `${cid}반 · ${g}모둠`;
+
+      // 모둠 주제 배지
+      const topicBadge = document.getElementById('myGroupTopicBadge');
+      if (topic) {
+        topicBadge.textContent = `🐾 모둠 주제: ${topic}`;
+        topicBadge.classList.remove('hidden');
+      } else {
+        topicBadge.classList.add('hidden');
+      }
+
+      // 역할 배지 (모둠장 / 과제제출 / 자료조사)
+      const roleBadge = document.getElementById('myUserRoleBadge');
+      if (state.session.role === 'teacher') {
+        roleBadge.textContent = '👩‍🏫 교사 열람 모드';
+        roleBadge.classList.remove('hidden');
+      } else if (memberRole) {
+        const roleIcon = memberRole === '모둠장' ? '👑' : (memberRole === '과제제출' ? '📄' : '🔍');
+        roleBadge.textContent = `${roleIcon} 내 역할: ${memberRole}`;
+        roleBadge.classList.remove('hidden');
+      } else {
+        roleBadge.classList.add('hidden');
+      }
+
+      // 과제제출 담당자(또는 교사)에게만 '4컷 만화 PDF로 저장하기' 버튼 표시
+      const pdfBtn = document.getElementById('exportGroupPdfBtn');
+      if (memberRole === '과제제출' || state.isAdmin) {
+        pdfBtn.classList.remove('hidden');
+      } else {
+        pdfBtn.classList.add('hidden');
+      }
+
+      // [1] 자료조사 섹션 렌더링 (역할이 '자료조사'일 때 입력 가능, 모둠원·모둠장·교사는 열람 가능)
+      const isResearcher = state.session.role === 'student' && memberRole === '자료조사';
+      const resForm = document.getElementById('researchRoleForm');
+      const resReadonlyView = document.getElementById('researchReadonlyView');
+      const resStatusBadge = document.getElementById('researchStatusBadge');
+
+      if (isResearcher) {
+        resForm.classList.remove('hidden');
+        if (resData && document.activeElement.tagName !== 'TEXTAREA') {
+          document.getElementById('resInput1').value = resData.cut1 || '';
+          document.getElementById('resInput2').value = resData.cut2 || '';
+          document.getElementById('resInput3').value = resData.cut3 || '';
+          document.getElementById('resInput4').value = resData.cut4 || '';
+        }
+      } else {
+        resForm.classList.add('hidden');
+      }
+
+      if (resData) {
+        resStatusBadge.textContent = `✅ 제출 완료 (${resData.author_name || '자료조사'} · ${resData.updated_at || ''})`;
+        resStatusBadge.className = 'text-xs font-extrabold text-emerald-700';
+
+        resReadonlyView.innerHTML = `
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
+            ${[1, 2, 3, 4].map((c) => {
+              const meta = CUT_META[c];
+              const text = resData[`cut${c}`] || '';
+              return `
+                <div class="rounded-2xl border border-amber-200/80 bg-amber-50/40 p-3.5 space-y-1.5">
+                  <span class="inline-block px-2 py-0.5 rounded text-[11px] font-extrabold ${meta.badgeBg}">${meta.short} 조사</span>
+                  <p class="text-xs sm:text-sm text-slate-800 font-medium leading-relaxed whitespace-pre-wrap">${escapeHtml(text)}</p>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      } else {
+        resStatusBadge.textContent = '아직 자료조사 내용이 제출되지 않았습니다';
+        resStatusBadge.className = 'text-xs font-bold text-slate-400';
+        resReadonlyView.innerHTML = isResearcher
+          ? ''
+          : `<p class="text-xs text-slate-500 bg-slate-50 rounded-xl p-4 text-center">자료조사 담당 학생이 주제 동물이 겪는 고통을 1~4컷에 맞춰 조사해 제출하면 이곳에서 확인할 수 있습니다.</p>`;
+      }
+
+      // [2] 스토리보드 섹션 렌더링 (모둠장은 입력/수정 가능, 모둠원 및 교사는 열람 가능)
+      const isLeader = state.session.role === 'student' && memberRole === '모둠장';
+      const leaderForm = document.getElementById('storyboardLeaderForm');
+      const readonlyView = document.getElementById('storyboardReadonlyView');
+      const sbStatusBadge = document.getElementById('storyboardStatusBadge');
+
+      if (isLeader) {
+        leaderForm.classList.remove('hidden');
+        if (sb && document.activeElement.tagName !== 'TEXTAREA') {
+          document.getElementById('sbInput1').value = sb.cut1 || '';
+          document.getElementById('sbInput2').value = sb.cut2 || '';
+          document.getElementById('sbInput3').value = sb.cut3 || '';
+          document.getElementById('sbInput4').value = sb.cut4 || '';
+        }
+      } else {
+        leaderForm.classList.add('hidden');
+      }
+
+      if (sb) {
+        sbStatusBadge.textContent = `✅ 제출 완료 (${sb.author_name || '모둠장'} · ${sb.updated_at || ''})`;
+        sbStatusBadge.className = 'text-xs font-extrabold text-emerald-700';
+
+        readonlyView.innerHTML = `
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
+            ${[1, 2, 3, 4].map((c) => {
+              const meta = CUT_META[c];
+              const text = sb[`cut${c}`] || '';
+              return `
+                <div class="rounded-2xl border border-purple-100 bg-purple-50/40 p-3.5 space-y-1.5">
+                  <span class="inline-block px-2 py-0.5 rounded text-[11px] font-extrabold ${meta.badgeBg}">${meta.title}</span>
+                  <p class="text-xs sm:text-sm text-slate-800 font-medium leading-relaxed whitespace-pre-wrap">${escapeHtml(text)}</p>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      } else {
+        sbStatusBadge.textContent = '아직 모둠장이 스토리보드를 제출하지 않았습니다';
+        sbStatusBadge.className = 'text-xs font-bold text-slate-400';
+        readonlyView.innerHTML = isLeader
+          ? ''
+          : `<p class="text-xs text-slate-500 bg-slate-50 rounded-xl p-4 text-center">모둠장 학생이 각 컷에 들어갈 스토리보드 내용을 작성해 제출하면 이곳에서 함께 확인할 수 있습니다.</p>`;
+      }
 
       const groupSubs = state.submissions.filter((s) => Number(s.group_id) === g);
       const count = [1, 2, 3, 4].filter((c) => groupSubs.some((s) => Number(s.cut_num) === c)).length;
@@ -1315,24 +1588,205 @@
 
       document.getElementById('myGroupComicCard').innerHTML = `
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
-          <div class="flex items-center gap-2.5">
+          <div class="flex flex-wrap items-center gap-2.5">
             <h3 class="text-base sm:text-lg font-extrabold text-slate-900">${cid}반 ${g}모둠 4컷 조합 (${count}/4컷 완성)</h3>
+            ${topic ? `<span class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-xs font-extrabold">🐾 주제: ${escapeHtml(topic)}</span>` : ''}
             ${count === 4 ? '<span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold">🎉 완성 완료!</span>' : ''}
           </div>
           <span class="text-xs text-slate-400">모둠원이 업로드하면 실시간 자동 갱신</span>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div id="pdfCaptureTarget" class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white p-1 rounded-2xl">
           ${panelsHtml}
         </div>
       `;
     }
 
-    window.quickSelectCutAndGoUpload = function (cutNum) {
-      switchTab('upload');
-      const radio = document.querySelector(`input[name="cutNum"][value="${cutNum}"]`);
-      if (radio) {
-        radio.checked = true;
-        onCutSelectionChange();
+    // [자료조사 역할 전용] 주제 동물 고통 1~4컷 조사 내용 제출 (Google Sheets + Firebase 동시 저장)
+    window.submitGroupResearch = async function (e) {
+      e.preventDefault();
+      const s = state.session;
+      const role = (!s || !s.member_role || s.member_role === '일반') ? '자료조사' : s.member_role;
+      if (!s || role !== '자료조사') {
+        showToast('자료조사 제출은 자료조사 역할 학생만 가능합니다.', 'error');
+        return;
+      }
+
+      const cut1 = document.getElementById('resInput1').value.trim();
+      const cut2 = document.getElementById('resInput2').value.trim();
+      const cut3 = document.getElementById('resInput3').value.trim();
+      const cut4 = document.getElementById('resInput4').value.trim();
+      if (!cut1 || !cut2 || !cut3 || !cut4) {
+        showToast('1컷~4컷 자료조사 내용을 모두 입력해주세요.', 'warning');
+        return;
+      }
+
+      const btn = document.getElementById('submitResearchBtn');
+      btn.disabled = true;
+      btn.textContent = '구글 시트에 자료조사 저장 중...';
+
+      try {
+        const cid = Number(s.class_id);
+        const gid = Number(s.group_id);
+        const nowStr = formatNowTimestamp();
+
+        // 1) Google Sheets(Research 시트) 영구 저장
+        const gasRes = await postToGas({
+          action: 'saveResearch',
+          class_id: cid,
+          group_id: gid,
+          topic: s.topic || '',
+          student_id: String(s.student_id),
+          student_name: String(s.student_name),
+          cut1,
+          cut2,
+          cut3,
+          cut4
+        });
+        if (!gasRes.ok) {
+          throw new Error(gasRes.error || '구글 시트 자료조사 저장에 실패했습니다.');
+        }
+
+        // 2) Firebase Firestore 실시간 동기화
+        const resDocRef = doc(db, 'classes', String(cid), 'researches', `group_${gid}`);
+        await setDoc(resDocRef, {
+          class_id: cid,
+          group_id: gid,
+          topic: s.topic || '',
+          cut1,
+          cut2,
+          cut3,
+          cut4,
+          author_id: String(s.student_id),
+          author_name: String(s.student_name),
+          updated_at: gasRes.timestamp || nowStr
+        });
+
+        showToast(`${cid}반 ${gid}모둠 자료조사 내용이 구글 시트와 모둠 화면에 제출되었습니다!`, 'success');
+      } catch (err) {
+        showToast('자료조사 제출 오류: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '📤 자료조사 내용 교사에게 제출하기';
+      }
+    };
+
+    // [모둠장 전용] 스토리보드 제출 (Google Sheets + Firebase 동시 저장)
+    window.submitGroupStoryboard = async function (e) {
+      e.preventDefault();
+      const s = state.session;
+      if (!s || s.member_role !== '모둠장') {
+        showToast('스토리보드 제출은 모둠장만 가능합니다.', 'error');
+        return;
+      }
+
+      const cut1 = document.getElementById('sbInput1').value.trim();
+      const cut2 = document.getElementById('sbInput2').value.trim();
+      const cut3 = document.getElementById('sbInput3').value.trim();
+      const cut4 = document.getElementById('sbInput4').value.trim();
+      if (!cut1 || !cut2 || !cut3 || !cut4) {
+        showToast('1컷~4컷 스토리보드 내용을 모두 입력해주세요.', 'warning');
+        return;
+      }
+
+      const btn = document.getElementById('submitStoryboardBtn');
+      btn.disabled = true;
+      btn.textContent = '구글 시트에 스토리보드 저장 중...';
+
+      try {
+        const cid = Number(s.class_id);
+        const gid = Number(s.group_id);
+        const nowStr = formatNowTimestamp();
+
+        // 1) Google Sheets(Storyboards 시트) 영구 저장
+        const gasRes = await postToGas({
+          action: 'saveStoryboard',
+          class_id: cid,
+          group_id: gid,
+          topic: s.topic || '',
+          student_id: String(s.student_id),
+          student_name: String(s.student_name),
+          cut1,
+          cut2,
+          cut3,
+          cut4
+        });
+        if (!gasRes.ok) {
+          throw new Error(gasRes.error || '구글 시트 스토리보드 저장에 실패했습니다.');
+        }
+
+        // 2) Firebase Firestore 실시간 동기화
+        const sbDocRef = doc(db, 'classes', String(cid), 'storyboards', `group_${gid}`);
+        await setDoc(sbDocRef, {
+          class_id: cid,
+          group_id: gid,
+          topic: s.topic || '',
+          cut1,
+          cut2,
+          cut3,
+          cut4,
+          author_id: String(s.student_id),
+          author_name: String(s.student_name),
+          updated_at: gasRes.timestamp || nowStr
+        });
+
+        showToast(`${cid}반 ${gid}모둠 스토리보드가 구글 시트와 선생님께 제출되었습니다!`, 'success');
+      } catch (err) {
+        showToast('스토리보드 제출 오류: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '📤 스토리보드 교사에게 제출하기';
+      }
+    };
+
+    // [과제제출 역할 전용] 4컷 만화 PDF 저장하기
+    window.exportGroupComicToPdf = async function () {
+      const targetEl = document.getElementById('pdfCaptureTarget');
+      if (!targetEl || !window.html2canvas || !window.jspdf) {
+        showToast('PDF 변환 모듈을 불러오는 중입니다. 잠시 후 다시 시도해주세요.', 'warning');
+        return;
+      }
+
+      const btn = document.getElementById('exportGroupPdfBtn');
+      const prevHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳</span><span>PDF 파일 생성 중...</span>';
+
+      try {
+        const cid = state.activeClassId;
+        const gid = Number(state.session.group_id) || 1;
+        const sb = state.storyboards[gid];
+        const topic = state.session.topic || (sb && sb.topic) || '생명 윤리';
+
+        const canvas = await window.html2canvas(targetEl, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#FFFFFF'
+        });
+
+        const imgData = canvas.toDataURL('image/jpeg', 0.92);
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+        const pageW = pdf.internal.pageSize.getWidth();
+        const pageH = pdf.internal.pageSize.getHeight();
+        const margin = 12;
+        const availW = pageW - margin * 2;
+        const availH = pageH - margin * 2;
+
+        const ratio = Math.min(availW / canvas.width, availH / canvas.height);
+        const renderW = canvas.width * ratio;
+        const renderH = canvas.height * ratio;
+        const offsetX = (pageW - renderW) / 2;
+        const offsetY = (pageH - renderH) / 2;
+
+        pdf.addImage(imgData, 'JPEG', offsetX, offsetY, renderW, renderH);
+        pdf.save(`멋진하루에숨겨진생명의고통_${cid}반_${gid}모둠_${topic}.pdf`);
+        showToast(`📄 ${cid}반 ${gid}모둠 4컷 만화 PDF 파일이 저장되었습니다!`, 'success');
+      } catch (err) {
+        showToast('PDF 저장 중 오류가 발생했습니다: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = prevHtml;
       }
     };
 
@@ -1341,31 +1795,12 @@
      *************************************************************************/
     function renderUploadTabStatus() {
       const s = state.session;
+      const topicPart = s.topic ? ` · 주제:${s.topic}` : '';
       document.getElementById('uploadHeaderBadge').textContent =
-        `${s.grade || 1}학년 ${s.class_id}반 · ${s.group_id}모둠 · ${s.student_id} ${s.student_name}`;
-
-      const mySubs = state.submissions.filter(
-        (item) => String(item.student_id) === String(s.student_id) && Number(item.group_id) === Number(s.group_id)
-      );
-      const area = document.getElementById('myExistingSubmissionsArea');
-      const listEl = document.getElementById('myExistingSubmissionsList');
-
-      if (mySubs.length === 0) {
-        area.classList.add('hidden');
-      } else {
-        area.classList.remove('hidden');
-        listEl.innerHTML = mySubs.map((sub) => {
-          const meta = CUT_META[sub.cut_num];
-          return `
-            <div class="bg-sky-50/50 rounded-xl border border-sky-200 p-2.5 flex items-center gap-3">
-              <img src="${sub.image_url}" alt="내 제출 컷" class="w-16 h-12 rounded-lg object-cover border border-slate-200 shrink-0 bg-white" />
-              <div class="min-w-0 flex-1">
-                <span class="inline-block px-2 py-0.5 rounded text-[10px] font-extrabold ${meta.badgeBg}">${meta.title}</span>
-                <p class="text-[11px] text-slate-500 mt-1 truncate">저장 시각: ${escapeHtml(sub.updated_at || '')}</p>
-              </div>
-            </div>
-          `;
-        }).join('');
+        `${s.grade || 1}학년 ${s.class_id}반 · ${s.group_id}모둠${topicPart} · ${s.student_id} ${s.student_name}`;
+      if (s.topic) {
+        document.getElementById('uploadTopicSubtitle').textContent =
+          `우리 모둠 주제 「${s.topic}」에 맞춰 컷 이미지를 올려주세요. 구글 드라이브에 영구 저장됩니다.`;
       }
 
       onCutSelectionChange();
@@ -1547,41 +1982,219 @@
           student_id: String(s.student_id),
           student_name: String(s.student_name),
           image_url: finalUrl,
+          file_id: gasUploadRes.submission.file_id || '',
           updated_at: nowStr
         });
 
-        // 업로드 직후 확인 카드 표시
+        // 3) 업로드 직후 '내 업로드 확인 카드' 즉시 표시
         const meta = CUT_META[cutNum];
-        const justCard = document.getElementById('justUploadedCard');
+        document.getElementById('justUploadedCard').classList.remove('hidden');
         document.getElementById('justUploadedContent').innerHTML = `
-          <div class="w-full sm:w-44 aspect-[4/3] rounded-xl overflow-hidden border border-slate-200 bg-slate-100 shrink-0">
-            <img src="${finalUrl}" alt="제출 완료" class="w-full h-full object-cover" />
-          </div>
-          <div class="flex-1 space-y-1.5 text-center sm:text-left">
-            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-              <span class="px-2.5 py-0.5 rounded-full bg-sky-600 text-white text-xs font-extrabold">${cid}반 ${gid}모둠</span>
-              <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold ${meta.badgeBg}">${meta.title}</span>
-            </div>
-            <p class="text-base font-extrabold text-slate-900">제출자: ${escapeHtml(s.student_id)} ${escapeHtml(s.student_name)}</p>
-            <p class="text-xs text-slate-500">구글 드라이브 저장 시각: ${nowStr}</p>
+          <img src="${finalUrl}" alt="방금 제출한 이미지" class="w-40 h-28 object-cover rounded-xl border border-emerald-300 bg-white shrink-0" />
+          <div class="space-y-1 text-center sm:text-left">
+            <span class="inline-block px-2.5 py-0.5 rounded text-xs font-extrabold ${meta.badgeBg}">${meta.title}</span>
+            <p class="text-sm font-extrabold text-slate-900">${cid}반 ${gid}모둠 · ${escapeHtml(s.student_id)} ${escapeHtml(s.student_name)}</p>
+            <p class="text-xs text-slate-500">저장 시각: ${nowStr} (구글 드라이브 & 실시간 동기화 완료)</p>
           </div>
         `;
-        justCard.classList.remove('hidden');
-        justCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-        // 입력 초기화
+        // 입력 상태 초기화
         state.compressedBase64 = '';
         document.getElementById('imageFileInput').value = '';
         document.getElementById('dropZonePlaceholder').classList.remove('hidden');
         document.getElementById('imagePreviewContainer').classList.add('hidden');
-        onCutSelectionChange();
-
-        showToast(`${cid}반 ${gid}모둠 ${cutNum}컷이 구글 드라이브에 저장되었습니다!`, 'success');
+        renderExistingMySubmissions();
+        showToast(`✅ ${cid}반 ${gid}모둠 ${cutNum}컷이 성공적으로 저장되었습니다!`, 'success');
       } catch (err) {
-        showToast('저장 중 오류가 발생했습니다: ' + err.message, 'error');
+        showToast('이미지 업로드 중 오류: ' + err.message, 'error');
       } finally {
         updateSubmitButtonState();
       }
+    };
+
+    window.quickSelectCutAndGoUpload = function (cutNum) {
+      switchTab('upload');
+      const radio = document.querySelector(`input[name="cutNum"][value="${cutNum}"]`);
+      if (radio) {
+        radio.checked = true;
+        onCutSelectionChange();
+      }
+    };
+
+    function renderExistingMySubmissions() {
+      const s = state.session;
+      const area = document.getElementById('myExistingSubmissionsArea');
+      const listEl = document.getElementById('myExistingSubmissionsList');
+      if (!s || s.role === 'teacher') {
+        area.classList.add('hidden');
+        return;
+      }
+
+      const mySubs = state.submissions
+        .filter((item) => String(item.student_id) === String(s.student_id))
+        .sort((a, b) => Number(a.cut_num) - Number(b.cut_num));
+
+      if (mySubs.length === 0) {
+        area.classList.add('hidden');
+        return;
+      }
+
+      area.classList.remove('hidden');
+      listEl.innerHTML = mySubs.map((sub) => {
+        const meta = CUT_META[sub.cut_num] || { title: `${sub.cut_num}컷`, badgeBg: 'bg-sky-100 text-sky-800' };
+        return `
+          <div class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50">
+            <img src="${sub.image_url}" alt="${sub.cut_num}컷" class="w-16 h-12 object-cover rounded-lg border border-slate-200 bg-white shrink-0" />
+            <div class="min-w-0">
+              <span class="inline-block px-2 py-0.5 rounded text-[11px] font-extrabold ${meta.badgeBg}">${meta.title}</span>
+              <p class="text-[11px] text-slate-500 mt-1 truncate">${escapeHtml(sub.updated_at || '저장됨')}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 공용 삭제 확인 모달 제어
+    window.openDeleteConfirmModal = function (title, message, onConfirmCallback) {
+      pendingDeleteAction = onConfirmCallback;
+      document.getElementById('deleteConfirmTitle').textContent = title;
+      document.getElementById('deleteConfirmMessage').textContent = message;
+      const execBtn = document.getElementById('deleteConfirmExecuteBtn');
+      execBtn.disabled = false;
+      execBtn.textContent = '네, 삭제합니다';
+      document.getElementById('deleteConfirmModal').classList.remove('hidden');
+    };
+
+    window.closeDeleteConfirmModal = function () {
+      pendingDeleteAction = null;
+      document.getElementById('deleteConfirmModal').classList.add('hidden');
+    };
+
+    window.executePendingDelete = async function () {
+      if (!pendingDeleteAction) return;
+      const execBtn = document.getElementById('deleteConfirmExecuteBtn');
+      execBtn.disabled = true;
+      execBtn.textContent = '삭제 처리 중...';
+      const fn = pendingDeleteAction;
+      try {
+        await fn();
+      } finally {
+        closeDeleteConfirmModal();
+      }
+    };
+
+    // [교사 전용] 컷 이미지 삭제 확인 요청 -> 실행
+    window.requestDeleteCut = function (groupId, cutNum, fileId, studentId, studentName) {
+      if (!state.isAdmin) return;
+      const cid = state.activeClassId;
+      openDeleteConfirmModal(
+        `${cid}반 ${groupId}모둠 ${cutNum}컷 이미지 삭제`,
+        `${cid}반 ${groupId}모둠 ${cutNum}컷(${studentId || ''} ${studentName || ''}) 이미지를 정말 삭제하시겠습니까? Google Drive 파일과 갤러리에서 함께 삭제됩니다.`,
+        async () => {
+          await adminDeleteCut(groupId, cutNum, fileId);
+        }
+      );
+    };
+
+    // [교사 전용] 학생 업로드 이미지 삭제 실행 (Google Drive 휴지통 이동 + Firestore 삭제)
+    async function adminDeleteCut(groupId, cutNum, fileId) {
+      if (!state.isAdmin) return;
+      const cid = state.activeClassId;
+
+      try {
+        showToast(`${cid}반 ${groupId}모둠 ${cutNum}컷 이미지를 삭제하는 중...`, 'info');
+
+        // 1) Google Apps Script를 통해 Drive 파일 휴지통 이동 및 Submissions 시트 행 삭제
+        await postToGas({
+          action: 'deleteCut',
+          class_id: cid,
+          group_id: Number(groupId),
+          cut_num: Number(cutNum),
+          file_id: fileId || ''
+        });
+
+        // 2) Firebase Firestore 문서 삭제 (실시간 갤러리에서 즉시 제거)
+        const docId = `group_${groupId}_cut_${cutNum}`;
+        await deleteDoc(doc(db, 'classes', String(cid), 'submissions', docId));
+
+        showToast(`🗑️ ${cid}반 ${groupId}모둠 ${cutNum}컷 이미지가 삭제되었습니다.`, 'success');
+      } catch (err) {
+        showToast('이미지 삭제 중 오류: ' + err.message, 'error');
+      }
+    }
+
+    // [교사 전용] 모둠 스토리보드 또는 자료조사 상세 열람 모달 열기 (삭제하기 버튼 포함)
+    window.openAdminPlanModal = function (type, groupId) {
+      const cid = state.activeClassId;
+      const isResearch = type === 'research';
+      const item = isResearch ? state.researches[groupId] : state.storyboards[groupId];
+      if (!item) return;
+
+      const label = isResearch ? '자료조사 내용' : '4컷 스토리보드';
+      const badgeEl = document.getElementById('adminSbModalBadge');
+      badgeEl.textContent = `${cid}반 ${groupId}모둠 ${item.topic ? '· 주제: ' + item.topic : ''}`;
+      badgeEl.className = isResearch
+        ? 'px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-xs font-extrabold'
+        : 'px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 text-xs font-extrabold';
+
+      document.getElementById('adminSbModalTitle').textContent =
+        `${groupId}모둠 ${label} (작성: ${item.author_name || ''} · ${item.updated_at || ''})`;
+
+      document.getElementById('adminSbModalBody').innerHTML = [1, 2, 3, 4].map((c) => {
+        const meta = CUT_META[c];
+        return `
+          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-1.5">
+            <span class="inline-block px-2.5 py-0.5 rounded text-xs font-extrabold ${meta.badgeBg}">${meta.title}</span>
+            <p class="text-sm text-slate-800 leading-relaxed whitespace-pre-wrap">${escapeHtml(item[`cut${c}`] || '')}</p>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('adminSbModalFooter').innerHTML = `
+        <button onclick="requestDeleteGroupPlan('${type}', ${groupId})" class="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-extrabold shadow-xs transition flex items-center gap-1.5">
+          <span>🗑️</span>
+          <span>이 ${label} 삭제하기</span>
+        </button>
+        <button onclick="closeAdminStoryboardModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-bold transition">
+          닫기
+        </button>
+      `;
+
+      document.getElementById('adminStoryboardModal').classList.remove('hidden');
+    };
+
+    window.requestDeleteGroupPlan = function (type, groupId) {
+      if (!state.isAdmin) return;
+      const cid = state.activeClassId;
+      const isResearch = type === 'research';
+      const label = isResearch ? '자료조사 내용' : '4컷 스토리보드';
+
+      openDeleteConfirmModal(
+        `${cid}반 ${groupId}모둠 ${label} 삭제`,
+        `${cid}반 ${groupId}모둠 학생이 제출한 ${label}을(를) 정말 삭제하시겠습니까? 구글 시트와 모둠 화면에서 모두 삭제됩니다.`,
+        async () => {
+          try {
+            const gasAction = isResearch ? 'deleteResearch' : 'deleteStoryboard';
+            const colName = isResearch ? 'researches' : 'storyboards';
+
+            await postToGas({
+              action: gasAction,
+              class_id: cid,
+              group_id: Number(groupId)
+            });
+
+            await deleteDoc(doc(db, 'classes', String(cid), colName, `group_${groupId}`));
+            closeAdminStoryboardModal();
+            showToast(`🗑️ ${cid}반 ${groupId}모둠 ${label}이(가) 삭제되었습니다.`, 'success');
+          } catch (err) {
+            showToast(`${label} 삭제 중 오류: ` + err.message, 'error');
+          }
+        }
+      );
+    };
+
+    window.closeAdminStoryboardModal = function () {
+      document.getElementById('adminStoryboardModal').classList.add('hidden');
     };
 
     /*************************************************************************
@@ -1783,8 +2396,19 @@
       let rowsHtml = '';
       for (let g = 1; g <= totalGroups; g++) {
         const gSubs = state.submissions.filter((s) => Number(s.group_id) === g);
+        const sb = state.storyboards[g];
+        const resData = state.researches[g];
+        const groupTopic = (sb && sb.topic) || (resData && resData.topic) || '';
         const cnt = [1, 2, 3, 4].filter((c) => gSubs.some((s) => Number(s.cut_num) === c)).length;
         const isDone = cnt === 4;
+
+        const resCellHtml = resData
+          ? `<button onclick="openAdminPlanModal('research', ${g})" class="px-2.5 py-1 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-950 text-xs font-extrabold transition">🔍 보기 (${escapeHtml(resData.author_name || '제출')})</button>`
+          : `<span class="text-xs text-slate-400">미작성</span>`;
+
+        const sbCellHtml = sb
+          ? `<button onclick="openAdminPlanModal('storyboard', ${g})" class="px-2.5 py-1 rounded-lg bg-purple-100 hover:bg-purple-200 text-purple-800 text-xs font-extrabold transition">📋 보기 (${escapeHtml(sb.author_name || '모둠장')})</button>`
+          : `<span class="text-xs text-slate-400">미작성</span>`;
 
         let cells = '';
         for (let c = 1; c <= 4; c++) {
@@ -1792,9 +2416,12 @@
           if (sub) {
             cells += `
               <td class="py-2.5 px-3">
-                <div class="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">
+                <div class="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-lg">
                   <img src="${sub.image_url}" class="w-7 h-5 rounded object-cover border border-emerald-300" alt="" />
                   <span class="text-xs font-bold text-emerald-900">${escapeHtml(sub.student_id)} ${escapeHtml(sub.student_name)}</span>
+                  <button onclick="requestDeleteCut(${g}, ${c}, '${escapeHtml(sub.file_id || '')}', '${escapeHtml(sub.student_id)}', '${escapeHtml(sub.student_name)}')" title="이 컷 삭제" class="ml-1 px-1.5 py-0.5 rounded bg-rose-100 hover:bg-rose-600 text-rose-700 hover:text-white text-[10px] font-extrabold transition">
+                    삭제
+                  </button>
                 </div>
               </td>
             `;
@@ -1809,12 +2436,17 @@
 
         rowsHtml += `
           <tr class="hover:bg-sky-50/40 transition">
-            <td class="py-3 px-4 font-extrabold text-slate-900">${g}모둠</td>
+            <td class="py-3 px-4">
+              <span class="font-extrabold text-slate-900">${g}모둠</span>
+              ${groupTopic ? `<span class="block text-[11px] font-bold text-amber-800 mt-0.5">🐾 ${escapeHtml(groupTopic)}</span>` : ''}
+            </td>
             <td class="py-3 px-3">
               <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold ${isDone ? 'bg-emerald-100 text-emerald-800' : 'bg-sky-100 text-sky-800'}">
                 ${cnt}/4 ${isDone ? '완성' : ''}
               </span>
             </td>
+            <td class="py-3 px-3">${resCellHtml}</td>
+            <td class="py-3 px-3">${sbCellHtml}</td>
             ${cells}
             <td class="py-3 px-4 text-right">
               <button onclick="openPresentationModal(${g})" class="px-3 py-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold border border-sky-200 transition">
