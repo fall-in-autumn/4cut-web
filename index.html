@@ -682,6 +682,64 @@
   </div>
 
   <!-- ===================================================================== -->
+  <!-- 3. 게이트키퍼용 교사 관리자 로그인 모달                                -->
+  <!-- ===================================================================== -->
+  <div id="gateAdminModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl animate-fade-in">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">🔐</span>
+          <h3 class="text-base font-extrabold text-slate-900">교사 관리자 입장</h3>
+        </div>
+        <button onclick="closeGateAdminModal()" class="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-500 font-bold">✕</button>
+      </div>
+      <form onsubmit="handleGateAdminSubmit(event)" class="space-y-3">
+        <p class="text-xs text-slate-500">관리자 비밀번호를 입력하면 1반~8반 전체 제어판으로 즉시 입장합니다.</p>
+        <input
+          type="password"
+          id="gateAdminPwInput"
+          placeholder="관리자 비밀번호 입력"
+          class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-sky-500"
+          required
+        />
+        <button id="gateAdminSubmitBtn" type="submit" class="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-extrabold transition">
+          교사 제어판 열기
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 4. 전자칠판 프레젠테이션 확대 보기 모달 (만화 보기 & 교사 컷 삭제)    -->
+  <!-- ===================================================================== -->
+  <div id="presentationModal" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-xs flex flex-col justify-between p-3 sm:p-6 overflow-y-auto">
+    <div class="max-w-6xl w-full mx-auto flex flex-wrap items-center justify-between gap-3 text-white pb-3 border-b border-white/10">
+      <div class="flex flex-wrap items-center gap-2.5">
+        <span id="modalGroupBadge" class="px-3 py-1 rounded-xl bg-sky-600 text-white text-xs sm:text-sm font-extrabold">1반 1모둠</span>
+        <h3 id="modalGroupTitle" class="text-sm sm:text-lg font-extrabold">4컷 만화 크게 보기</h3>
+        <span id="modalGroupMembers" class="text-xs text-slate-300"></span>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="inline-flex rounded-xl bg-white/10 p-1">
+          <button id="modalLayout2x2" onclick="setModalLayout('2x2')" class="px-3 py-1 rounded-lg text-xs font-bold bg-sky-600 text-white transition">2×2 프레임</button>
+          <button id="modalLayout4x1" onclick="setModalLayout('4x1')" class="px-3 py-1 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition">4×1 파노라마</button>
+        </div>
+        <button onclick="navigateModalGroup(-1)" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold transition">← 이전 모둠</button>
+        <button onclick="navigateModalGroup(1)" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold transition">다음 모둠 →</button>
+        <button onclick="closePresentationModal()" class="w-9 h-9 rounded-xl bg-white/10 hover:bg-rose-600 text-white font-extrabold transition">✕</button>
+      </div>
+    </div>
+
+    <div id="modalComicContainer" class="max-w-6xl w-full mx-auto my-auto py-4">
+      <!-- 동적 렌더링 -->
+    </div>
+
+    <div class="text-center text-[11px] text-slate-400 pt-2">
+      키보드 ← / → 화살표로 모둠 전환 · ESC 키로 닫기
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
   <!-- 5. 교사용 모둠 자료조사 / 스토리보드 열람 & 삭제 모달                 -->
   <!-- ===================================================================== -->
   <div id="adminStoryboardModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
