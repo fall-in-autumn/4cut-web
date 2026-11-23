@@ -2864,6 +2864,89 @@
       btnText.textContent = `${state.session.class_id}반 ${state.session.group_id}모둠 ${cut}컷 및 AI 프롬프트 저장하기`;
     }
 
+    window.submitCut = async function () {
+      const s = state.session;
+      const cutNum = getSelectedCutNum();
+      const base64Data = state.compressedBase64;
+      const aiPrompt = document.getElementById('aiPromptInput').value.trim();
+
+      if (!s || s.role !== 'student') {
+        showToast('학생 계정으로 로그인한 뒤 업로드할 수 있습니다.', 'error');
+        return;
+      }
+      if (!cutNum || !base64Data || !aiPrompt) {
+        showToast('컷 번호, 이미지 파일, AI 프롬프트를 모두 입력해주세요.', 'warning');
+        return;
+      }
+
+      const btn = document.getElementById('submitCutBtn');
+      const btnText = document.getElementById('submitCutBtnText');
+      btn.disabled = true;
+      btnText.textContent = '⏳ 구글 드라이브 및 문서에 저장 중...';
+
+      try {
+        // 1) Google Apps Script로 이미지(Drive) + AI 프롬프트(Google Docs) + 시트 저장
+        const gasRes = await postToGas({
+          action: 'uploadCut',
+          student_id: String(s.student_id),
+          group_id: Number(s.group_id),
+          cut_num: Number(cutNum),
+          image_base64: base64Data,
+          ai_prompt: aiPrompt
+        });
+
+        if (!gasRes || !gasRes.ok || !gasRes.submission) {
+          throw new Error((gasRes && gasRes.error) || '서버 업로드에 실패했습니다.');
+        }
+
+        const subData = gasRes.submission;
+        const cid = Number(subData.class_id) || Number(s.class_id);
+        const gid = Number(subData.group_id) || Number(s.group_id);
+        const nowStr = subData.timestamp || formatNowTimestamp();
+
+        // 2) Firebase Firestore 실시간 동기화 저장
+        const docId = `group_${gid}_cut_${cutNum}`;
+        await setDoc(doc(db, 'classes', String(cid), 'submissions', docId), {
+          class_id: cid,
+          group_id: gid,
+          cut_num: Number(cutNum),
+          student_id: String(s.student_id),
+          student_name: String(s.student_name),
+          image_url: subData.image_url,
+          file_id: subData.file_id || '',
+          ai_prompt: aiPrompt,
+          prompt_doc_url: subData.prompt_doc_url || '',
+          updated_at: nowStr
+        });
+
+        // 3) 방금 제출 완료 확인 카드 표시
+        const meta = CUT_META[cutNum] || { title: `${cutNum}컷`, badgeBg: 'bg-sky-100 text-sky-800' };
+        document.getElementById('justUploadedCard').classList.remove('hidden');
+        document.getElementById('justUploadedContent').innerHTML = `
+          <img src="${subData.image_url}" alt="${cutNum}컷 업로드 확인" class="w-40 h-28 object-contain rounded-xl border border-slate-200 bg-slate-50 shrink-0" />
+          <div class="space-y-1 text-center sm:text-left">
+            <span class="inline-block px-2.5 py-0.5 rounded text-xs font-extrabold ${meta.badgeBg}">${meta.title}</span>
+            <p class="text-sm font-extrabold text-slate-900">${cid}반 ${gid}모둠 · ${escapeHtml(s.student_id)} ${escapeHtml(s.student_name)}</p>
+            <p class="text-xs text-slate-500">저장 시각: ${escapeHtml(nowStr)} (구글 드라이브 &amp; 구글 문서 연동 완료)</p>
+          </div>
+        `;
+
+        // 4) 입력 폼 초기화
+        state.compressedBase64 = '';
+        document.getElementById('imageFileInput').value = '';
+        document.getElementById('aiPromptInput').value = '';
+        document.getElementById('dropZonePlaceholder').classList.remove('hidden');
+        document.getElementById('imagePreviewContainer').classList.add('hidden');
+        document.querySelectorAll('input[name="cutNum"]').forEach((r) => { r.checked = false; });
+        onCutSelectionChange();
+
+        showToast(`✅ ${cid}반 ${gid}모둠 ${cutNum}컷과 AI 프롬프트가 성공적으로 저장되었습니다!`, 'success');
+      } catch (err) {
+        showToast('이미지 업로드 중 오류: ' + err.message, 'error');
+        updateSubmitButtonState();
+      }
+    };
+
     const PROMPT_TEMPLATE_TEXT = `1. 레퍼런스 고정: "첨부된 사진 속 캐릭터의 얼굴 생김새와 색상을 그대로 유지해 줘."
 2. 상황 및 배경: (예: 몸도 못 돌리는 좁은 콘크리트 수조 구석에 갇혀 있음)
 3. 표정: (예: 무서워서 눈물 고인 채 떨고 있음)
