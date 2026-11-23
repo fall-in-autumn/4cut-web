@@ -474,7 +474,7 @@
               우리 모둠 주제 동물 자료조사 &amp; 4컷 스토리보드
             </h2>
             <p class="text-xs text-slate-500">
-              <strong>자료조사 담당</strong>이 동물의 고통 실태를 조사해 올리면, <strong>모둠장</strong>이 이를 바탕으로 4컷 스토리보드를 기획해 제출합니다.
+              <strong>자료조사 담당</strong>이 동물의 고통 실태를 조사해 올리면, <strong>모둠원 각자</strong>가 자신이 맡은 컷을 선택해 스토리보드를 작성합니다.
             </p>
           </div>
           <button onclick="switchTab('mygroup')" class="px-4 py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 text-xs sm:text-sm font-extrabold transition">
@@ -495,24 +495,24 @@
           <!-- 자료조사 입력 폼 (역할이 '자료조사'일 때만 표시) -->
           <form id="researchRoleForm" onsubmit="submitGroupResearch(event)" class="hidden space-y-4">
             <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-950 font-semibold">
-              🔍 <strong>자료조사 역할 안내:</strong> 모둠장이 4컷 스토리보드를 구상할 수 있도록 우리 모둠 주제 동물이 겪는 고통을 1~4컷 내용에 맞게 조사해 제출해주세요.
+              🔍 <strong>자료조사 역할 안내:</strong> 모둠원들이 4컷 스토리보드를 구상할 수 있도록 우리 모둠 주제 동물이 겪는 고통을 1~4컷 내용에 맞게 조사해 제출해주세요.
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
               <div>
-                <label class="block text-xs font-extrabold text-sky-800 mb-1">1컷 조사 : 자유로웠던 원래 모습 (자연 속 생태·습성)</label>
-                <textarea id="resInput1" rows="2" placeholder="예: 자연 상태에서 어미와 무리를 지어 풀을 뜯고 땅굴을 파며 살아가는 습성 조사 내용" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" required></textarea>
+                <label class="block text-xs font-extrabold text-sky-800 mb-1">1컷 조사 : 자유로웠던 원래 모습 *</label>
+                <textarea id="resInput1" rows="2" placeholder="예: 야생에서는 숲속이나 초원에서 무리를 지어 자유롭게 뛰어놀며 본래의 습성대로 살아간다." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" required></textarea>
               </div>
               <div>
-                <label class="block text-xs font-extrabold text-indigo-800 mb-1">2컷 조사 : 현재 모습 (사육·포획·이용 환경)</label>
-                <textarea id="resInput2" rows="2" placeholder="예: A4 용지 한 장 크기보다 좁은 배터리 케이지나 실험실 철장에 갇혀 지내는 실태 조사 내용" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" required></textarea>
+                <label class="block text-xs font-extrabold text-indigo-800 mb-1">2컷 조사 : 현재 모습 *</label>
+                <textarea id="resInput2" rows="2" placeholder="예: 공장식 사육장이나 좁은 실험실 케이지에 갇혀 평생 햇빛을 보지 못한 채 살아간다." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" required></textarea>
               </div>
               <div>
-                <label class="block text-xs font-extrabold text-rose-800 mb-1">3컷 조사 : 동물이 겪는 아픔과 상처 (구체적 피해·고통)</label>
-                <textarea id="resInput3" rows="2" placeholder="예: 좁은 공간으로 인한 부상, 질병, 화학 물질 실험으로 인한 화상·실명 등 구체적 고통 사례" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" required></textarea>
+                <label class="block text-xs font-extrabold text-rose-800 mb-1">3컷 조사 : 동물이 겪는 아픔과 상처 *</label>
+                <textarea id="resInput3" rows="2" placeholder="예: 극심한 스트레스와 신체 훼손, 반복적인 고통 속에서 질병과 상처를 입는다." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" required></textarea>
               </div>
               <div>
-                <label class="block text-xs font-extrabold text-emerald-800 mb-1">4컷 조사 : 우리가 마주하는 상품 (일상 소비 품목)</label>
-                <textarea id="resInput4" rows="2" placeholder="예: 마트에서 흔히 보는 달걀, 패스트푸드, 화장품·생활용품 등으로 가공되어 판매되는 모습" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" required></textarea>
+                <label class="block text-xs font-extrabold text-emerald-800 mb-1">4컷 조사 : 우리가 마주하는 상품 *</label>
+                <textarea id="resInput4" rows="2" placeholder="예: 마트 진열대의 음식, 화장품, 의류 등 우리가 일상에서 쉽게 소비하는 상품이 된다." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" required></textarea>
               </div>
             </div>
             <div class="flex justify-end">
@@ -522,53 +522,83 @@
             </div>
           </form>
 
-          <!-- 제출된 자료조사 열람 뷰 -->
+          <!-- 제출된 우리 모둠 자료조사 열람 뷰 -->
           <div id="researchReadonlyView" class="space-y-2">
             <!-- 동적 렌더링 -->
           </div>
         </div>
 
-        <!-- [2] 스토리보드 기획 및 제출 카드 -->
+        <!-- [2] 스토리보드 기획 및 제출 카드 (모둠원 각자 담당 컷별 작성) -->
         <div id="storyboardSectionCard" class="bg-white rounded-3xl border border-purple-200/80 p-5 sm:p-6 shadow-card space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3.5">
             <div class="flex items-center gap-2">
-              <span class="px-2.5 py-1 rounded-lg bg-purple-100 text-purple-800 text-xs font-extrabold">📋 2단계. 4컷 스토리보드 구상안</span>
+              <span class="px-2.5 py-1 rounded-lg bg-purple-100 text-purple-800 text-xs font-extrabold">📋 2단계. 4컷 스토리보드 구상안 (모둠원 각자 담당 컷 작성)</span>
               <span id="storyboardStatusBadge" class="text-xs font-bold text-slate-500">작성 대기 중</span>
             </div>
             <span class="text-[11px] text-slate-400">※ 구글 시트(Storyboards)에 저장되며 교사와 우리 모둠원만 열람합니다</span>
           </div>
 
-          <!-- 모둠장 입력 폼 (역할이 '모둠장'일 때만 표시) -->
+          <!-- 모둠원 개별 컷 선택 스토리보드 입력 폼 (학생 로그인 시 표시) -->
           <form id="storyboardLeaderForm" onsubmit="submitGroupStoryboard(event)" class="hidden space-y-4">
             <div class="p-3.5 rounded-2xl bg-purple-50 border border-purple-200 text-xs text-purple-900 font-semibold">
-              👑 <strong>모둠장 안내:</strong> 위의 <strong>자료조사 내용</strong>을 바탕으로 각 컷에 어떤 그림과 대사를 담을지 스토리보드를 작성해 선생님께 제출해주세요.
+              ✍️ <strong>모둠원 스토리보드 작성 안내:</strong> 위의 <strong>자료조사 내용</strong>을 참고하여 <strong>내가 맡은 컷 번호(1~4컷)</strong>를 선택한 뒤, 그 컷에 들어갈 장면과 대사를 작성해 제출해주세요.
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-              <div>
-                <label class="block text-xs font-extrabold text-sky-800 mb-1">1컷 : 자유로웠던 원래 모습</label>
-                <textarea id="sbInput1" rows="2" placeholder="예: 푸른 초원에서 어미와 함께 자유롭게 뛰어노는 아기 토끼의 모습" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" required></textarea>
-              </div>
-              <div>
-                <label class="block text-xs font-extrabold text-indigo-800 mb-1">2컷 : 현재 모습</label>
-                <textarea id="sbInput2" rows="2" placeholder="예: 좁은 철장 속에 갇혀 움직이지 못하는 실험용 토끼의 모습" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" required></textarea>
-              </div>
-              <div>
-                <label class="block text-xs font-extrabold text-rose-800 mb-1">3컷 : 동물이 겪는 아픔과 상처</label>
-                <textarea id="sbInput3" rows="2" placeholder="예: 화학 약품 테스트로 눈이 충혈되고 고통스러워하는 모습" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" required></textarea>
-              </div>
-              <div>
-                <label class="block text-xs font-extrabold text-emerald-800 mb-1">4컷 : 우리가 마주하는 상품</label>
-                <textarea id="sbInput4" rows="2" placeholder="예: 화려한 화장품 진열대 앞에서 아무것도 모른 채 물건을 고르는 우리의 모습" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" required></textarea>
+
+            <div class="space-y-2">
+              <label class="block text-xs font-extrabold text-slate-700">1) 내가 스토리보드를 작성할 담당 컷 선택 *</label>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <label class="sb-cut-option cursor-pointer rounded-xl border-2 border-slate-200 p-2.5 transition flex items-center gap-2">
+                  <input type="radio" name="sbCutNum" value="1" onchange="onSbCutSelectionChange()" class="text-purple-600 focus:ring-purple-500" />
+                  <div class="min-w-0">
+                    <span class="block text-xs font-extrabold text-sky-800">1컷</span>
+                    <span class="block text-[11px] text-slate-600 truncate">자유로웠던 원래 모습</span>
+                  </div>
+                </label>
+                <label class="sb-cut-option cursor-pointer rounded-xl border-2 border-slate-200 p-2.5 transition flex items-center gap-2">
+                  <input type="radio" name="sbCutNum" value="2" onchange="onSbCutSelectionChange()" class="text-purple-600 focus:ring-purple-500" />
+                  <div class="min-w-0">
+                    <span class="block text-xs font-extrabold text-indigo-800">2컷</span>
+                    <span class="block text-[11px] text-slate-600 truncate">현재 모습</span>
+                  </div>
+                </label>
+                <label class="sb-cut-option cursor-pointer rounded-xl border-2 border-slate-200 p-2.5 transition flex items-center gap-2">
+                  <input type="radio" name="sbCutNum" value="3" onchange="onSbCutSelectionChange()" class="text-purple-600 focus:ring-purple-500" />
+                  <div class="min-w-0">
+                    <span class="block text-xs font-extrabold text-rose-800">3컷</span>
+                    <span class="block text-[11px] text-slate-600 truncate">동물이 겪는 아픔과 상처</span>
+                  </div>
+                </label>
+                <label class="sb-cut-option cursor-pointer rounded-xl border-2 border-slate-200 p-2.5 transition flex items-center gap-2">
+                  <input type="radio" name="sbCutNum" value="4" onchange="onSbCutSelectionChange()" class="text-purple-600 focus:ring-purple-500" />
+                  <div class="min-w-0">
+                    <span class="block text-xs font-extrabold text-emerald-800">4컷</span>
+                    <span class="block text-[11px] text-slate-600 truncate">우리가 마주하는 상품</span>
+                  </div>
+                </label>
               </div>
             </div>
+
+            <div>
+              <label id="sbSelectedCutLabel" for="sbSingleCutInput" class="block text-xs font-extrabold text-purple-900 mb-1.5">
+                2) 선택한 컷의 스토리보드 구상 내용 (장면 묘사 · 대사 · 분위기) *
+              </label>
+              <textarea
+                id="sbSingleCutInput"
+                rows="3"
+                placeholder="먼저 위에서 내가 맡은 컷 번호(1~4컷)를 선택한 뒤, 해당 컷에 어떤 그림과 대사를 넣을지 자세히 작성해주세요."
+                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                required
+              ></textarea>
+            </div>
+
             <div class="flex justify-end">
               <button type="submit" id="submitStoryboardBtn" class="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs sm:text-sm font-extrabold shadow-xs transition">
-                📤 스토리보드 교사에게 제출하기
+                📤 내 담당 컷 스토리보드 제출하기
               </button>
             </div>
           </form>
 
-          <!-- 제출된 스토리보드 열람 뷰 -->
+          <!-- 제출된 우리 모둠 1~4컷 전체 스토리보드 열람 뷰 -->
           <div id="storyboardReadonlyView" class="space-y-2">
             <!-- 동적 렌더링 -->
           </div>
@@ -708,19 +738,29 @@
 
           <!-- 3단계: AI 이미지 생성 프롬프트 입력 -->
           <div class="space-y-2">
-            <div class="flex flex-wrap items-center justify-between gap-1">
+            <div class="flex flex-wrap items-center justify-between gap-2">
               <label for="aiPromptInput" class="block text-sm font-extrabold text-slate-800">
                 3단계. AI에게 작성한 프롬프트(질문)를 입력하세요 *
               </label>
-              <span class="text-[11px] font-bold text-sky-700 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-200">
-                📄 Google 문서로 자동 생성 후 시트에 링크 저장
-              </span>
+              <div class="flex flex-wrap items-center gap-1.5">
+                <button
+                  type="button"
+                  onclick="copyPromptTemplate()"
+                  class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-extrabold shadow-2xs transition flex items-center gap-1 cursor-pointer"
+                >
+                  <span>📋</span>
+                  <span>프롬프트 양식 복사하기</span>
+                </button>
+                <span class="text-[11px] font-bold text-sky-700 bg-sky-50 px-2.5 py-1 rounded-full border border-sky-200">
+                  📄 Google 문서 자동 생성
+                </span>
+              </div>
             </div>
             <textarea
               id="aiPromptInput"
-              rows="3"
+              rows="5"
               oninput="updateSubmitButtonState()"
-              placeholder="예: 푸른 초원에서 어미 암탉과 병아리들이 햇살을 받으며 자유롭게 풀을 뜯어먹는 따뜻한 수채화 스타일 일러스트"
+              placeholder="상단의 [📋 프롬프트 양식 복사하기] 버튼을 눌러 양식을 복사한 뒤, AI에 입력했던 프롬프트를 여기에 붙여넣으세요."
               class="w-full px-4 py-3 rounded-2xl border border-slate-300 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
             ></textarea>
             <p class="text-[11px] text-slate-500">
@@ -2160,11 +2200,11 @@
 
       if (isResearcher) {
         resForm.classList.remove('hidden');
-        if (resData && document.activeElement.tagName !== 'TEXTAREA') {
-          document.getElementById('resInput1').value = resData.cut1 || '';
-          document.getElementById('resInput2').value = resData.cut2 || '';
-          document.getElementById('resInput3').value = resData.cut3 || '';
-          document.getElementById('resInput4').value = resData.cut4 || '';
+        if (resData) {
+          if (!document.getElementById('resInput1').value) document.getElementById('resInput1').value = resData.cut1 || '';
+          if (!document.getElementById('resInput2').value) document.getElementById('resInput2').value = resData.cut2 || '';
+          if (!document.getElementById('resInput3').value) document.getElementById('resInput3').value = resData.cut3 || '';
+          if (!document.getElementById('resInput4').value) document.getElementById('resInput4').value = resData.cut4 || '';
         }
       } else {
         resForm.classList.add('hidden');
@@ -2189,57 +2229,111 @@
           </div>
         `;
       } else {
-        resStatusBadge.textContent = '아직 자료조사 내용이 제출되지 않았습니다';
+        resStatusBadge.textContent = isResearcher ? '아래에 자료조사 내용을 작성해 제출해주세요' : '자료조사 담당 학생이 조사 중입니다';
         resStatusBadge.className = 'text-xs font-bold text-slate-400';
         resReadonlyView.innerHTML = isResearcher
           ? ''
-          : `<p class="text-xs text-slate-500 bg-slate-50 rounded-xl p-4 text-center">자료조사 담당 학생이 주제 동물이 겪는 고통을 1~4컷에 맞춰 조사해 제출하면 이곳에서 확인할 수 있습니다.</p>`;
+          : `<p class="text-xs text-slate-500 bg-slate-50 rounded-xl p-4 text-center">아직 우리 모둠의 <strong>자료조사 담당 학생</strong>이 조사 내용을 제출하지 않았습니다.</p>`;
       }
 
-      // [2] 스토리보드 섹션 렌더링
-      const isLeader = state.session.role === 'student' && memberRole === '모둠장';
+      // [2] 스토리보드 섹션 렌더링 (모둠원 각자 담당 컷별 작성 지원)
+      const isStudentMember = state.session.role === 'student';
       const leaderForm = document.getElementById('storyboardLeaderForm');
       const readonlyView = document.getElementById('storyboardReadonlyView');
       const sbStatusBadge = document.getElementById('storyboardStatusBadge');
 
-      if (isLeader) {
+      if (isStudentMember) {
         leaderForm.classList.remove('hidden');
-        if (sb && document.activeElement.tagName !== 'TEXTAREA') {
-          document.getElementById('sbInput1').value = sb.cut1 || '';
-          document.getElementById('sbInput2').value = sb.cut2 || '';
-          document.getElementById('sbInput3').value = sb.cut3 || '';
-          document.getElementById('sbInput4').value = sb.cut4 || '';
+        // 본인이 이미 작성한 컷이 있고 아직 아무 컷도 선택하지 않았다면 자동 선택
+        const checkedRadio = document.querySelector('input[name="sbCutNum"]:checked');
+        if (!checkedRadio && sb && sb.cut_authors) {
+          const myCut = [1, 2, 3, 4].find(
+            (c) => sb.cut_authors[c] && String(sb.cut_authors[c].student_id) === String(state.session.student_id)
+          );
+          if (myCut) {
+            const targetRadio = document.querySelector(`input[name="sbCutNum"][value="${myCut}"]`);
+            if (targetRadio) {
+              targetRadio.checked = true;
+              onSbCutSelectionChange();
+            }
+          }
         }
       } else {
         leaderForm.classList.add('hidden');
       }
 
-      if (sb) {
-        sbStatusBadge.textContent = `✅ 제출 완료 (${sb.author_name || '모둠장'} · ${sb.updated_at || ''})`;
+      const filledSbCount = sb ? [1, 2, 3, 4].filter((c) => Boolean((sb[`cut${c}`] || '').trim())).length : 0;
+
+      if (sb && filledSbCount > 0) {
+        sbStatusBadge.textContent = `✅ ${filledSbCount}/4컷 작성됨 (${sb.updated_at || ''})`;
         sbStatusBadge.className = 'text-xs font-extrabold text-emerald-700';
 
         readonlyView.innerHTML = `
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
             ${[1, 2, 3, 4].map((c) => {
               const meta = CUT_META[c];
-              const text = sb[`cut${c}`] || '';
+              const text = (sb[`cut${c}`] || '').trim();
+              const authorInfo = (sb.cut_authors && sb.cut_authors[c]) || null;
+              const authorBadge = authorInfo
+                ? `<span class="text-[11px] font-bold text-purple-800">${escapeHtml(authorInfo.student_id)} ${escapeHtml(authorInfo.student_name)}</span>`
+                : (text && sb.author_name ? `<span class="text-[11px] font-bold text-purple-800">${escapeHtml(sb.author_name)}</span>` : `<span class="text-[11px] text-slate-400">미작성</span>`);
+
               return `
-                <div class="rounded-2xl border border-purple-100 bg-purple-50/40 p-3.5 space-y-1.5">
-                  <span class="inline-block px-2 py-0.5 rounded text-[11px] font-extrabold ${meta.badgeBg}">${meta.title}</span>
-                  <p class="text-xs sm:text-sm text-slate-800 font-medium leading-relaxed whitespace-pre-wrap">${escapeHtml(text)}</p>
+                <div class="rounded-2xl border ${text ? 'border-purple-200 bg-purple-50/40' : 'border-dashed border-slate-200 bg-slate-50/60'} p-3.5 space-y-2">
+                  <div class="flex items-center justify-between gap-1">
+                    <span class="inline-block px-2 py-0.5 rounded text-[11px] font-extrabold ${meta.badgeBg}">${meta.short}</span>
+                    ${authorBadge}
+                  </div>
+                  ${text
+                    ? `<p class="text-xs sm:text-sm text-slate-800 font-medium leading-relaxed whitespace-pre-wrap">${escapeHtml(text)}</p>`
+                    : `<p class="text-xs text-slate-400 py-3 text-center">담당 모둠원이 작성 중입니다...</p>`
+                  }
                 </div>
               `;
             }).join('')}
           </div>
         `;
       } else {
-        sbStatusBadge.textContent = '아직 모둠장이 스토리보드를 제출하지 않았습니다';
+        sbStatusBadge.textContent = '아직 스토리보드가 제출되지 않았습니다';
         sbStatusBadge.className = 'text-xs font-bold text-slate-400';
-        readonlyView.innerHTML = isLeader
-          ? ''
-          : `<p class="text-xs text-slate-500 bg-slate-50 rounded-xl p-4 text-center">모둠장 학생이 각 컷에 들어갈 스토리보드 내용을 작성해 제출하면 이곳에서 함께 확인할 수 있습니다.</p>`;
+        readonlyView.innerHTML = `
+          <p class="text-xs text-slate-500 bg-slate-50 rounded-xl p-4 text-center">
+            위에서 모둠원 각자가 자신이 맡은 컷(1~4컷)을 선택해 스토리보드를 제출하면 4컷 전체 구상안이 이곳에 함께 모입니다.
+          </p>
+        `;
       }
     }
+
+    window.onSbCutSelectionChange = function () {
+      const cards = document.querySelectorAll('.sb-cut-option');
+      cards.forEach((card) => {
+        const radio = card.querySelector('input[type="radio"]');
+        if (radio && radio.checked) {
+          card.classList.add('border-purple-500', 'bg-purple-50/70');
+          card.classList.remove('border-slate-200');
+        } else {
+          card.classList.remove('border-purple-500', 'bg-purple-50/70');
+          card.classList.add('border-slate-200');
+        }
+      });
+
+      const checked = document.querySelector('input[name="sbCutNum"]:checked');
+      const labelEl = document.getElementById('sbSelectedCutLabel');
+      const textareaEl = document.getElementById('sbSingleCutInput');
+      if (!checked) return;
+
+      const cutNum = Number(checked.value);
+      const meta = CUT_META[cutNum];
+      labelEl.textContent = `2) [${meta.title}] 스토리보드 구상 내용 작성 *`;
+
+      const gid = Number(state.session.group_id) || 1;
+      const sb = state.storyboards[gid];
+      if (sb && sb[`cut${cutNum}`] && document.activeElement !== textareaEl) {
+        textareaEl.value = sb[`cut${cutNum}`];
+      } else if (document.activeElement !== textareaEl) {
+        textareaEl.value = '';
+      }
+    };
 
     /*************************************************************************
      * 7-2. [탭] 👥 모둠 작품 확인하기 (4컷 만화 이미지만 집중 확인 & 본인 컷 삭제)
@@ -2416,28 +2510,31 @@
       }
     };
 
-    // [모둠장 역할 전용] 4컷 스토리보드 구상안 제출 (Google Sheets + Firebase 동시 저장)
+    // [모둠원 각자] 담당 컷 스토리보드 구상안 제출 (Google Sheets + Firebase 컷별 병합 저장)
     window.submitGroupStoryboard = async function (e) {
       e.preventDefault();
       const s = state.session;
-      const role = (!s || !s.member_role || s.member_role === '일반') ? '자료조사' : s.member_role;
-      if (!s || role !== '모둠장') {
-        showToast('스토리보드 제출은 모둠장 역할 학생만 가능합니다.', 'error');
+      if (!s || s.role !== 'student') {
+        showToast('학생 로그인 후 스토리보드를 작성할 수 있습니다.', 'error');
         return;
       }
 
-      const cut1 = document.getElementById('sbInput1').value.trim();
-      const cut2 = document.getElementById('sbInput2').value.trim();
-      const cut3 = document.getElementById('sbInput3').value.trim();
-      const cut4 = document.getElementById('sbInput4').value.trim();
-      if (!cut1 || !cut2 || !cut3 || !cut4) {
-        showToast('1컷~4컷 스토리보드 내용을 모두 입력해주세요.', 'warning');
+      const checked = document.querySelector('input[name="sbCutNum"]:checked');
+      if (!checked) {
+        showToast('먼저 내가 스토리보드를 작성할 컷 번호(1~4컷)를 선택해주세요.', 'warning');
+        return;
+      }
+
+      const cutNum = Number(checked.value);
+      const content = document.getElementById('sbSingleCutInput').value.trim();
+      if (!content) {
+        showToast(`${cutNum}컷 스토리보드 구상 내용을 입력해주세요.`, 'warning');
         return;
       }
 
       const btn = document.getElementById('submitStoryboardBtn');
       btn.disabled = true;
-      btn.textContent = '구글 시트에 스토리보드 저장 중...';
+      btn.textContent = `${cutNum}컷 스토리보드 저장 중...`;
 
       try {
         const cid = Number(s.class_id);
@@ -2448,38 +2545,45 @@
           action: 'saveStoryboard',
           class_id: cid,
           group_id: gid,
+          cut_num: cutNum,
           topic: s.topic || '',
           student_id: String(s.student_id),
           student_name: String(s.student_name),
-          cut1,
-          cut2,
-          cut3,
-          cut4
+          content
         });
         if (!gasRes.ok) {
           throw new Error(gasRes.error || '구글 시트 스토리보드 저장에 실패했습니다.');
         }
 
+        const existingSb = state.storyboards[gid] || {};
+        const existingAuthors = existingSb.cut_authors || {};
+        const updatedTimestamp = gasRes.timestamp || nowStr;
+
         const sbDocRef = doc(db, 'classes', String(cid), 'storyboards', `group_${gid}`);
         await setDoc(sbDocRef, {
           class_id: cid,
           group_id: gid,
-          topic: s.topic || '',
-          cut1,
-          cut2,
-          cut3,
-          cut4,
+          topic: s.topic || existingSb.topic || '',
+          [`cut${cutNum}`]: content,
+          cut_authors: {
+            ...existingAuthors,
+            [cutNum]: {
+              student_id: String(s.student_id),
+              student_name: String(s.student_name),
+              updated_at: updatedTimestamp
+            }
+          },
           author_id: String(s.student_id),
           author_name: String(s.student_name),
-          updated_at: gasRes.timestamp || nowStr
-        });
+          updated_at: updatedTimestamp
+        }, { merge: true });
 
-        showToast(`${cid}반 ${gid}모둠 스토리보드가 구글 시트와 모둠 화면에 제출되었습니다!`, 'success');
+        showToast(`${cid}반 ${gid}모둠 ${cutNum}컷 스토리보드가 제출되었습니다!`, 'success');
       } catch (err) {
         showToast('스토리보드 제출 오류: ' + err.message, 'error');
       } finally {
         btn.disabled = false;
-        btn.textContent = '📤 스토리보드 교사에게 제출하기';
+        btn.textContent = '📤 내 담당 컷 스토리보드 제출하기';
       }
     };
 
@@ -2760,83 +2864,31 @@
       btnText.textContent = `${state.session.class_id}반 ${state.session.group_id}모둠 ${cut}컷 및 AI 프롬프트 저장하기`;
     }
 
-    window.submitCut = async function () {
-      const cutNum = getSelectedCutNum();
-      const base64Data = state.compressedBase64;
-      const aiPrompt = document.getElementById('aiPromptInput').value.trim();
-      const s = state.session;
-      if (!s || !cutNum || !base64Data || !aiPrompt) return;
+    const PROMPT_TEMPLATE_TEXT = `1. 레퍼런스 고정: "첨부된 사진 속 캐릭터의 얼굴 생김새와 색상을 그대로 유지해 줘."
+2. 상황 및 배경: (예: 몸도 못 돌리는 좁은 콘크리트 수조 구석에 갇혀 있음)
+3. 표정: (예: 무서워서 눈물 고인 채 떨고 있음)
+4. 구도 선택: [ a.감정 집중 클로즈업 / b.전체가 한 눈에 보이는 풀샷 / c.위에서 내려다보는 하이앵글 ] 중 (  )번 또는 직접 작성
+5. 조명 선택: [ a.따뜻하고 화사한 자연광 / b.차갑고 어두운 그림자 / c.화려한 스포트라이트 ] 중 (  )번 또는 직접 작성
+6. 화풍 선택: [ a.3D애니메이션 / b.감성 수채화 일러스트 / c.깔끔한 파스텔 웹툰 스타일 ] 중 (  )번 또는 직접 작성
+7. 주의사항: "이미지 안에 글자(텍스트)나 잔인한 피는 그리지 말 것."`;
 
-      const btn = document.getElementById('submitCutBtn');
-      const btnText = document.getElementById('submitCutBtnText');
-      btn.disabled = true;
-      btnText.textContent = '이미지 저장 및 AI 프롬프트 구글 문서 생성 중...';
-
-      const cid = Number(s.class_id);
-      const gid = Number(s.group_id);
-      const nowStr = formatNowTimestamp();
-
+    window.copyPromptTemplate = async function () {
       try {
-        // 1) Google Apps Script를 통해 Drive 이미지 저장 + Google Docs 프롬프트 문서 생성 후 시트에 링크 저장
-        const gasUploadRes = await postToGas({
-          action: 'uploadCut',
-          student_id: String(s.student_id),
-          student_name: String(s.student_name),
-          class_id: cid,
-          group_id: gid,
-          cut_num: cutNum,
-          image_base64: base64Data,
-          ai_prompt: aiPrompt
-        });
-
-        if (!gasUploadRes.ok || !gasUploadRes.submission || !gasUploadRes.submission.image_url) {
-          throw new Error(gasUploadRes.error || '구글 드라이브 및 문서 저장에 실패했습니다.');
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(PROMPT_TEMPLATE_TEXT);
+        } else {
+          const tempArea = document.createElement('textarea');
+          tempArea.value = PROMPT_TEMPLATE_TEXT;
+          tempArea.style.position = 'fixed';
+          tempArea.style.left = '-9999px';
+          document.body.appendChild(tempArea);
+          tempArea.select();
+          document.execCommand('copy');
+          tempArea.remove();
         }
-
-        const finalUrl = gasUploadRes.submission.image_url;
-        const promptDocUrl = gasUploadRes.submission.prompt_doc_url || '';
-
-        // 2) Firebase Firestore에 실시간 반영 (프롬프트 내용 및 Google Docs 링크 포함)
-        const docId = `group_${gid}_cut_${cutNum}`;
-        const subDocRef = doc(db, 'classes', String(cid), 'submissions', docId);
-        await setDoc(subDocRef, {
-          class_id: cid,
-          group_id: gid,
-          cut_num: cutNum,
-          student_id: String(s.student_id),
-          student_name: String(s.student_name),
-          image_url: finalUrl,
-          file_id: gasUploadRes.submission.file_id || '',
-          ai_prompt: aiPrompt,
-          prompt_doc_url: promptDocUrl,
-          updated_at: nowStr
-        });
-
-        // 3) 업로드 직후 '내 업로드 확인 카드' 즉시 표시
-        const meta = CUT_META[cutNum];
-        document.getElementById('justUploadedCard').classList.remove('hidden');
-        document.getElementById('justUploadedContent').innerHTML = `
-          <img src="${finalUrl}" alt="방금 제출한 이미지" class="w-40 h-28 object-cover rounded-xl border border-emerald-300 bg-white shrink-0" />
-          <div class="space-y-1 text-center sm:text-left min-w-0 flex-1">
-            <span class="inline-block px-2.5 py-0.5 rounded text-xs font-extrabold ${meta.badgeBg}">${meta.title}</span>
-            <p class="text-sm font-extrabold text-slate-900">${cid}반 ${gid}모둠 · ${escapeHtml(s.student_id)} ${escapeHtml(s.student_name)}</p>
-            <p class="text-xs text-slate-600 line-clamp-2">💬 프롬프트: ${escapeHtml(aiPrompt)}</p>
-            <p class="text-[11px] text-slate-400">저장 시각: ${nowStr} (이미지 & 구글 문서 링크 저장 완료)</p>
-          </div>
-        `;
-
-        // 입력 상태 초기화
-        state.compressedBase64 = '';
-        document.getElementById('imageFileInput').value = '';
-        document.getElementById('aiPromptInput').value = '';
-        document.getElementById('dropZonePlaceholder').classList.remove('hidden');
-        document.getElementById('imagePreviewContainer').classList.add('hidden');
-        renderExistingMySubmissions();
-        showToast(`✅ ${cid}반 ${gid}모둠 ${cutNum}컷과 AI 프롬프트 구글 문서가 저장되었습니다!`, 'success');
+        showToast('📋 프롬프트 양식이 복사되었습니다! 생성형 AI에 붙여넣어 활용하세요.', 'success');
       } catch (err) {
-        showToast('이미지 업로드 중 오류: ' + err.message, 'error');
-      } finally {
-        updateSubmitButtonState();
+        showToast('클립보드 복사 중 오류가 발생했습니다: ' + err.message, 'error');
       }
     };
 
@@ -2979,14 +3031,21 @@
         : 'px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 text-xs font-extrabold';
 
       document.getElementById('adminSbModalTitle').textContent =
-        `${groupId}모둠 ${label} (작성: ${item.author_name || ''} · ${item.updated_at || ''})`;
+        `${groupId}모둠 ${label} (최종 수정: ${item.author_name || ''} · ${item.updated_at || ''})`;
 
       document.getElementById('adminSbModalBody').innerHTML = [1, 2, 3, 4].map((c) => {
         const meta = CUT_META[c];
+        const cutAuthor = !isResearch && item.cut_authors && item.cut_authors[c]
+          ? `<span class="text-xs font-extrabold text-purple-800">작성자: ${escapeHtml(item.cut_authors[c].student_id)} ${escapeHtml(item.cut_authors[c].student_name)}</span>`
+          : '';
+        const textVal = (item[`cut${c}`] || '').trim();
         return `
           <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-1.5">
-            <span class="inline-block px-2.5 py-0.5 rounded text-xs font-extrabold ${meta.badgeBg}">${meta.title}</span>
-            <p class="text-sm text-slate-800 leading-relaxed whitespace-pre-wrap">${escapeHtml(item[`cut${c}`] || '')}</p>
+            <div class="flex items-center justify-between gap-2">
+              <span class="inline-block px-2.5 py-0.5 rounded text-xs font-extrabold ${meta.badgeBg}">${meta.title}</span>
+              ${cutAuthor}
+            </div>
+            <p class="text-sm text-slate-800 leading-relaxed whitespace-pre-wrap">${textVal ? escapeHtml(textVal) : '<span class="text-slate-400">미작성</span>'}</p>
           </div>
         `;
       }).join('');
@@ -3284,7 +3343,10 @@
           : `<span class="text-xs text-slate-400">미작성</span>`;
 
         const sbCellHtml = sb
-          ? `<button onclick="openAdminPlanModal('storyboard', ${g})" class="px-2.5 py-1 rounded-lg bg-purple-100 hover:bg-purple-200 text-purple-800 text-xs font-extrabold transition">📋 보기 (${escapeHtml(sb.author_name || '모둠장')})</button>`
+          ? (() => {
+              const sbCnt = [1, 2, 3, 4].filter((c) => Boolean((sb[`cut${c}`] || '').trim())).length;
+              return `<button onclick="openAdminPlanModal('storyboard', ${g})" class="px-2.5 py-1 rounded-lg bg-purple-100 hover:bg-purple-200 text-purple-800 text-xs font-extrabold transition">📋 보기 (${sbCnt}/4컷)</button>`;
+            })()
           : `<span class="text-xs text-slate-400">미작성</span>`;
 
         let cells = '';
