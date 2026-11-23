@@ -1971,7 +1971,8 @@
       reader.onload = function (ev) {
         const img = new Image();
         img.onload = function () {
-          const MAX_WIDTH = 1000;
+          // Firestore 1MB 문서 한도를 여유 있게 통과하도록 4컷 합계 ~350KB 이하로 최적화 압축
+          const MAX_WIDTH = 720;
           let width = img.width;
           let height = img.height;
           if (width > MAX_WIDTH) {
@@ -1986,7 +1987,7 @@
           ctx.fillRect(0, 0, width, height);
           ctx.drawImage(img, 0, 0, width, height);
 
-          const compressed = canvas.toDataURL('image/jpeg', 0.82);
+          const compressed = canvas.toDataURL('image/jpeg', 0.65);
           state.exampleDraftImages[cutNum] = compressed;
           document.getElementById(`exPreviewImg${cutNum}`).src = compressed;
           document.getElementById(`exPreviewWrap${cutNum}`).classList.remove('hidden');
@@ -1995,6 +1996,36 @@
       };
       reader.readAsDataURL(file);
     };
+
+    // 기존에 크게 저장되어 있던 예시 이미지도 재압축하여 1MB 제한 초과 원천 차단
+    function recompressDataUrlIfNeeded(dataUrl) {
+      return new Promise((resolve) => {
+        if (!dataUrl || !dataUrl.startsWith('data:image/')) {
+          resolve(dataUrl);
+          return;
+        }
+        const img = new Image();
+        img.onload = function () {
+          const MAX_WIDTH = 720;
+          let width = img.width;
+          let height = img.height;
+          if (width > MAX_WIDTH) {
+            height = Math.round((height * MAX_WIDTH) / width);
+            width = MAX_WIDTH;
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', 0.65));
+        };
+        img.onerror = () => resolve(dataUrl);
+        img.src = dataUrl;
+      });
+    }
 
     window.saveTeacherExample = async function (e) {
       e.preventDefault();
@@ -2024,23 +2055,24 @@
           const caption = document.getElementById(`exCaption${c}`).value.trim();
           let imageUrl = (existingCuts[c] && existingCuts[c].image_url) || '';
 
-          // 새로 선택한 이미지가 있으면 Google Drive에 업로드 (기존 Code.gs의 uploadCut 호환 활용 또는 직접 DataURL 폴백)
           if (state.exampleDraftImages[c]) {
+            const optimizedBase64 = await recompressDataUrlIfNeeded(state.exampleDraftImages[c]);
             try {
               const gasRes = await postToGas({
                 action: 'uploadExampleCut',
                 cut_num: c,
-                image_base64: state.exampleDraftImages[c]
+                image_base64: optimizedBase64
               });
               if (gasRes && gasRes.ok && gasRes.image_url) {
                 imageUrl = gasRes.image_url;
               } else {
-                // 구버전 Code.gs 호환: uploadExampleCut 액션이 없으면 압축된 이미지 URL 직접 저장
-                imageUrl = state.exampleDraftImages[c];
+                imageUrl = optimizedBase64;
               }
             } catch (_) {
-              imageUrl = state.exampleDraftImages[c];
+              imageUrl = optimizedBase64;
             }
+          } else if (imageUrl && imageUrl.startsWith('data:image/')) {
+            imageUrl = await recompressDataUrlIfNeeded(imageUrl);
           }
 
           finalCuts[c] = {
