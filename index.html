@@ -226,7 +226,7 @@
             </div>
             <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">「멋진 하루에 숨겨진 생명의 고통」 단계별 제작 예시</h2>
             <p class="text-xs text-slate-500">
-              <strong>1단계 자료조사 ➔ 2단계 스토리보드(장면 기획) ➔ 3단계 AI 프롬프트 변환 ➔ 4단계 4컷 만화 완성</strong>의 실제 흐름을 참고해 보세요.
+              <strong>1단계 자료조사 ➔ 2단계 캐릭터 &amp; AI 프롬프트 작성 ➔ 3단계 4컷 만화 이미지 완성</strong>의 실제 흐름을 참고해 보세요.
             </p>
           </div>
           <button type="button" id="toggleExampleEditorBtn" onclick="toggleExampleEditorForm()" class="hidden px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-extrabold shadow-xs transition">
@@ -234,12 +234,12 @@
           </button>
         </div>
 
-        <!-- [교사 전용] 예시 자료 편집 폼 -->
+        <!-- [교사 전용] 예시 자료 편집 폼 (자료조사 · 캐릭터 & 프롬프트 · 4컷 이미지) -->
         <form id="teacherExampleEditorForm" onsubmit="saveTeacherExample(event)" class="hidden bg-white rounded-3xl border-2 border-sky-300 p-6 sm:p-8 shadow-google space-y-6">
           <div class="flex items-center justify-between border-b border-slate-100 pb-3">
             <div>
               <span class="px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 text-xs font-extrabold">👩‍🏫 교사 전용 편집기</span>
-              <h3 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1">선생님 단계별 예시 자료 등록 · 수정</h3>
+              <h3 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1">선생님 예시 자료 등록 · 수정 (자료조사 · 프롬프트 · 4컷 이미지)</h3>
             </div>
             <button type="button" onclick="toggleExampleEditorForm(false)" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-600">닫기 ✕</button>
           </div>
@@ -251,7 +251,7 @@
             </div>
             <div>
               <label class="block text-xs font-extrabold text-slate-700 mb-1">선생님 가이드 한마디</label>
-              <input type="text" id="exInputGuide" placeholder="예: 자료조사로 근거를 찾고, 스토리보드로 장면을 짠 뒤 AI 프롬프트로 번역해 보세요!" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" />
+              <input type="text" id="exInputGuide" placeholder="예: 자료조사 내용을 바탕으로 캐릭터와 컷별 프롬프트를 작성해 이미지를 만들어 보세요!" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" />
             </div>
           </div>
 
@@ -261,77 +261,87 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs font-extrabold text-sky-800 mb-1">1컷 자료조사 : 자유로웠던 원래 모습</label>
-                <textarea id="exRes1" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                <textarea id="exRes1" rows="2" placeholder="자연 속에서 자유롭게 살아가던 원래 습성과 환경 조사 내용" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
               </div>
               <div>
                 <label class="block text-xs font-extrabold text-rose-800 mb-1">2컷 자료조사 : 현재 동물이 이용당하며 받는 고통</label>
-                <textarea id="exRes2" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                <textarea id="exRes2" rows="2" placeholder="인간의 필요에 의해 갇히거나 이용당하며 겪는 고통 조사 내용" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
               </div>
               <div>
                 <label class="block text-xs font-extrabold text-indigo-800 mb-1">3컷 자료조사 : 만들어지는 상품(결과)</label>
-                <textarea id="exRes3" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                <textarea id="exRes3" rows="2" placeholder="그 결과로 만들어져 일상에서 소비하는 상품 조사 내용" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
               </div>
               <div>
                 <label class="block text-xs font-extrabold text-emerald-800 mb-1">4컷 자료조사 : 일상 속 소비 · 기술 · 사회적 대안</label>
-                <textarea id="exRes4" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                <textarea id="exRes4" rows="2" placeholder="윤리적 소비 대안 또는 기술적·사회적 대안 조사 내용" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
               </div>
             </div>
           </div>
 
-          <!-- 2단계: 스토리보드 예시 -->
-          <div class="rounded-2xl border border-purple-200 bg-purple-50/40 p-4 sm:p-5 space-y-3">
-            <span class="inline-block px-2.5 py-1 rounded-lg bg-purple-100 text-purple-800 text-xs font-extrabold">📋 2단계. 4컷 스토리보드 예시 (핵심 장면 · 감정 · 대사 기획)</span>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-extrabold text-sky-800 mb-1">1컷 스토리보드 : 자유로웠던 원래 모습</label>
-                <textarea id="exSb1" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
-              </div>
-              <div>
-                <label class="block text-xs font-extrabold text-rose-800 mb-1">2컷 스토리보드 : 현재 동물이 이용당하며 받는 고통</label>
-                <textarea id="exSb2" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
-              </div>
-              <div>
-                <label class="block text-xs font-extrabold text-indigo-800 mb-1">3컷 스토리보드 : 만들어지는 상품(결과)</label>
-                <textarea id="exSb3" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
-              </div>
-              <div>
-                <label class="block text-xs font-extrabold text-emerald-800 mb-1">4컷 스토리보드 : 일상 속 소비 · 기술 · 사회적 대안</label>
-                <textarea id="exSb4" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
-              </div>
-            </div>
-          </div>
+          <!-- 2~3단계: 주인공 캐릭터 & AI 프롬프트 + 완성 4컷 만화 이미지 예시 -->
+          <div class="space-y-4">
+            <span class="inline-block px-2.5 py-1 rounded-lg bg-sky-100 text-sky-900 text-xs font-extrabold">✨ 2~3단계. 주인공 캐릭터 · 컷별 AI 프롬프트 &amp; 4컷 만화 이미지 예시</span>
 
-          <!-- 3~4단계: AI 프롬프트 & 완성 4컷 만화 이미지 예시 -->
-          <div class="space-y-3">
-            <span class="inline-block px-2.5 py-1 rounded-lg bg-sky-100 text-sky-900 text-xs font-extrabold">🖼️ 3~4단계. AI 프롬프트 작성 및 완성 4컷 만화 예시</span>
+            <div class="rounded-2xl border border-indigo-200 bg-indigo-50/40 p-4 space-y-1.5">
+              <label for="exInputCharacter" class="block text-xs font-extrabold text-indigo-950">🎨 주인공 캐릭터 설정 예시 (1~4컷 일관된 주인공 캐릭터)</label>
+              <input type="text" id="exInputCharacter" placeholder="예: 초롱초롱한 눈을 가진 하얀 아기 산란계 병아리, 작은 노란 부리와 보송보송한 깃털" class="w-full px-3.5 py-2.5 rounded-xl border border-indigo-200 text-xs sm:text-sm bg-white font-bold placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-2.5">
                 <span class="inline-block px-2.5 py-0.5 rounded bg-sky-100 text-sky-800 text-xs font-extrabold">1컷 : 자유로웠던 원래 모습</span>
-                <input type="file" accept="image/jpeg,image/png,image/webp" onchange="handleExampleCutFileSelect(event, 1)" class="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-sky-600 file:text-white cursor-pointer" />
+                <div>
+                  <label class="block text-[11px] font-extrabold text-sky-900 mb-1">✨ 1컷 AI 프롬프트 예시</label>
+                  <textarea id="exPrompt1" rows="3" placeholder="1컷 생성에 사용한 AI 프롬프트 양식 예시" class="w-full px-3 py-2 rounded-xl border border-sky-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
+                </div>
+                <div>
+                  <label class="block text-[11px] font-extrabold text-slate-700 mb-1">🖼️ 1컷 완성 이미지 업로드</label>
+                  <input type="file" accept="image/jpeg,image/png,image/webp" onchange="handleExampleCutFileSelect(event, 1)" class="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-sky-600 file:text-white cursor-pointer" />
+                </div>
                 <div id="exPreviewWrap1" class="hidden"><img id="exPreviewImg1" src="" alt="1컷 예시" class="w-full h-36 object-contain rounded-xl border border-slate-200 bg-white" /></div>
-                <textarea id="exPrompt1" rows="2" placeholder="1컷 예시 AI 프롬프트 (선택)" class="w-full px-3 py-2 rounded-xl border border-sky-200 text-xs bg-sky-50/40"></textarea>
-                <textarea id="exCaption1" rows="2" placeholder="1컷 완성 그림 해설" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white"></textarea>
+                <textarea id="exCaption1" rows="2" placeholder="1컷 이미지 해설 (선택)" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white"></textarea>
               </div>
+
               <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-2.5">
                 <span class="inline-block px-2.5 py-0.5 rounded bg-rose-100 text-rose-800 text-xs font-extrabold">2컷 : 현재 동물이 이용당하며 받는 고통</span>
-                <input type="file" accept="image/jpeg,image/png,image/webp" onchange="handleExampleCutFileSelect(event, 2)" class="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-rose-600 file:text-white cursor-pointer" />
+                <div>
+                  <label class="block text-[11px] font-extrabold text-rose-900 mb-1">✨ 2컷 AI 프롬프트 예시</label>
+                  <textarea id="exPrompt2" rows="3" placeholder="2컷 생성에 사용한 AI 프롬프트 양식 예시" class="w-full px-3 py-2 rounded-xl border border-sky-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
+                </div>
+                <div>
+                  <label class="block text-[11px] font-extrabold text-slate-700 mb-1">🖼️ 2컷 완성 이미지 업로드</label>
+                  <input type="file" accept="image/jpeg,image/png,image/webp" onchange="handleExampleCutFileSelect(event, 2)" class="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-rose-600 file:text-white cursor-pointer" />
+                </div>
                 <div id="exPreviewWrap2" class="hidden"><img id="exPreviewImg2" src="" alt="2컷 예시" class="w-full h-36 object-contain rounded-xl border border-slate-200 bg-white" /></div>
-                <textarea id="exPrompt2" rows="2" placeholder="2컷 예시 AI 프롬프트 (선택)" class="w-full px-3 py-2 rounded-xl border border-sky-200 text-xs bg-sky-50/40"></textarea>
-                <textarea id="exCaption2" rows="2" placeholder="2컷 완성 그림 해설" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white"></textarea>
+                <textarea id="exCaption2" rows="2" placeholder="2컷 이미지 해설 (선택)" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white"></textarea>
               </div>
+
               <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-2.5">
                 <span class="inline-block px-2.5 py-0.5 rounded bg-indigo-100 text-indigo-800 text-xs font-extrabold">3컷 : 만들어지는 상품(결과)</span>
-                <input type="file" accept="image/jpeg,image/png,image/webp" onchange="handleExampleCutFileSelect(event, 3)" class="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white cursor-pointer" />
+                <div>
+                  <label class="block text-[11px] font-extrabold text-indigo-900 mb-1">✨ 3컷 AI 프롬프트 예시</label>
+                  <textarea id="exPrompt3" rows="3" placeholder="3컷 생성에 사용한 AI 프롬프트 양식 예시" class="w-full px-3 py-2 rounded-xl border border-sky-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
+                </div>
+                <div>
+                  <label class="block text-[11px] font-extrabold text-slate-700 mb-1">🖼️ 3컷 완성 이미지 업로드</label>
+                  <input type="file" accept="image/jpeg,image/png,image/webp" onchange="handleExampleCutFileSelect(event, 3)" class="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white cursor-pointer" />
+                </div>
                 <div id="exPreviewWrap3" class="hidden"><img id="exPreviewImg3" src="" alt="3컷 예시" class="w-full h-36 object-contain rounded-xl border border-slate-200 bg-white" /></div>
-                <textarea id="exPrompt3" rows="2" placeholder="3컷 예시 AI 프롬프트 (선택)" class="w-full px-3 py-2 rounded-xl border border-sky-200 text-xs bg-sky-50/40"></textarea>
-                <textarea id="exCaption3" rows="2" placeholder="3컷 완성 그림 해설" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white"></textarea>
+                <textarea id="exCaption3" rows="2" placeholder="3컷 이미지 해설 (선택)" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white"></textarea>
               </div>
+
               <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-2.5">
                 <span class="inline-block px-2.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-xs font-extrabold">4컷 : 일상 속 소비 · 기술 · 사회적 대안</span>
-                <input type="file" accept="image/jpeg,image/png,image/webp" onchange="handleExampleCutFileSelect(event, 4)" class="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-600 file:text-white cursor-pointer" />
+                <div>
+                  <label class="block text-[11px] font-extrabold text-emerald-900 mb-1">✨ 4컷 AI 프롬프트 예시</label>
+                  <textarea id="exPrompt4" rows="3" placeholder="4컷 생성에 사용한 AI 프롬프트 양식 예시" class="w-full px-3 py-2 rounded-xl border border-sky-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
+                </div>
+                <div>
+                  <label class="block text-[11px] font-extrabold text-slate-700 mb-1">🖼️ 4컷 완성 이미지 업로드</label>
+                  <input type="file" accept="image/jpeg,image/png,image/webp" onchange="handleExampleCutFileSelect(event, 4)" class="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-600 file:text-white cursor-pointer" />
+                </div>
                 <div id="exPreviewWrap4" class="hidden"><img id="exPreviewImg4" src="" alt="4컷 예시" class="w-full h-36 object-contain rounded-xl border border-slate-200 bg-white" /></div>
-                <textarea id="exPrompt4" rows="2" placeholder="4컷 예시 AI 프롬프트 (선택)" class="w-full px-3 py-2 rounded-xl border border-sky-200 text-xs bg-sky-50/40"></textarea>
-                <textarea id="exCaption4" rows="2" placeholder="4컷 완성 그림 해설" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white"></textarea>
+                <textarea id="exCaption4" rows="2" placeholder="4컷 이미지 해설 (선택)" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white"></textarea>
               </div>
             </div>
           </div>
@@ -450,30 +460,47 @@
             <div class="space-y-2">
               <div class="flex flex-wrap items-center justify-between gap-2">
                 <label for="sbSingleCutInput" id="sbSingleCutLabel" class="block text-xs font-extrabold text-purple-900">
-                  2) 선택한 컷의 스토리보드 구상 내용 (위에서 먼저 컷 번호를 선택해 주세요)
+                  2) 선택한 컷의 스토리보드 구상 내용 <span class="text-slate-400 font-normal">(선택 입력 — 적지 않고 아래에서 바로 프롬프트를 생성해도 됩니다)</span>
                 </label>
                 <button type="button" id="togglePromptBuilderBtn" onclick="togglePromptBuilder()" class="px-3.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-extrabold shadow-2xs transition flex items-center gap-1.5">
                   <span>✨</span><span>프롬프트 생성하기</span>
                 </button>
               </div>
-              <textarea id="sbSingleCutInput" rows="3" placeholder="자료조사 내용을 바탕으로 이 컷에 그릴 핵심 장면, 인물의 행동·표정, 말풍선 대사를 구체적으로 적어주세요." class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" required></textarea>
+              <textarea id="sbSingleCutInput" rows="2" placeholder="(선택 사항) 장면 구상이나 말풍선 대사를 메모하고 싶다면 적어주세요. 바로 아래 프롬프트 생성기만 작성해도 제출됩니다." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
             </div>
 
-            <!-- [토글 패널] 7가지 양식 기반 AI 프롬프트 생성기 -->
-            <div id="promptBuilderPanel" class="hidden rounded-2xl border-2 border-sky-200 bg-sky-50/60 p-4 sm:p-5 space-y-4">
+            <!-- [패널] 캐릭터 만들기 + 7가지 양식 기반 AI 프롬프트 생성기 -->
+            <div id="promptBuilderPanel" class="rounded-2xl border-2 border-sky-200 bg-sky-50/60 p-4 sm:p-5 space-y-4">
               <div class="flex flex-wrap items-center justify-between gap-2 border-b border-sky-200/80 pb-2.5">
                 <div>
                   <span class="px-2 py-0.5 rounded bg-sky-600 text-white text-[11px] font-extrabold">AI 이미지 생성 프롬프트 양식 작성기</span>
-                  <h4 class="text-sm font-extrabold text-slate-900 mt-1">스토리보드 장면을 아래 7가지 항목에 맞춰 AI 명령어로 만들어 보세요</h4>
+                  <h4 class="text-sm font-extrabold text-slate-900 mt-1">원하는 캐릭터를 설정하고 아래 양식에 맞춰 AI 프롬프트를 생성해 보세요</h4>
                 </div>
                 <button type="button" onclick="togglePromptBuilder(false)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-100 text-xs font-bold text-slate-600 border border-slate-200">접기 ▲</button>
               </div>
 
+              <!-- 캐릭터 만들기 안내 및 입력 영역 -->
+              <div class="rounded-xl bg-gradient-to-r from-indigo-50 via-sky-50 to-white p-3.5 border border-sky-300 space-y-2 text-xs">
+                <div class="flex flex-wrap items-center justify-between gap-1">
+                  <label for="pbCharacter" class="font-extrabold text-sky-950 flex items-center gap-1.5">
+                    <span>🎨</span><span>주인공 캐릭터 만들기 (원하는 캐릭터를 자유롭게 설정해 입력하세요)</span>
+                  </label>
+                  <span class="text-[11px] font-bold text-sky-700">1~4컷 일관된 주인공 캐릭터</span>
+                </div>
+                <p class="text-[11px] text-slate-600 leading-relaxed">
+                  우리 모둠 만화에 등장할 <strong>주인공 캐릭터의 동물 종류, 생김새, 털·깃털 색상, 특징</strong>을 구체적으로 입력해 보세요. 생성형 AI에서 먼저 캐릭터 기준 이미지를 만든 뒤 아래 프롬프트와 함께 사용하면 1~4컷 얼굴이 유지됩니다!
+                </p>
+                <input type="text" id="pbCharacter" oninput="syncPromptBuilderOutput()" placeholder="예: 크고 초롱초롱한 눈을 가진 하얀 아기 산란계 병아리, 작은 노란 부리와 솜털 날개" class="w-full px-3.5 py-2.5 rounded-lg border border-sky-300 bg-white text-slate-900 font-bold placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-sky-500" />
+              </div>
+
               <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs">
-                <!-- 1. 레퍼런스 고정 -->
+                <!-- 1. 레퍼런스 고정 (수정 불가 고정) -->
                 <div class="bg-white rounded-xl p-3 border border-slate-200">
-                  <label class="block font-extrabold text-slate-700 mb-1">1. 레퍼런스 고정 (자동 포함)</label>
-                  <input type="text" id="pbRefFixed" value="첨부된 사진 속 캐릭터의 얼굴 생김새와 색상을 그대로 유지해 줘." oninput="syncPromptBuilderOutput()" class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 font-medium" />
+                  <div class="flex items-center justify-between mb-1">
+                    <label class="font-extrabold text-slate-700">1. 레퍼런스 고정</label>
+                    <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-extrabold">🔒 고정됨</span>
+                  </div>
+                  <input type="text" id="pbRefFixed" value="첨부된 사진 속 캐릭터의 얼굴 생김새와 색상을 그대로 유지해 줘." readonly class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-100 text-slate-600 font-semibold cursor-not-allowed select-none" />
                 </div>
 
                 <!-- 2. 상황 및 배경 -->
@@ -521,10 +548,13 @@
                   <input type="text" id="pbStyle" oninput="syncPromptBuilderOutput()" placeholder="위 버튼 선택 또는 원하는 화풍 입력" class="w-full px-3 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500" />
                 </div>
 
-                <!-- 7. 주의사항 -->
+                <!-- 7. 주의사항 (수정 불가 고정) -->
                 <div class="md:col-span-2 bg-white rounded-xl p-3 border border-slate-200">
-                  <label class="block font-extrabold text-slate-700 mb-1">7. 주의사항 (자동 포함)</label>
-                  <input type="text" id="pbCaution" value="이미지 안에 글자(텍스트)나 잔인한 피는 그리지 말 것." oninput="syncPromptBuilderOutput()" class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 font-medium" />
+                  <div class="flex items-center justify-between mb-1">
+                    <label class="font-extrabold text-slate-700">7. 주의사항</label>
+                    <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-extrabold">🔒 고정됨</span>
+                  </div>
+                  <input type="text" id="pbCaution" value="이미지 안에 글자(텍스트)나 잔인한 피, 장면은 그리지 않고 순화해서 그릴 것." readonly class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-100 text-slate-600 font-semibold cursor-not-allowed select-none" />
                 </div>
               </div>
 
@@ -536,7 +566,7 @@
                     <span>📋</span><span>완성된 프롬프트 복사하기</span>
                   </button>
                 </div>
-                <textarea id="pbFinalOutput" rows="5" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-medium text-slate-800 leading-relaxed focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
+                <textarea id="pbFinalOutput" rows="6" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-medium text-slate-800 leading-relaxed focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
               </div>
             </div>
 
@@ -837,6 +867,22 @@
     </div>
   </div>
 
+  <!-- 6. 완성된 프롬프트 복사 완료 중앙 알림 모달 -->
+  <div id="promptCopyAlertModal" class="hidden fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-4" onclick="if(event.target===this) closePromptCopyAlertModal()">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 sm:p-8 shadow-2xl text-center space-y-4 animate-fade-in border-2 border-sky-200">
+      <div class="w-14 h-14 mx-auto rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center text-3xl">📋</div>
+      <div class="space-y-1.5">
+        <span class="inline-block px-3 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold">프롬프트 복사 완료!</span>
+        <h3 class="text-base sm:text-lg font-extrabold text-slate-900 leading-snug pt-1">
+          제작한 캐릭터와 복사된 프롬프트를 생성형ai에게 입력하세요!
+        </h3>
+      </div>
+      <button type="button" onclick="closePromptCopyAlertModal()" class="w-full py-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-sm font-extrabold shadow-xs transition">
+        확인
+      </button>
+    </div>
+  </div>
+
   <!-- ===================================================================== -->
   <!-- Firebase SDK + 하이브리드 백엔드 실시간 동기화 스크립트                  -->
   <!-- ===================================================================== -->
@@ -1132,12 +1178,12 @@
       const normalized = {
         topic: raw.topic || raw.title || "",
         guide: raw.guide || raw.description || "",
+        character: raw.character || "",
         updated_at: raw.updated_at || ""
       };
       for (let c = 1; c <= 4; c++) {
         const cutObj = Array.isArray(raw.cuts) ? (raw.cuts[c - 1] || {}) : {};
         normalized[`res${c}`] = raw[`res${c}`] || (Array.isArray(raw.researches) ? raw.researches[c - 1] : "") || "";
-        normalized[`sb${c}`] = raw[`sb${c}`] || (Array.isArray(raw.storyboards) ? raw.storyboards[c - 1] : "") || "";
         normalized[`prompt${c}`] = raw[`prompt${c}`] || cutObj.prompt || (Array.isArray(raw.prompts) ? raw.prompts[c - 1] : "") || "";
         normalized[`caption${c}`] = raw[`caption${c}`] || cutObj.caption || (Array.isArray(raw.captions) ? raw.captions[c - 1] : "") || "";
         normalized[`img${c}`] = raw[`img${c}`] || cutObj.image_url || cutObj.img || (Array.isArray(raw.images) ? raw.images[c - 1] : "") || "";
@@ -1362,9 +1408,9 @@
         const ex = state.teacherExample || {};
         document.getElementById("exInputTopic").value = ex.topic || "";
         document.getElementById("exInputGuide").value = ex.guide || "";
+        document.getElementById("exInputCharacter").value = ex.character || "";
         for (let c = 1; c <= 4; c++) {
           document.getElementById(`exRes${c}`).value = ex[`res${c}`] || "";
-          document.getElementById(`exSb${c}`).value = ex[`sb${c}`] || "";
           document.getElementById(`exPrompt${c}`).value = ex[`prompt${c}`] || "";
           document.getElementById(`exCaption${c}`).value = ex[`caption${c}`] || "";
           const imgUrl = ex[`img${c}`] || "";
@@ -1402,11 +1448,11 @@
         const payload = {
           topic: document.getElementById("exInputTopic").value.trim(),
           guide: document.getElementById("exInputGuide").value.trim(),
+          character: document.getElementById("exInputCharacter").value.trim(),
           updated_at: new Date().toLocaleString("ko-KR")
         };
         for (let c = 1; c <= 4; c++) {
           payload[`res${c}`] = document.getElementById(`exRes${c}`).value.trim();
-          payload[`sb${c}`] = document.getElementById(`exSb${c}`).value.trim();
           payload[`prompt${c}`] = document.getElementById(`exPrompt${c}`).value.trim();
           payload[`caption${c}`] = document.getElementById(`exCaption${c}`).value.trim();
           if (state.exampleDraftFiles[c]) {
@@ -1464,11 +1510,15 @@
       document.getElementById("exampleUpdatedBadge").textContent = ex.updated_at ? `업데이트: ${ex.updated_at}` : "전 학급 공통 참고 자료";
 
       const hasRes = [1, 2, 3, 4].some((c) => ex[`res${c}`]);
-      const hasSb = [1, 2, 3, 4].some((c) => ex[`sb${c}`]);
+      const hasPrompts = Boolean(ex.character) || [1, 2, 3, 4].some((c) => ex[`prompt${c}`]);
 
       const resHtml = hasRes ? `
         <div class="bg-white rounded-3xl border border-amber-200 p-6 shadow-card space-y-4">
-          <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-extrabold">🔍 1단계 · 자료조사 예시</span>
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-extrabold">🔍 1단계 · 자료조사 예시</span>
+            <span class="text-xs font-bold text-slate-500">주제: ${escapeHtml(ex.topic)}</span>
+          </div>
+          ${ex.guide ? `<div class="px-4 py-3 rounded-2xl bg-sky-50 border border-sky-200 text-xs sm:text-sm font-bold text-sky-900">💬 선생님 안내: ${escapeHtml(ex.guide)}</div>` : ""}
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             ${[1, 2, 3, 4].map((c) => `
               <div class="rounded-2xl bg-amber-50/50 border border-amber-100 p-4 space-y-1">
@@ -1478,14 +1528,19 @@
           </div>
         </div>` : "";
 
-      const sbHtml = hasSb ? `
-        <div class="bg-white rounded-3xl border border-purple-200 p-6 shadow-card space-y-4">
-          <span class="px-3 py-1 rounded-full bg-purple-100 text-purple-800 text-xs font-extrabold">📋 2단계 · 4컷 스토리보드 기획 예시</span>
+      const promptHtml = hasPrompts ? `
+        <div class="bg-white rounded-3xl border border-indigo-200 p-6 shadow-card space-y-4">
+          <span class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-900 text-xs font-extrabold">✨ 2단계 · 주인공 캐릭터 &amp; 컷별 AI 프롬프트 예시</span>
+          ${ex.character ? `
+            <div class="rounded-2xl bg-indigo-50/60 border border-indigo-200 p-4 space-y-1">
+              <span class="text-xs font-extrabold text-indigo-950">🎨 주인공 캐릭터 설정 예시</span>
+              <p class="text-xs sm:text-sm font-bold text-slate-800">${escapeHtml(ex.character)}</p>
+            </div>` : ""}
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             ${[1, 2, 3, 4].map((c) => `
-              <div class="rounded-2xl bg-purple-50/50 border border-purple-100 p-4 space-y-1">
-                <span class="text-xs font-extrabold text-purple-900">${CUT_META[c].title}</span>
-                <p class="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">${escapeHtml(ex[`sb${c}`] || "-")}</p>
+              <div class="rounded-2xl bg-sky-50/60 border border-sky-200 p-4 space-y-1.5">
+                <span class="px-2 py-0.5 rounded text-xs font-extrabold ${CUT_META[c].badgeBg}">${CUT_META[c].title}</span>
+                <pre class="text-xs text-slate-800 whitespace-pre-wrap font-sans leading-relaxed">${escapeHtml(ex[`prompt${c}`] || "프롬프트 예시 미입력")}</pre>
               </div>`).join("")}
           </div>
         </div>` : "";
@@ -1494,11 +1549,11 @@
         <div class="bg-white rounded-3xl border border-sky-200 p-6 shadow-card space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <span class="px-3 py-1 rounded-full bg-sky-100 text-sky-900 text-xs font-extrabold">🖼️ 3~4단계 · AI 프롬프트 변환 &amp; 완성 4컷 만화 예시</span>
+              <span class="px-3 py-1 rounded-full bg-sky-100 text-sky-900 text-xs font-extrabold">🖼️ 3단계 · 완성된 4컷 만화 이미지 예시</span>
               <h3 class="text-lg font-extrabold text-slate-900 mt-1.5">${escapeHtml(ex.topic)}</h3>
             </div>
           </div>
-          ${ex.guide ? `<div class="px-4 py-3 rounded-2xl bg-sky-50 border border-sky-200 text-xs sm:text-sm font-bold text-sky-900">💬 선생님 안내: ${escapeHtml(ex.guide)}</div>` : ""}
+          ${!hasRes && ex.guide ? `<div class="px-4 py-3 rounded-2xl bg-sky-50 border border-sky-200 text-xs sm:text-sm font-bold text-sky-900">💬 선생님 안내: ${escapeHtml(ex.guide)}</div>` : ""}
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             ${[1, 2, 3, 4].map((c) => `
               <div class="rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden flex flex-col">
@@ -1508,15 +1563,12 @@
                 <div class="comic-panel-aspect bg-white flex items-center justify-center overflow-hidden">
                   ${ex[`img${c}`] ? `<img src="${escapeHtml(ex[`img${c}`])}" alt="예시 ${c}컷" class="w-full h-full object-contain" />` : `<span class="text-xs text-slate-300 font-bold">예시 이미지 미등록</span>`}
                 </div>
-                <div class="p-3.5 space-y-2 bg-white border-t border-slate-100">
-                  ${ex[`prompt${c}`] ? `<div class="p-2.5 rounded-xl bg-sky-50/70 border border-sky-100 text-[11px] text-sky-950 whitespace-pre-line"><strong>✨ 사용된 AI 프롬프트:</strong>\n${escapeHtml(ex[`prompt${c}`])}</div>` : ""}
-                  ${ex[`caption${c}`] ? `<p class="text-xs text-slate-700 leading-relaxed">${escapeHtml(ex[`caption${c}`])}</p>` : ""}
-                </div>
+                ${ex[`caption${c}`] ? `<div class="p-3.5 bg-white border-t border-slate-100"><p class="text-xs text-slate-700 leading-relaxed">${escapeHtml(ex[`caption${c}`])}</p></div>` : ""}
               </div>`).join("")}
           </div>
         </div>`;
 
-      area.innerHTML = `<div class="space-y-6">${resHtml}${sbHtml}${comicHtml}</div>`;
+      area.innerHTML = `<div class="space-y-6">${resHtml}${promptHtml}${comicHtml}</div>`;
     }
 
     /* ==================== 1 자료조사 & 스토리보드 + 프롬프트 생성기 ==================== */
@@ -1534,10 +1586,11 @@
           btn.classList.add("border-slate-200", "bg-white");
         }
       }
-      document.getElementById("sbSingleCutLabel").textContent = `2) [${CUT_META[cutNum].title}] 스토리보드 구상 내용`;
+      document.getElementById("sbSingleCutLabel").innerHTML = `2) [${CUT_META[cutNum].title}] 스토리보드 구상 내용 <span class="text-slate-400 font-normal">(선택 입력 — 적지 않고 아래에서 바로 프롬프트를 생성해도 됩니다)</span>`;
       const myGroup = state.user ? Number(state.user.group_id) : 0;
       const sb = state.storyboards[myGroup] || {};
       document.getElementById("sbSingleCutInput").value = sb[`cut${cutNum}`] || "";
+      togglePromptBuilder(true);
       if (sb[`cut${cutNum}_prompt`]) {
         document.getElementById("pbFinalOutput").value = sb[`cut${cutNum}_prompt`];
       } else {
@@ -1562,14 +1615,18 @@
     };
 
     window.syncPromptBuilderOutput = function () {
-      const ref = document.getElementById("pbRefFixed").value.trim();
+      const charDesc = document.getElementById("pbCharacter").value.trim();
+      const ref = "첨부된 사진 속 캐릭터의 얼굴 생김새와 색상을 그대로 유지해 줘.";
       const sit = document.getElementById("pbSituation").value.trim();
       const exp = document.getElementById("pbExpression").value.trim();
       const ang = document.getElementById("pbAngle").value.trim();
       const lgt = document.getElementById("pbLight").value.trim();
       const sty = document.getElementById("pbStyle").value.trim();
-      const cau = document.getElementById("pbCaution").value.trim();
+      const cau = "이미지 안에 글자(텍스트)나 잔인한 피, 장면은 그리지 않고 순화해서 그릴 것.";
+      document.getElementById("pbRefFixed").value = ref;
+      document.getElementById("pbCaution").value = cau;
       const lines = [
+        `[주인공 캐릭터 설정]: ${charDesc || "(원하는 주인공 캐릭터 생김새·색상·특징 입력)"}`,
         `1. 레퍼런스 고정: "${ref}"`,
         `2. 상황 및 배경: ${sit || "(장면 배경 입력)"}`,
         `3. 표정: ${exp || "(표정 입력)"}`,
@@ -1582,13 +1639,20 @@
     };
 
     window.copyGeneratedPrompt = function () {
+      if (!document.getElementById("pbFinalOutput").value.trim()) {
+        syncPromptBuilderOutput();
+      }
       const text = document.getElementById("pbFinalOutput").value.trim();
       if (!text) {
         showToast("복사할 프롬프트 내용이 없습니다.", "error");
         return;
       }
       copyTextSafe(text);
-      showToast("완성된 AI 프롬프트가 클립보드에 복사되었습니다!", "success");
+      document.getElementById("promptCopyAlertModal").classList.remove("hidden");
+    };
+
+    window.closePromptCopyAlertModal = function () {
+      document.getElementById("promptCopyAlertModal").classList.add("hidden");
     };
 
     window.submitGroupResearch = async function (e) {
@@ -1630,9 +1694,12 @@
       }
       const c = state.selectedSbCut;
       const content = document.getElementById("sbSingleCutInput").value.trim();
+      if (!document.getElementById("pbFinalOutput").value.trim()) {
+        syncPromptBuilderOutput();
+      }
       const promptText = document.getElementById("pbFinalOutput").value.trim();
-      if (!content) {
-        showToast("스토리보드 구상 내용을 입력해주세요.", "error");
+      if (!content && !promptText) {
+        showToast("프롬프트 양식 또는 스토리보드 구상 내용을 입력해주세요.", "error");
         return;
       }
       const btn = document.getElementById("saveStoryboardBtn");
@@ -1664,9 +1731,9 @@
           topic: updatedDoc.topic,
           student_id: state.user.student_id,
           student_name: state.user.student_name,
-          content: content
+          content: content || promptText
         }).catch(() => {});
-        showToast(`${c}컷 스토리보드와 AI 프롬프트가 저장되었습니다!`, "success");
+        showToast(`${c}컷 프롬프트 및 스토리보드가 저장되었습니다!`, "success");
       } catch (err) {
         showToast("스토리보드 저장 오류: " + err.message, "error");
       } finally {
@@ -1732,7 +1799,7 @@
       const sbChip = document.getElementById("storyboardStatusChip");
       const sbUnlocked = isGroupStepUnlocked(myGroup, "storyboard");
 
-      const doneCuts = [1, 2, 3, 4].filter((c) => sb && (sb[`cut${c}`] || "").trim()).length;
+      const doneCuts = [1, 2, 3, 4].filter((c) => sb && ((sb[`cut${c}`] || "").trim() || (sb[`cut${c}_prompt`] || "").trim())).length;
       sbChip.textContent = `${doneCuts}/4컷 작성됨`;
 
       if (!sbUnlocked && !state.isAdmin) {
@@ -2139,7 +2206,7 @@
         const sbUnlocked = isGroupStepUnlocked(g, "storyboard");
         const upUnlocked = isGroupStepUnlocked(g, "upload");
         const gSubs = state.submissions.filter((s) => Number(s.group_id) === g);
-        const sbCount = sb ? [1, 2, 3, 4].filter((c) => (sb[`cut${c}`] || "").trim()).length : 0;
+        const sbCount = sb ? [1, 2, 3, 4].filter((c) => (sb[`cut${c}`] || "").trim() || (sb[`cut${c}_prompt`] || "").trim()).length : 0;
 
         let cutCells = "";
         for (let c = 1; c <= 4; c++) {
