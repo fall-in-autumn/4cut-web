@@ -145,7 +145,7 @@
           </button>
           <button type="button" id="tabBtn-plan" onclick="switchTab('plan')" class="tab-btn flex items-center gap-1.5 px-3.5 py-2.5 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-600 hover:text-sky-700 hover:bg-slate-50 rounded-t-lg whitespace-nowrap transition">
             <span class="w-4 h-4 rounded-full bg-sky-600 text-white text-[10px] font-extrabold inline-flex items-center justify-center shrink-0">1</span>
-            <span>자료조사 &amp; 스토리보드</span>
+            <span>자료조사 &amp; 프롬프트 만들기</span>
           </button>
           <button type="button" id="tabBtn-upload" onclick="switchTab('upload')" class="tab-btn flex items-center gap-1.5 px-3.5 py-2.5 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-600 hover:text-sky-700 hover:bg-slate-50 rounded-t-lg whitespace-nowrap transition">
             <span class="w-4 h-4 rounded-full bg-sky-600 text-white text-[10px] font-extrabold inline-flex items-center justify-center shrink-0">2</span>
@@ -360,7 +360,7 @@
         <div id="teacherExampleDisplayArea"></div>
       </section>
 
-      <!-- [탭] 1 자료조사 & 스토리보드 -->
+      <!-- [탭] 1 자료조사 & 프롬프트 만들기 -->
       <section id="view-plan" class="hidden space-y-6 animate-fade-in">
         <div class="bg-white rounded-2xl border border-sky-100 p-5 sm:p-6 shadow-card flex flex-wrap items-center justify-between gap-4">
           <div class="space-y-1">
@@ -369,8 +369,8 @@
               <span id="planTopicBadge" class="px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-200 text-xs font-extrabold">주제 미지정</span>
               <span id="planRoleBadge" class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">역할: 자료조사</span>
             </div>
-            <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">1단계 자료조사 &amp; 2단계 4컷 스토리보드 · AI 프롬프트 설계</h2>
-            <p class="text-xs text-slate-500">① <strong>자료조사</strong> 담당자가 동물 고통과 대안을 조사·제출한 뒤, ② 선생님이 단계를 열어주면 모둠원 각자가 맡은 컷의 <strong>스토리보드와 AI 프롬프트</strong>를 작성합니다.</p>
+            <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">1단계 자료조사 &amp; 2단계 컷별 AI 프롬프트 만들기</h2>
+            <p class="text-xs text-slate-500">① <strong>자료조사</strong> 담당자가 동물 고통과 대안을 조사·제출한 뒤, ② 선생님이 단계를 열어주면 모둠원 각자가 맡은 컷의 <strong>AI 프롬프트</strong>를 만듭니다.</p>
           </div>
         </div>
 
@@ -413,12 +413,12 @@
           <div id="researchReadonlyView" class="space-y-3"></div>
         </div>
 
-        <!-- 2. 4컷 스토리보드 & 프롬프트 생성 섹션 -->
+        <!-- 2. 컷별 AI 프롬프트 만들기 섹션 (스토리보드 구상 내용 입력칸 제거) -->
         <div class="bg-white rounded-3xl border border-purple-200/80 p-6 sm:p-8 shadow-card space-y-5">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
             <div>
-              <span class="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 text-xs font-extrabold">📋 2단계 · 모둠원 각자 컷별 스토리보드 &amp; AI 프롬프트</span>
-              <h3 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1">내가 맡은 컷 스토리보드 구상 및 AI 프롬프트 생성</h3>
+              <span class="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 text-xs font-extrabold">✨ 2단계 · 모둠원 각자 컷별 AI 프롬프트 만들기</span>
+              <h3 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1">내가 맡은 컷 선택 및 AI 프롬프트 생성</h3>
             </div>
             <span id="storyboardStatusChip" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600">0/4컷 작성됨</span>
           </div>
@@ -426,13 +426,13 @@
           <!-- 단계 잠금 안내 배너 -->
           <div id="storyboardLockedBanner" class="hidden rounded-2xl border-2 border-dashed border-amber-300 bg-amber-50/70 p-6 text-center space-y-2">
             <div class="text-3xl">🔒</div>
-            <h4 class="text-base font-extrabold text-amber-950">현재 선생님이 [2단계 스토리보드 작성]을 잠가두었습니다</h4>
+            <h4 class="text-base font-extrabold text-amber-950">현재 선생님이 [2단계 프롬프트 만들기]를 잠가두었습니다</h4>
             <p class="text-xs sm:text-sm text-amber-800 leading-relaxed">
               먼저 1단계 자료조사를 완료해 제출해 주세요.<br />선생님이 우리 모둠의 자료조사를 확인한 뒤 허용해 주시면 즉시 입력창이 열립니다!
             </p>
           </div>
 
-          <!-- 모둠원 각자 담당 컷 선택 후 스토리보드 + 프롬프트 생성기 -->
+          <!-- 모둠원 각자 담당 컷 선택 후 AI 프롬프트 생성기 -->
           <form id="storyboardFormCard" onsubmit="submitGroupStoryboard(event)" class="hidden space-y-4">
             <div class="space-y-2">
               <label class="block text-xs font-extrabold text-slate-700">1) 내가 맡은 컷 번호 선택하기</label>
@@ -456,27 +456,13 @@
               </div>
             </div>
 
-            <!-- 선택한 컷의 스토리보드 구상 내용 + 옆에 [✨ 프롬프트 생성하기] 버튼 -->
-            <div class="space-y-2">
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <label for="sbSingleCutInput" id="sbSingleCutLabel" class="block text-xs font-extrabold text-purple-900">
-                  2) 선택한 컷의 스토리보드 구상 내용 <span class="text-slate-400 font-normal">(선택 입력 — 적지 않고 아래에서 바로 프롬프트를 생성해도 됩니다)</span>
-                </label>
-                <button type="button" id="togglePromptBuilderBtn" onclick="togglePromptBuilder()" class="px-3.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-extrabold shadow-2xs transition flex items-center gap-1.5">
-                  <span>✨</span><span>프롬프트 생성하기</span>
-                </button>
-              </div>
-              <textarea id="sbSingleCutInput" rows="2" placeholder="(선택 사항) 장면 구상이나 말풍선 대사를 메모하고 싶다면 적어주세요. 바로 아래 프롬프트 생성기만 작성해도 제출됩니다." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
-            </div>
-
             <!-- [패널] 캐릭터 만들기 + 7가지 양식 기반 AI 프롬프트 생성기 -->
             <div id="promptBuilderPanel" class="rounded-2xl border-2 border-sky-200 bg-sky-50/60 p-4 sm:p-5 space-y-4">
               <div class="flex flex-wrap items-center justify-between gap-2 border-b border-sky-200/80 pb-2.5">
                 <div>
-                  <span class="px-2 py-0.5 rounded bg-sky-600 text-white text-[11px] font-extrabold">AI 이미지 생성 프롬프트 양식 작성기</span>
+                  <span id="promptBuilderCutBadge" class="px-2.5 py-0.5 rounded bg-sky-600 text-white text-[11px] font-extrabold">2) AI 이미지 생성 프롬프트 양식 작성기</span>
                   <h4 class="text-sm font-extrabold text-slate-900 mt-1">원하는 캐릭터를 설정하고 아래 양식에 맞춰 AI 프롬프트를 생성해 보세요</h4>
                 </div>
-                <button type="button" onclick="togglePromptBuilder(false)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-100 text-xs font-bold text-slate-600 border border-slate-200">접기 ▲</button>
               </div>
 
               <!-- 캐릭터 만들기 안내 및 입력 영역 -->
@@ -561,23 +547,26 @@
               <!-- 최종 조합 프롬프트 & 복사 버튼 -->
               <div class="bg-white rounded-xl p-3.5 border border-sky-300 space-y-2">
                 <div class="flex flex-wrap items-center justify-between gap-2">
-                  <span class="text-xs font-extrabold text-sky-900">📄 양식에 맞춰 생성된 AI 프롬프트 (생성형 AI에 복사해 사용하세요)</span>
+                  <span class="text-xs font-extrabold text-sky-900">📄 최종 AI 프롬프트 (자동 생성 또는 생성형 AI에 실제 질문한 프롬프트 직접 붙여넣기 가능)</span>
                   <button type="button" onclick="copyGeneratedPrompt()" class="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold transition flex items-center gap-1.5">
                     <span>📋</span><span>완성된 프롬프트 복사하기</span>
                   </button>
                 </div>
-                <textarea id="pbFinalOutput" rows="6" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-medium text-slate-800 leading-relaxed focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
+                <p class="text-[11px] text-slate-500">
+                  💡 위 양식을 채우면 자동으로 완성되며, <strong>생성형 AI에 직접 질문했던 프롬프트를 그대로 복사·붙여넣기</strong> 해서 제출해도 인정됩니다.
+                </p>
+                <textarea id="pbFinalOutput" rows="6" oninput="markCustomPromptEdited()" placeholder="위 양식을 채우거나, 생성형 AI에 실제로 질문했던 프롬프트를 그대로 복사·붙여넣기 하세요." class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-medium text-slate-800 leading-relaxed focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
               </div>
             </div>
 
             <div class="flex justify-end">
               <button type="submit" id="saveStoryboardBtn" class="px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs sm:text-sm font-extrabold shadow-xs transition">
-                📤 내 담당 컷 스토리보드 &amp; 프롬프트 제출하기
+                📤 내 담당 컷 AI 프롬프트 제출하기
               </button>
             </div>
           </form>
 
-          <!-- 우리 모둠 전체 4컷 스토리보드 실시간 합본 -->
+          <!-- 우리 모둠 전체 4컷 프롬프트 실시간 합본 -->
           <div id="storyboardReadonlyView" class="space-y-3"></div>
         </div>
       </section>
@@ -589,7 +578,7 @@
           <div class="text-4xl">🔒</div>
           <h2 class="text-lg sm:text-xl font-extrabold text-amber-950">현재 선생님이 [3단계 컷 이미지 업로드]를 잠가두었습니다</h2>
           <p class="text-xs sm:text-sm text-amber-800 leading-relaxed">
-            먼저 <strong>[1 자료조사 &amp; 스토리보드]</strong> 탭에서 우리 모둠의 스토리보드와 프롬프트를 완성해 주세요.<br />
+            먼저 <strong>[1 자료조사 &amp; 프롬프트 만들기]</strong> 탭에서 우리 모둠의 프롬프트를 완성해 주세요.<br />
             선생님이 확인 후 업로드 단계를 열어주시면 이곳이 자동으로 열립니다!
           </p>
         </div>
@@ -626,6 +615,24 @@
                 </button>
               </div>
               <p id="overwriteNotice" class="hidden text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-3.5 py-2.5"></p>
+            </div>
+
+            <!-- 프롬프트 연결 확인 및 미제출 학생용 붙여넣기 구제 영역 -->
+            <div id="uploadPromptRescueWrap" class="hidden space-y-2">
+              <div id="uploadPromptLinkedNotice" class="hidden px-3.5 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800 flex items-center justify-between gap-2">
+                <span>✅ 1단계에서 제출한 AI 프롬프트가 자동으로 연결되었습니다.</span>
+                <button type="button" onclick="toggleUploadPromptEdit()" class="underline text-emerald-900 font-extrabold shrink-0">붙여넣기로 수정</button>
+              </div>
+              <div id="uploadPromptPasteBox" class="hidden rounded-2xl border-2 border-amber-300 bg-amber-50/70 p-4 space-y-2">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <span class="text-xs font-extrabold text-amber-950">📝 AI 프롬프트 붙여넣기 (실수로 프롬프트를 제출하지 못한 경우)</span>
+                  <span class="px-2 py-0.5 rounded bg-amber-200 text-amber-950 text-[10px] font-extrabold">제출 자동 인정</span>
+                </div>
+                <p class="text-[11px] text-amber-900 leading-relaxed">
+                  아직 선택한 컷의 프롬프트가 제출되지 않았습니다. <strong>생성형 AI에 실제로 질문했던 프롬프트</strong>를 아래에 복사·붙여넣기 하면 이미지와 함께 프롬프트 제출로도 인정됩니다!
+                </p>
+                <textarea id="uploadFallbackPromptInput" rows="3" placeholder="생성형 AI에 질문했던 프롬프트를 그대로 복사·붙여넣기 해주세요..." class="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 bg-white text-xs text-slate-800 leading-relaxed focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+              </div>
             </div>
 
             <!-- 2단계: 이미지 선택 및 저장 -->
@@ -749,7 +756,7 @@
                   <tr class="bg-slate-50/80 border-b border-slate-200 text-xs font-extrabold text-slate-600">
                     <th class="py-3 px-4 whitespace-nowrap">모둠</th>
                     <th class="py-3 px-3 whitespace-nowrap">1단계 자료조사</th>
-                    <th class="py-3 px-3 whitespace-nowrap">2단계 스토리보드</th>
+                    <th class="py-3 px-3 whitespace-nowrap">2단계 프롬프트</th>
                     <th class="py-3 px-3 whitespace-nowrap">3단계 업로드</th>
                     <th class="py-3 px-3 whitespace-nowrap">1컷 (원래 모습)</th>
                     <th class="py-3 px-3 whitespace-nowrap">2컷 (받는 고통)</th>
@@ -930,6 +937,7 @@
       modalGroupId: null,
       selectedCut: null,
       selectedSbCut: null,
+      isCustomPromptPasted: false,
       compressedBase64: null,
       pendingDeleteFn: null,
       unsubClassList: []
@@ -1571,7 +1579,7 @@
       area.innerHTML = `<div class="space-y-6">${resHtml}${promptHtml}${comicHtml}</div>`;
     }
 
-    /* ==================== 1 자료조사 & 스토리보드 + 프롬프트 생성기 ==================== */
+    /* ==================== 1 자료조사 & 프롬프트 만들기 ==================== */
 
     window.selectStoryboardCut = function (cutNum) {
       state.selectedSbCut = cutNum;
@@ -1586,11 +1594,16 @@
           btn.classList.add("border-slate-200", "bg-white");
         }
       }
-      document.getElementById("sbSingleCutLabel").innerHTML = `2) [${CUT_META[cutNum].title}] 스토리보드 구상 내용 <span class="text-slate-400 font-normal">(선택 입력 — 적지 않고 아래에서 바로 프롬프트를 생성해도 됩니다)</span>`;
+      const badgeEl = document.getElementById("promptBuilderCutBadge");
+      if (badgeEl) {
+        badgeEl.textContent = `2) [${CUT_META[cutNum].title}] AI 프롬프트 양식 작성기`;
+      }
+      // 학생이 직접 프롬프트를 먼저 붙여넣은 경우 컷 선택 시 덮어쓰지 않고 유지
+      if (state.isCustomPromptPasted && document.getElementById("pbFinalOutput").value.trim()) {
+        return;
+      }
       const myGroup = state.user ? Number(state.user.group_id) : 0;
       const sb = state.storyboards[myGroup] || {};
-      document.getElementById("sbSingleCutInput").value = sb[`cut${cutNum}`] || "";
-      togglePromptBuilder(true);
       if (sb[`cut${cutNum}_prompt`]) {
         document.getElementById("pbFinalOutput").value = sb[`cut${cutNum}_prompt`];
       } else {
@@ -1598,23 +1611,18 @@
       }
     };
 
-    window.togglePromptBuilder = function (forceShow) {
-      const panel = document.getElementById("promptBuilderPanel");
-      const show = typeof forceShow === "boolean" ? forceShow : panel.classList.contains("hidden");
-      if (show) {
-        panel.classList.remove("hidden");
-        if (!document.getElementById("pbFinalOutput").value.trim()) syncPromptBuilderOutput();
-      } else {
-        panel.classList.add("hidden");
-      }
+    window.markCustomPromptEdited = function () {
+      state.isCustomPromptPasted = true;
     };
 
     window.pickPromptOption = function (inputId, value) {
+      state.isCustomPromptPasted = false;
       document.getElementById(inputId).value = value;
       syncPromptBuilderOutput();
     };
 
     window.syncPromptBuilderOutput = function () {
+      state.isCustomPromptPasted = false;
       const charDesc = document.getElementById("pbCharacter").value.trim();
       const ref = "첨부된 사진 속 캐릭터의 얼굴 생김새와 색상을 그대로 유지해 줘.";
       const sit = document.getElementById("pbSituation").value.trim();
@@ -1693,13 +1701,12 @@
         return;
       }
       const c = state.selectedSbCut;
-      const content = document.getElementById("sbSingleCutInput").value.trim();
       if (!document.getElementById("pbFinalOutput").value.trim()) {
         syncPromptBuilderOutput();
       }
       const promptText = document.getElementById("pbFinalOutput").value.trim();
-      if (!content && !promptText) {
-        showToast("프롬프트 양식 또는 스토리보드 구상 내용을 입력해주세요.", "error");
+      if (!promptText) {
+        showToast("프롬프트 양식 내용을 입력해주세요.", "error");
         return;
       }
       const btn = document.getElementById("saveStoryboardBtn");
@@ -1715,7 +1722,7 @@
         class_id: state.activeClassId,
         group_id: groupId,
         topic: state.user.topic || prev.topic || "",
-        [`cut${c}`]: content,
+        [`cut${c}`]: "",
         [`cut${c}_prompt`]: promptText,
         cut_authors: authors,
         updated_at: new Date().toLocaleString("ko-KR")
@@ -1731,14 +1738,15 @@
           topic: updatedDoc.topic,
           student_id: state.user.student_id,
           student_name: state.user.student_name,
-          content: content || promptText
+          content: promptText
         }).catch(() => {});
-        showToast(`${c}컷 프롬프트 및 스토리보드가 저장되었습니다!`, "success");
+        state.isCustomPromptPasted = false;
+        showToast(`${c}컷 AI 프롬프트가 제출(인정)되었습니다!`, "success");
       } catch (err) {
-        showToast("스토리보드 저장 오류: " + err.message, "error");
+        showToast("프롬프트 저장 오류: " + err.message, "error");
       } finally {
         btn.disabled = false;
-        btn.textContent = "📤 내 담당 컷 스토리보드 & 프롬프트 제출하기";
+        btn.textContent = "📤 내 담당 컷 AI 프롬프트 제출하기";
       }
     };
 
@@ -1817,19 +1825,19 @@
         sbRead.innerHTML = `
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
             ${[1, 2, 3, 4].map((c) => {
-              const text = (sb && sb[`cut${c}`]) || "";
-              const pText = (sb && sb[`cut${c}_prompt`]) || "";
+              const pText = (sb && sb[`cut${c}_prompt`]) || (sb && sb[`cut${c}`]) || "";
               const author = sb && sb.cut_authors && sb.cut_authors[c];
               return `
                 <div class="rounded-2xl border border-purple-100 bg-purple-50/40 p-4 space-y-2">
                   <div class="flex items-center justify-between gap-2">
                     <span class="text-xs font-extrabold text-purple-900">${CUT_META[c].title}</span>
                     <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white text-purple-800 border border-purple-200">
-                      ${author ? `${escapeHtml(author.student_id)} ${escapeHtml(author.student_name)}` : (text ? "작성 완료" : "미작성")}
+                      ${author ? `${escapeHtml(author.student_id)} ${escapeHtml(author.student_name)}` : (pText ? "작성 완료" : "미작성")}
                     </span>
                   </div>
-                  <p class="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">${text ? escapeHtml(text) : "담당 모둠원이 작성 중..."}</p>
-                  ${pText ? `<details class="text-[11px] text-sky-900 bg-white/90 rounded-xl p-2.5 border border-sky-100"><summary class="font-extrabold cursor-pointer">✨ 작성된 AI 프롬프트 보기</summary><pre class="mt-1.5 whitespace-pre-wrap font-sans leading-relaxed">${escapeHtml(pText)}</pre></details>` : ""}
+                  ${pText
+                    ? `<pre class="text-xs text-slate-800 bg-white/90 rounded-xl p-3 border border-sky-100 whitespace-pre-wrap font-sans leading-relaxed">${escapeHtml(pText)}</pre>`
+                    : `<p class="text-xs text-slate-400">담당 모둠원이 AI 프롬프트 작성 중...</p>`}
                 </div>`;
             }).join("")}
           </div>`;
@@ -1860,7 +1868,56 @@
       } else {
         notice.classList.add("hidden");
       }
+      refreshUploadPromptRescueUI(cutNum, true);
       updateUploadSubmitButton();
+    };
+
+    function refreshUploadPromptRescueUI(cutNum, resetInput = false) {
+      const wrap = document.getElementById("uploadPromptRescueWrap");
+      const linkedNotice = document.getElementById("uploadPromptLinkedNotice");
+      const pasteBox = document.getElementById("uploadPromptPasteBox");
+      const fallbackInput = document.getElementById("uploadFallbackPromptInput");
+      if (!wrap || !cutNum) {
+        wrap?.classList.add("hidden");
+        return;
+      }
+      wrap.classList.remove("hidden");
+      const myGroup = state.user ? Number(state.user.group_id) : 1;
+      const sb = state.storyboards[myGroup] || {};
+      const existingPrompt = (sb[`cut${cutNum}_prompt`] || sb[`cut${cutNum}`] || "").trim();
+
+      if (existingPrompt) {
+        linkedNotice.classList.remove("hidden");
+        if (resetInput) {
+          pasteBox.classList.add("hidden");
+          fallbackInput.value = "";
+        }
+      } else {
+        linkedNotice.classList.add("hidden");
+        pasteBox.classList.remove("hidden");
+        if (resetInput) {
+          fallbackInput.value = "";
+        }
+      }
+    }
+
+    window.toggleUploadPromptEdit = function () {
+      const pasteBox = document.getElementById("uploadPromptPasteBox");
+      const fallbackInput = document.getElementById("uploadFallbackPromptInput");
+      const myGroup = state.user ? Number(state.user.group_id) : 1;
+      const sb = state.storyboards[myGroup] || {};
+      const existingPrompt = state.selectedCut ? (sb[`cut${state.selectedCut}_prompt`] || sb[`cut${state.selectedCut}`] || "").trim() : "";
+
+      if (pasteBox.classList.contains("hidden")) {
+        pasteBox.classList.remove("hidden");
+        if (!fallbackInput.value.trim() && existingPrompt) {
+          fallbackInput.value = existingPrompt;
+        }
+        fallbackInput.focus();
+      } else {
+        pasteBox.classList.add("hidden");
+        fallbackInput.value = "";
+      }
     };
 
     window.handleImageFileSelect = async function (e) {
@@ -1902,17 +1959,55 @@
     window.submitCut = async function (e) {
       e.preventDefault();
       if (!state.user || !state.selectedCut || !state.compressedBase64) return;
-      const btn = document.getElementById("submitCutBtn");
-      btn.disabled = true;
-      btn.textContent = "구글 드라이브 및 실시간 갤러리 저장 중...";
 
       const cls = state.activeClassId;
       const grp = Number(state.user.group_id) || 1;
       const cutNum = state.selectedCut;
       const sb = state.storyboards[grp] || {};
-      const attachedPrompt = (sb[`cut${cutNum}_prompt`] || sb[`cut${cutNum}`] || `${cls}반 ${grp}모둠 ${cutNum}컷 (${CUT_META[cutNum].title})`).trim();
+      const existingPrompt = (sb[`cut${cutNum}_prompt`] || sb[`cut${cutNum}`] || "").trim();
+      const pastedPrompt = (document.getElementById("uploadFallbackPromptInput")?.value || "").trim();
+
+      if (!existingPrompt && !pastedPrompt && !state.isAdmin) {
+        refreshUploadPromptRescueUI(cutNum, false);
+        showToast("실수로 프롬프트를 제출하지 않으셨다면, 생성형 AI에 질문한 프롬프트를 붙여넣어 함께 제출해주세요!", "error");
+        document.getElementById("uploadFallbackPromptInput")?.focus();
+        return;
+      }
+
+      const btn = document.getElementById("submitCutBtn");
+      btn.disabled = true;
+      btn.textContent = "구글 드라이브 및 실시간 갤러리 저장 중...";
+
+      const attachedPrompt = (pastedPrompt || existingPrompt || `${cls}반 ${grp}모둠 ${cutNum}컷 (${CUT_META[cutNum].title})`).trim();
 
       try {
+        // 붙여넣기한 프롬프트가 있으면 2단계 프롬프트 제출 기록에도 자동 저장하여 인정 처리
+        if (pastedPrompt && !state.isAdmin) {
+          const authors = { ...(sb.cut_authors || {}) };
+          authors[cutNum] = { student_id: state.user.student_id, student_name: state.user.student_name };
+          const updatedSb = {
+            ...sb,
+            class_id: cls,
+            group_id: grp,
+            topic: state.user.topic || sb.topic || "",
+            [`cut${cutNum}`]: "",
+            [`cut${cutNum}_prompt`]: pastedPrompt,
+            cut_authors: authors,
+            updated_at: new Date().toLocaleString("ko-KR")
+          };
+          await setDoc(doc(db, "classes", String(cls), "storyboards", `group_${grp}`), updatedSb);
+          callGasApi({
+            action: "saveStoryboard",
+            class_id: cls,
+            group_id: grp,
+            cut_num: cutNum,
+            topic: updatedSb.topic,
+            student_id: state.user.student_id,
+            student_name: state.user.student_name,
+            content: pastedPrompt
+          }).catch(() => {});
+        }
+
         let imageUrl = state.compressedBase64;
         let fileId = "";
         let promptDocUrl = "";
@@ -1950,10 +2045,13 @@
 
         state.compressedBase64 = null;
         document.getElementById("cutImageInput").value = "";
+        const fallbackInput = document.getElementById("uploadFallbackPromptInput");
+        if (fallbackInput) fallbackInput.value = "";
         document.getElementById("uploadPlaceholder").classList.remove("hidden");
         document.getElementById("imagePreviewWrapper").classList.add("hidden");
+        refreshUploadPromptRescueUI(cutNum, true);
         updateUploadSubmitButton();
-        showToast(`${cutNum}컷 만화가 성공적으로 저장되었습니다!`, "success");
+        showToast(pastedPrompt ? `${cutNum}컷 이미지와 붙여넣은 프롬프트가 모두 저장(인정)되었습니다!` : `${cutNum}컷 만화가 성공적으로 저장되었습니다!`, "success");
       } catch (err) {
         showToast("업로드 중 오류: " + err.message, "error");
       } finally {
@@ -1976,6 +2074,9 @@
       }
 
       document.getElementById("uploadActiveBadge").textContent = `${cls}반 · ${myGroup}모둠`;
+      if (state.selectedCut) {
+        refreshUploadPromptRescueUI(state.selectedCut, false);
+      }
 
       for (let c = 1; c <= 4; c++) {
         const item = state.submissions.find((s) => Number(s.group_id) === myGroup && Number(s.cut_num) === c);
@@ -2162,7 +2263,7 @@
       renderAdminTab();
 
       await setDoc(doc(db, "classes", String(state.activeClassId), "meta", "config"), { group_unlocks: unlocks }, { merge: true });
-      showToast(`${groupId}모둠의 [${stepKey === "storyboard" ? "2단계 스토리보드" : "3단계 이미지 업로드"}]가 ${cur[stepKey] ? "허용됨(열림)" : "잠금됨"} 처리되었습니다.`, "success");
+      showToast(`${groupId}모둠의 [${stepKey === "storyboard" ? "2단계 프롬프트 만들기" : "3단계 이미지 업로드"}]가 ${cur[stepKey] ? "허용됨(열림)" : "잠금됨"} 처리되었습니다.`, "success");
     };
 
     function renderAdminTab() {
@@ -2316,27 +2417,28 @@
         };
       } else {
         const sb = state.storyboards[groupId] || {};
-        badge.textContent = "2단계 스토리보드 제출 자료";
-        title.textContent = `${cls}반 ${groupId}모둠 스토리보드`;
+        badge.textContent = "2단계 AI 프롬프트 제출 자료";
+        title.textContent = `${cls}반 ${groupId}모둠 AI 프롬프트`;
         body.innerHTML = [1, 2, 3, 4].map((c) => {
           const author = sb.cut_authors && sb.cut_authors[c];
-          const pText = sb[`cut${c}_prompt`] || "";
+          const pText = sb[`cut${c}_prompt`] || sb[`cut${c}`] || "";
           return `
             <div class="p-3.5 rounded-2xl bg-purple-50/70 border border-purple-200 space-y-1.5">
               <div class="flex items-center justify-between">
                 <span class="font-extrabold text-purple-950">${CUT_META[c].title}</span>
                 <span class="text-[11px] font-bold text-purple-700">${author ? `${escapeHtml(author.student_id)} ${escapeHtml(author.student_name)}` : ""}</span>
               </div>
-              <div class="text-slate-700 whitespace-pre-line">${escapeHtml(sb[`cut${c}`] || "미작성")}</div>
-              ${pText ? `<div class="p-2 rounded-xl bg-white border border-sky-200 text-[11px] text-sky-950 whitespace-pre-line"><strong>✨ AI 프롬프트:</strong>\n${escapeHtml(pText)}</div>` : ""}
+              ${pText
+                ? `<div class="p-2.5 rounded-xl bg-white border border-sky-200 text-xs text-slate-800 whitespace-pre-line leading-relaxed">${escapeHtml(pText)}</div>`
+                : `<div class="text-xs text-slate-400">미작성</div>`}
             </div>`;
         }).join("");
         delBtn.onclick = () => {
-          openDeleteConfirmModal(`${groupId}모둠 스토리보드 삭제`, "제출된 스토리보드 내용을 삭제할까요?", async () => {
+          openDeleteConfirmModal(`${groupId}모둠 프롬프트 기록 삭제`, "제출된 AI 프롬프트 내용을 삭제할까요?", async () => {
             await deleteDoc(doc(db, "classes", String(cls), "storyboards", `group_${groupId}`));
             callGasApi({ action: "deleteStoryboard", class_id: cls, group_id: groupId }).catch(() => {});
             closePlanDetailModal();
-            showToast(`${groupId}모둠 스토리보드 자료가 삭제되었습니다.`, "success");
+            showToast(`${groupId}모둠 프롬프트 자료가 삭제되었습니다.`, "success");
           });
         };
       }
