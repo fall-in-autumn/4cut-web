@@ -198,9 +198,12 @@
         </div>
 
         <div id="publicGalleryArea" class="hidden space-y-5">
-          <div id="teacherPreviewBanner" class="hidden px-4 py-3 rounded-2xl bg-amber-50 border border-amber-200 text-xs sm:text-sm font-bold text-amber-900 flex items-center justify-between">
-            <span>👀 현재 비공개 상태이며, 교사 관리자 권한으로 미리보고 있습니다.</span>
-            <button type="button" onclick="setClassPublicState(true)" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold transition">지금 전체공개 전환 ✨</button>
+          <div id="teacherPreviewBanner" class="hidden px-4 py-3 rounded-2xl bg-amber-50 border border-amber-200 text-xs sm:text-sm font-bold text-amber-900 flex flex-wrap items-center justify-between gap-2">
+            <span id="teacherPreviewBannerText">👀 현재 비공개 상태이며, 교사 관리자 권한으로 미리보고 있습니다.</span>
+            <div id="teacherPreviewBannerActions" class="flex items-center gap-1.5">
+              <button type="button" onclick="setClassPublicMode('completed_only')" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-extrabold transition">완성 모둠만 공개 ✅</button>
+              <button type="button" onclick="setClassPublicMode('all')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold transition">전체공개 ✨</button>
+            </div>
           </div>
 
           <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-4 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
@@ -745,9 +748,12 @@
                 <span class="px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-900 text-xs font-extrabold">🗣️ 1단계 · 각 컷별 발표 설명 정리</span>
                 <h3 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1">완성된 4컷 만화를 보며 각 장면에서 설명할 내용 적기</h3>
               </div>
-              <button type="submit" id="savePresentScriptsBtn" class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs sm:text-sm font-extrabold shadow-xs transition">
-                💾 컷별 발표 설명 저장하기
-              </button>
+              <div class="flex flex-wrap items-center gap-2.5">
+                <span id="presentAutoSaveStatus" class="text-xs font-bold text-slate-500">자동 임시보관 및 실시간 저장 지원</span>
+                <button type="submit" id="savePresentScriptsBtn" class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs sm:text-sm font-extrabold shadow-xs transition">
+                  💾 컷별 발표 설명 저장하기
+                </button>
+              </div>
             </div>
 
             <div id="presentCutsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
@@ -833,10 +839,10 @@
               <button type="button" id="adminLockToggleBtn" onclick="toggleClassLockedState()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 text-xs font-extrabold transition">
                 🔓 입장 허용 중 (잠그기)
               </button>
-
-              <div class="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200">
-                <button type="button" id="adminPrivateBtn" onclick="setClassPublicState(false)" class="px-3.5 py-2 rounded-lg text-xs font-extrabold bg-amber-500 text-white shadow-xs transition">🔒 비공개</button>
-                <button type="button" id="adminPublicBtn" onclick="setClassPublicState(true)" class="px-3.5 py-2 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition">✨ 전체공개</button>
+              <div class="inline-flex flex-wrap rounded-xl bg-slate-100 p-1 border border-slate-200 gap-1">
+                <button type="button" id="adminPrivateBtn" onclick="setClassPublicMode('private')" class="px-3.5 py-2 rounded-lg text-xs font-extrabold bg-amber-500 text-white shadow-xs transition">🔒 비공개</button>
+                <button type="button" id="adminCompletedPublicBtn" onclick="setClassPublicMode('completed_only')" class="px-3.5 py-2 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition">✅ 완성 모둠만 공개</button>
+                <button type="button" id="adminPublicBtn" onclick="setClassPublicMode('all')" class="px-3.5 py-2 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition">✨ 전체공개</button>
               </div>
 
               <button type="button" onclick="changeClassGroupCount(1)" class="px-3.5 py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 text-xs font-extrabold transition">+ 모둠 추가</button>
@@ -1042,7 +1048,12 @@
       isCustomPromptPasted: false,
       compressedBase64: null,
       pendingDeleteFn: null,
-      unsubClassList: []
+      unsubClassList: [],
+      presentDrafts: {},
+      presentDirtyCuts: {},
+      presentDirtyQna: {},
+      presentRenderedKey: "",
+      presentAutoSaveTimer: null
     };
 
     function escapeHtml(str) {
@@ -1114,10 +1125,18 @@
     function getActiveConfig() {
       return state.classConfigs[state.activeClassId] || {
         is_public: false,
+        public_mode: "private",
         is_locked: false,
         total_groups: 6,
         group_unlocks: {}
       };
+    }
+
+    function getClassPublicMode(cfg = getActiveConfig()) {
+      if (cfg.public_mode === "private" || cfg.public_mode === "completed_only" || cfg.public_mode === "all") {
+        return cfg.public_mode;
+      }
+      return cfg.is_public ? "all" : "private";
     }
 
     // 모둠별 실제 단계 허용 여부 반환 (교사 관리자 표 UI에서도 실제 상태가 정확히 표시되도록 순수 설정값만 조회)
@@ -1380,9 +1399,13 @@
       document.querySelectorAll(".active-class-label").forEach((el) => { el.textContent = `${cls}반`; });
 
       const pubBadge = document.getElementById("headerPublicBadge");
-      if (cfg.is_public) {
+      const pubMode = getClassPublicMode(cfg);
+      if (pubMode === "all") {
         pubBadge.textContent = `${cls}반 전체공개 ✨`;
         pubBadge.className = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200";
+      } else if (pubMode === "completed_only") {
+        pubBadge.textContent = `${cls}반 완성 모둠만 공개 ✅`;
+        pubBadge.className = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-100 text-sky-800 border border-sky-200";
       } else {
         pubBadge.textContent = `${cls}반 비공개 🔒`;
         pubBadge.className = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200";
@@ -1463,29 +1486,54 @@
 
     function renderGallery() {
       const cfg = getActiveConfig();
+      const mode = getClassPublicMode(cfg);
       const lockSec = document.getElementById("privateLockScreen");
       const pubSec = document.getElementById("publicGalleryArea");
       const previewBanner = document.getElementById("teacherPreviewBanner");
+      const previewBannerText = document.getElementById("teacherPreviewBannerText");
+      const previewBannerActions = document.getElementById("teacherPreviewBannerActions");
 
-      if (!cfg.is_public && !state.isAdmin) {
+      if (mode === "private" && !state.isAdmin) {
         lockSec.classList.remove("hidden");
         pubSec.classList.add("hidden");
         return;
       }
       lockSec.classList.add("hidden");
       pubSec.classList.remove("hidden");
-      if (!cfg.is_public && state.isAdmin) previewBanner.classList.remove("hidden");
-      else previewBanner.classList.add("hidden");
+
+      if (mode === "private" && state.isAdmin) {
+        previewBanner.classList.remove("hidden");
+        previewBannerText.textContent = "👀 현재 비공개 상태이며, 교사 관리자 권한으로 미리보고 있습니다.";
+        previewBannerActions.classList.remove("hidden");
+      } else if (mode === "completed_only") {
+        previewBanner.classList.remove("hidden");
+        previewBannerText.textContent = state.isAdmin
+          ? "✅ 현재 [완성 모둠(4/4)만 공개] 모드입니다. 학생들에게는 4컷 제출을 모두 완료한 모둠만 보입니다."
+          : "✅ 현재 4컷 제출을 모두 완료한 모둠의 작품만 실시간으로 공개되고 있습니다.";
+        previewBannerActions.classList.add("hidden");
+      } else {
+        previewBanner.classList.add("hidden");
+      }
 
       const totalGroups = Number(cfg.total_groups) || 6;
+      const isStudentCompletedOnly = !state.isAdmin && mode === "completed_only";
       const chips = document.getElementById("groupFilterChips");
       let chipHtml = `<button type="button" onclick="setGroupFilter('all')" class="px-3 py-1.5 rounded-xl text-xs font-extrabold whitespace-nowrap transition ${state.selectedGroupFilter === 'all' ? 'bg-sky-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">전체 모둠</button>`;
       for (let g = 1; g <= totalGroups; g++) {
+        const gCount = state.submissions.filter((s) => Number(s.group_id) === g).length;
+        if (isStudentCompletedOnly && gCount < 4) continue;
         chipHtml += `<button type="button" onclick="setGroupFilter(${g})" class="px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition ${state.selectedGroupFilter === g ? 'bg-sky-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">${g}모둠</button>`;
       }
       chips.innerHTML = chipHtml;
 
-      const completedOnly = document.getElementById("filterCompletedOnly")?.checked;
+      const filterCheckbox = document.getElementById("filterCompletedOnly");
+      const filterLabel = filterCheckbox?.closest("label");
+      if (filterLabel) {
+        if (isStudentCompletedOnly) filterLabel.classList.add("hidden");
+        else filterLabel.classList.remove("hidden");
+      }
+
+      const completedOnly = isStudentCompletedOnly || Boolean(filterCheckbox?.checked);
       const grid = document.getElementById("galleryGrid");
       grid.className = state.galleryLayout === "4x1" ? "grid grid-cols-1 gap-6" : "grid grid-cols-1 lg:grid-cols-2 gap-6";
 
@@ -1525,7 +1573,10 @@
             <div class="grid ${gridCols} gap-2.5">${panels}</div>
           </article>`;
       }
-      grid.innerHTML = cards || `<div class="col-span-full bg-white rounded-3xl border border-slate-200 p-12 text-center text-sm font-bold text-slate-400">표시할 모둠 작품이 없습니다.</div>`;
+      const emptyMsg = isStudentCompletedOnly
+        ? "아직 4컷 제출을 완료한 모둠이 없습니다. 가장 먼저 4컷을 완성해 갤러리에 작품을 공개해 보세요!"
+        : "표시할 모둠 작품이 없습니다.";
+      grid.innerHTML = cards || `<div class="col-span-full bg-white rounded-3xl border border-slate-200 p-12 text-center text-sm font-bold text-slate-400">${emptyMsg}</div>`;
     }
 
     /* ==================== 예시 자료 참고하기 ==================== */
@@ -2327,46 +2378,149 @@
 
     /* ==================== 4 발표 준비하기 (각 컷 설명 & 예상 Q&A 공동 준비) ==================== */
 
-    window.savePresentationCutScripts = async function (e) {
-      e.preventDefault();
+    function getPresentDraftStorageKey(cls, grp) {
+      return `moral4cut_present_draft_${cls}_${grp}`;
+    }
+
+    function loadPresentDraftsFromStorage(cls, grp) {
+      try {
+        return JSON.parse(localStorage.getItem(getPresentDraftStorageKey(cls, grp)) || "{}") || {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function persistPresentDraftsToStorage(cls, grp) {
+      try {
+        const key = getPresentDraftStorageKey(cls, grp);
+        const hasAny = Object.keys(state.presentDirtyCuts).some((c) => state.presentDirtyCuts[c]);
+        if (!hasAny) {
+          localStorage.removeItem(key);
+        } else {
+          localStorage.setItem(key, JSON.stringify(state.presentDrafts));
+        }
+      } catch (e) {}
+    }
+
+    window.handlePresentScriptInput = function (cutNum) {
+      const el = document.getElementById(`presentScriptInput-${cutNum}`);
+      if (!el) return;
+      const cls = state.activeClassId;
+      const grp = state.isAdmin ? 1 : (Number(state.user?.group_id) || 1);
+
+      state.presentDirtyCuts[cutNum] = true;
+      state.presentDrafts[cutNum] = el.value;
+      persistPresentDraftsToStorage(cls, grp);
+
+      const statusEl = document.getElementById("presentAutoSaveStatus");
+      if (statusEl) {
+        statusEl.textContent = "✍️ 입력 중... (임시보관됨 · 잠시 후 자동 저장)";
+        statusEl.className = "text-xs font-bold text-amber-700";
+      }
+
+      if (state.presentAutoSaveTimer) clearTimeout(state.presentAutoSaveTimer);
+      state.presentAutoSaveTimer = setTimeout(() => {
+        savePresentationCutScripts(null, true);
+      }, 1800);
+    };
+
+    window.markQnaItemDirty = function (qnaId) {
+      state.presentDirtyQna[qnaId] = true;
+    };
+
+    window.savePresentationCutScripts = async function (e, isAuto = false) {
+      if (e) e.preventDefault();
       if (!state.user) return;
+      if (state.presentAutoSaveTimer) {
+        clearTimeout(state.presentAutoSaveTimer);
+        state.presentAutoSaveTimer = null;
+      }
+
       const cls = state.activeClassId;
       const grp = state.isAdmin ? 1 : (Number(state.user.group_id) || 1);
       const prev = state.presentations[grp] || {};
       const editors = { ...(prev.cut_editors || {}) };
 
       const payload = {
-        ...prev,
         class_id: cls,
         group_id: grp,
         topic: state.user.topic || prev.topic || "",
         updated_at: new Date().toLocaleString("ko-KR")
       };
 
+      const savedCutNums = [];
       for (let c = 1; c <= 4; c++) {
-        const val = (document.getElementById(`presentScriptInput-${c}`)?.value || "").trim();
-        if (val !== (prev[`cut${c}_script`] || "").trim()) {
-          editors[c] = {
-            student_id: state.user.student_id,
-            student_name: state.user.student_name
-          };
+        const inputEl = document.getElementById(`presentScriptInput-${c}`);
+        const val = inputEl
+          ? inputEl.value.trim()
+          : (state.presentDirtyCuts[c] ? String(state.presentDrafts[c] || "").trim() : (prev[`cut${c}_script`] || "").trim());
+
+        const prevVal = (prev[`cut${c}_script`] || "").trim();
+        const isDirty = Boolean(state.presentDirtyCuts[c]);
+
+        // 자동 저장 시에는 내가 수정한(dirty) 컷만 반영해 모둠원의 다른 컷을 덮어쓰지 않음
+        if (isAuto && !isDirty) continue;
+
+        if (isDirty || val !== prevVal || !isAuto) {
+          if (!isAuto && !isDirty && prevVal && !val) {
+            // 다른 모둠원이 방금 채운 컷이 비어있는 상태로 덮어써지는 것 방지
+            continue;
+          }
+          payload[`cut${c}_script`] = val;
+          savedCutNums.push(c);
+          if (val !== prevVal) {
+            editors[c] = {
+              student_id: state.user.student_id,
+              student_name: state.user.student_name
+            };
+          }
         }
-        payload[`cut${c}_script`] = val;
       }
+
+      if (savedCutNums.length === 0) {
+        if (!isAuto) showToast("저장할 변경 내용이 없습니다.", "info");
+        return;
+      }
+
       payload.cut_editors = editors;
 
       const btn = document.getElementById("savePresentScriptsBtn");
-      if (btn) {
+      const statusEl = document.getElementById("presentAutoSaveStatus");
+      if (btn && !isAuto) {
         btn.disabled = true;
         btn.textContent = "저장 중...";
       }
+      if (statusEl) {
+        statusEl.textContent = "⏳ 저장 중...";
+        statusEl.className = "text-xs font-bold text-sky-700";
+      }
+
       try {
-        await setDoc(doc(db, "classes", String(cls), "presentations", `group_${grp}`), payload);
-        showToast("각 컷의 발표 설명이 모둠원 전체에게 저장되었습니다!", "success");
+        await setDoc(doc(db, "classes", String(cls), "presentations", `group_${grp}`), payload, { merge: true });
+        savedCutNums.forEach((c) => {
+          state.presentDirtyCuts[c] = false;
+          delete state.presentDrafts[c];
+        });
+        persistPresentDraftsToStorage(cls, grp);
+
+        if (statusEl) {
+          const nowStr = new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+          statusEl.textContent = `✅ 저장 완료 (${nowStr})`;
+          statusEl.className = "text-xs font-bold text-emerald-700";
+        }
+        if (!isAuto) {
+          showToast("각 컷의 발표 설명이 모둠원 전체에게 저장되었습니다!", "success");
+        }
       } catch (err) {
-        showToast("발표 설명 저장 오류: " + err.message, "error");
+        if (statusEl) {
+          statusEl.textContent = "⚠️ 저장 실패 (임시보관 유지됨 · 다시 저장 버튼을 눌러주세요)";
+          statusEl.className = "text-xs font-bold text-rose-600";
+        }
+        if (!isAuto) {
+          showToast("발표 설명 저장 오류: " + err.message, "error");
+        }
       } finally {
-        if (btn) {
+        if (btn && !isAuto) {
           btn.disabled = false;
           btn.textContent = "💾 컷별 발표 설명 저장하기";
         }
@@ -2454,6 +2608,7 @@
           qna_list: curList,
           updated_at: new Date().toLocaleString("ko-KR")
         });
+        delete state.presentDirtyQna[qnaId];
         showToast("수정된 예상 질문과 답변이 저장되었습니다!", "success");
       } catch (err) {
         showToast("Q&A 수정 오류: " + err.message, "error");
@@ -2541,47 +2696,98 @@
       const pres = state.presentations[myGroup] || {};
       const editors = pres.cut_editors || {};
       const cutsGrid = document.getElementById("presentCutsGrid");
+      const renderKey = `${cls}_${myGroup}`;
 
-      let cutsHtml = "";
-      for (let c = 1; c <= 4; c++) {
-        const item = gSubs.find((s) => Number(s.cut_num) === c);
-        const meta = CUT_META[c];
-        const editor = editors[c];
-        const existingEl = document.getElementById(`presentScriptInput-${c}`);
-        const isFocused = existingEl && document.activeElement === existingEl;
-        const currentVal = isFocused ? existingEl.value : (pres[`cut${c}_script`] || "");
-
-        cutsHtml += `
-          <div class="rounded-2xl border border-slate-200 bg-slate-50/70 overflow-hidden flex flex-col">
-            <div class="px-3.5 py-2 bg-white border-b border-slate-100 flex items-center justify-between gap-2">
-              <span class="px-2.5 py-0.5 rounded text-xs font-extrabold ${meta.badgeBg}">${meta.title}</span>
-              <span class="text-[11px] font-bold text-slate-500">
-                ${editor ? `✍️ ${escapeHtml(editor.student_id)} ${escapeHtml(editor.student_name)}` : "작성 대기"}
-              </span>
-            </div>
-            <div class="comic-panel-aspect bg-white flex items-center justify-center overflow-hidden border-b border-slate-100">
-              ${item ? `<img src="${escapeHtml(item.image_url)}" alt="${c}컷" class="w-full h-full object-contain" />` : `<span class="text-xs font-bold text-slate-300">${c}컷 이미지</span>`}
-            </div>
-            <div class="p-3.5 space-y-1.5 bg-white">
-              <label for="presentScriptInput-${c}" class="block text-xs font-extrabold text-slate-700">🗣️ ${c}컷 발표 설명 (장면 의미 및 전달할 메시지)</label>
-              <textarea id="presentScriptInput-${c}" rows="3" placeholder="${c}컷 장면에서 친구들에게 설명할 핵심 내용을 작성하세요..." class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm text-slate-800 leading-relaxed focus:outline-none focus:ring-2 focus:ring-sky-500">${escapeHtml(currentVal)}</textarea>
-            </div>
-          </div>`;
+      // 반이나 모둠이 바뀐 경우 해당 모둠의 브라우저 임시보관 초안을 복원
+      if (state.presentRenderedKey !== renderKey) {
+        const storedDrafts = loadPresentDraftsFromStorage(cls, myGroup);
+        state.presentDrafts = {};
+        state.presentDirtyCuts = {};
+        state.presentDirtyQna = {};
+        for (let c = 1; c <= 4; c++) {
+          if (typeof storedDrafts[c] === "string" && storedDrafts[c] !== (pres[`cut${c}_script`] || "")) {
+            state.presentDrafts[c] = storedDrafts[c];
+            state.presentDirtyCuts[c] = true;
+          }
+        }
       }
-      cutsGrid.innerHTML = cutsHtml;
+
+      const alreadyMounted = state.presentRenderedKey === renderKey && Boolean(document.getElementById("presentScriptInput-1"));
+
+      if (alreadyMounted) {
+        // 기존 입력창 DOM을 파괴하지 않고 헤더·이미지·미수정 칸만 안전하게 갱신 (한글 조합 및 작성 중 내용 보존)
+        for (let c = 1; c <= 4; c++) {
+          const item = gSubs.find((s) => Number(s.cut_num) === c);
+          const editor = editors[c];
+          const editorEl = document.getElementById(`presentCutEditorBadge-${c}`);
+          if (editorEl) {
+            editorEl.textContent = editor ? `✍️ ${editor.student_id} ${editor.student_name}` : "작성 대기";
+          }
+          const imgBox = document.getElementById(`presentCutImgBox-${c}`);
+          if (imgBox) {
+            const nextUrl = item ? item.image_url : "";
+            if (imgBox.dataset.imgUrl !== nextUrl) {
+              imgBox.dataset.imgUrl = nextUrl;
+              imgBox.innerHTML = item
+                ? `<img src="${escapeHtml(item.image_url)}" alt="${c}컷" class="w-full h-full object-contain" />`
+                : `<span class="text-xs font-bold text-slate-300">${c}컷 이미지</span>`;
+            }
+          }
+          const inputEl = document.getElementById(`presentScriptInput-${c}`);
+          if (inputEl && !state.presentDirtyCuts[c] && document.activeElement !== inputEl) {
+            const serverVal = pres[`cut${c}_script`] || "";
+            if (inputEl.value !== serverVal) {
+              inputEl.value = serverVal;
+            }
+          }
+        }
+      } else {
+        let cutsHtml = "";
+        for (let c = 1; c <= 4; c++) {
+          const item = gSubs.find((s) => Number(s.cut_num) === c);
+          const meta = CUT_META[c];
+          const editor = editors[c];
+          const initialVal = state.presentDirtyCuts[c] ? (state.presentDrafts[c] || "") : (pres[`cut${c}_script`] || "");
+
+          cutsHtml += `
+            <div class="rounded-2xl border border-slate-200 bg-slate-50/70 overflow-hidden flex flex-col">
+              <div class="px-3.5 py-2 bg-white border-b border-slate-100 flex items-center justify-between gap-2">
+                <span class="px-2.5 py-0.5 rounded text-xs font-extrabold ${meta.badgeBg}">${meta.title}</span>
+                <span id="presentCutEditorBadge-${c}" class="text-[11px] font-bold text-slate-500">
+                  ${editor ? `✍️ ${escapeHtml(editor.student_id)} ${escapeHtml(editor.student_name)}` : "작성 대기"}
+                </span>
+              </div>
+              <div id="presentCutImgBox-${c}" data-img-url="${escapeHtml(item ? item.image_url : "")}" class="comic-panel-aspect bg-white flex items-center justify-center overflow-hidden border-b border-slate-100">
+                ${item ? `<img src="${escapeHtml(item.image_url)}" alt="${c}컷" class="w-full h-full object-contain" />` : `<span class="text-xs font-bold text-slate-300">${c}컷 이미지</span>`}
+              </div>
+              <div class="p-3.5 space-y-1.5 bg-white">
+                <label for="presentScriptInput-${c}" class="block text-xs font-extrabold text-slate-700">🗣️ ${c}컷 발표 설명 (장면 의미 및 전달할 메시지)</label>
+                <textarea id="presentScriptInput-${c}" rows="3" oninput="handlePresentScriptInput(${c})" placeholder="${c}컷 장면에서 친구들에게 설명할 핵심 내용을 작성하세요..." class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm text-slate-800 leading-relaxed focus:outline-none focus:ring-2 focus:ring-sky-500">${escapeHtml(initialVal)}</textarea>
+              </div>
+            </div>`;
+        }
+        cutsGrid.innerHTML = cutsHtml;
+        state.presentRenderedKey = renderKey;
+      }
 
       const qnaList = Array.isArray(pres.qna_list) ? pres.qna_list : [];
       document.getElementById("presentQnaCountBadge").textContent = `등록된 Q&A ${qnaList.length}개`;
       const qnaContainer = document.getElementById("presentQnaList");
 
+      // 기존 Q&A 카드를 수정 중인 경우 입력이 끊기지 않도록 DOM 재생성을 건너뜀
+      const isEditingAnyQna = qnaList.some((item) => {
+        const qEl = document.getElementById(`qnaEditQ-${item.id}`);
+        const aEl = document.getElementById(`qnaEditA-${item.id}`);
+        return state.presentDirtyQna[item.id] || (qEl && document.activeElement === qEl) || (aEl && document.activeElement === aEl);
+      });
+      if (isEditingAnyQna && qnaContainer.children.length > 0) {
+        return;
+      }
+
       if (qnaList.length === 0) {
         qnaContainer.innerHTML = `<div class="rounded-2xl border border-dashed border-slate-200 p-8 text-center text-xs sm:text-sm font-bold text-slate-400">아직 등록된 예상 질문과 답변이 없습니다. 위 입력창에서 첫 번째 예상 질문을 만들어 보세요!</div>`;
       } else {
         qnaContainer.innerHTML = qnaList.map((item, idx) => {
-          const qEl = document.getElementById(`qnaEditQ-${item.id}`);
-          const aEl = document.getElementById(`qnaEditA-${item.id}`);
-          const qVal = (qEl && document.activeElement === qEl) ? qEl.value : item.question;
-          const aVal = (aEl && document.activeElement === aEl) ? aEl.value : item.answer;
           return `
             <div class="rounded-2xl border border-indigo-100 bg-slate-50/70 p-4 sm:p-5 space-y-3">
               <div class="flex flex-wrap items-center justify-between gap-2">
@@ -2597,11 +2803,11 @@
               <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <label class="block text-[11px] font-extrabold text-indigo-900 mb-1">Q. 예상 질문</label>
-                  <textarea id="qnaEditQ-${escapeHtml(item.id)}" rows="2" class="w-full px-3 py-2 rounded-xl border border-indigo-200 bg-white text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">${escapeHtml(qVal)}</textarea>
+                  <textarea id="qnaEditQ-${escapeHtml(item.id)}" rows="2" oninput="markQnaItemDirty('${escapeHtml(item.id)}')" class="w-full px-3 py-2 rounded-xl border border-indigo-200 bg-white text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">${escapeHtml(item.question)}</textarea>
                 </div>
                 <div>
                   <label class="block text-[11px] font-extrabold text-emerald-900 mb-1">A. 모둠 답변</label>
-                  <textarea id="qnaEditA-${escapeHtml(item.id)}" rows="2" class="w-full px-3 py-2 rounded-xl border border-emerald-200 bg-white text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">${escapeHtml(aVal)}</textarea>
+                  <textarea id="qnaEditA-${escapeHtml(item.id)}" rows="2" oninput="markQnaItemDirty('${escapeHtml(item.id)}')" class="w-full px-3 py-2 rounded-xl border border-emerald-200 bg-white text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">${escapeHtml(item.answer)}</textarea>
                 </div>
               </div>
             </div>`;
@@ -2617,11 +2823,15 @@
       let html = "";
       for (let c = 1; c <= 8; c++) {
         const cfg = state.classConfigs[c] || {};
+        const mode = getClassPublicMode(cfg);
         const active = c === state.activeClassId;
+        const statusText = cfg.is_locked
+          ? "⛔잠금"
+          : (mode === "completed_only" ? "✅완성공개" : (mode === "all" ? "✨전체공개" : "🔒비공개"));
         html += `
           <button type="button" onclick="selectAdminClass(${c})" class="p-2.5 rounded-xl border text-center transition ${active ? "bg-sky-600 text-white border-sky-600 shadow-xs" : "bg-slate-50 hover:bg-sky-50 text-slate-700 border-slate-200"}">
             <div class="text-xs font-extrabold">${c}반</div>
-            <div class="text-[10px] mt-0.5">${cfg.is_locked ? "⛔잠금" : (cfg.is_public ? "✨공개" : "🔒비공개")}</div>
+            <div class="text-[10px] mt-0.5">${statusText}</div>
           </button>`;
       }
       sw.innerHTML = html;
@@ -2634,10 +2844,23 @@
       renderAllViews();
     };
 
-    window.setClassPublicState = async function (isPublic) {
+    window.setClassPublicMode = async function (mode) {
       if (!state.isAdmin) return;
-      await setDoc(doc(db, "classes", String(state.activeClassId), "meta", "config"), { is_public: isPublic }, { merge: true });
-      showToast(`${state.activeClassId}반 갤러리가 ${isPublic ? "전체공개" : "비공개"}로 전환되었습니다.`, "success");
+      const isPublic = mode !== "private";
+      await setDoc(doc(db, "classes", String(state.activeClassId), "meta", "config"), {
+        public_mode: mode,
+        is_public: isPublic
+      }, { merge: true });
+      const modeNames = {
+        private: "비공개",
+        completed_only: "완성 모둠(4/4)만 공개",
+        all: "전체공개"
+      };
+      showToast(`${state.activeClassId}반 갤러리가 [${modeNames[mode] || mode}] 상태로 전환되었습니다.`, "success");
+    };
+
+    window.setClassPublicState = async function (isPublic) {
+      return window.setClassPublicMode(isPublic ? "all" : "private");
     };
 
     window.toggleClassLockedState = async function () {
@@ -2694,16 +2917,16 @@
 
       const lockBtn = document.getElementById("adminLockToggleBtn");
       lockBtn.textContent = cfg.is_locked ? "⛔ 입장 잠금됨 (해제하기)" : "🔓 입장 허용 중 (잠그기)";
-      lockBtn.className = cfg.is_locked
-        ? "px-4 py-2.5 rounded-xl bg-rose-600 text-white text-xs font-extrabold transition"
-        : "px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 text-xs font-extrabold transition";
-
-      document.getElementById("adminPrivateBtn").className = !cfg.is_public
+      const pubMode = getClassPublicMode(cfg);
+      document.getElementById("adminPrivateBtn").className = pubMode === "private"
         ? "px-3.5 py-2 rounded-lg text-xs font-extrabold bg-amber-500 text-white shadow-xs transition"
-        : "px-3.5 py-2 rounded-lg text-xs font-bold text-slate-600 transition";
-      document.getElementById("adminPublicBtn").className = cfg.is_public
+        : "px-3.5 py-2 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition";
+      document.getElementById("adminCompletedPublicBtn").className = pubMode === "completed_only"
+        ? "px-3.5 py-2 rounded-lg text-xs font-extrabold bg-sky-600 text-white shadow-xs transition"
+        : "px-3.5 py-2 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition";
+      document.getElementById("adminPublicBtn").className = pubMode === "all"
         ? "px-3.5 py-2 rounded-lg text-xs font-extrabold bg-emerald-600 text-white shadow-xs transition"
-        : "px-3.5 py-2 rounded-lg text-xs font-bold text-slate-600 transition";
+        : "px-3.5 py-2 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition";
 
       const tbody = document.getElementById("adminMatrixBody");
       let rows = "";
@@ -2897,8 +3120,43 @@
     };
 
     window.openPresentationModal = function (groupId) {
+      const mode = getClassPublicMode();
+      if (!state.isAdmin && mode === "completed_only") {
+        const gCount = state.submissions.filter((s) => Number(s.group_id) === Number(groupId)).length;
+        if (gCount < 4) return;
+      }
       state.modalGroupId = groupId;
       document.getElementById("presentationModal").classList.remove("hidden");
+      renderPresentationModal();
+    };
+
+    window.closePresentationModal = function () {
+      document.getElementById("presentationModal").classList.add("hidden");
+      state.modalGroupId = null;
+    };
+
+    window.setModalLayout = function (layout) {
+      state.modalLayout = layout;
+      renderPresentationModal();
+    };
+
+    window.navigateModalGroup = function (delta) {
+      const cfg = getActiveConfig();
+      const total = Number(cfg.total_groups) || 6;
+      const mode = getClassPublicMode(cfg);
+      const isStudentCompletedOnly = !state.isAdmin && mode === "completed_only";
+      const candidates = [];
+      for (let g = 1; g <= total; g++) {
+        if (isStudentCompletedOnly) {
+          const cnt = state.submissions.filter((s) => Number(s.group_id) === g).length;
+          if (cnt < 4) continue;
+        }
+        candidates.push(g);
+      }
+      if (!candidates.length) return;
+      const idx = candidates.indexOf(Number(state.modalGroupId));
+      const nextIdx = idx === -1 ? 0 : (idx + delta + candidates.length) % candidates.length;
+      state.modalGroupId = candidates[nextIdx];
       renderPresentationModal();
     };
 
